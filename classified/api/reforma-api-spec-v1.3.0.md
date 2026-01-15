@@ -1,0 +1,36377 @@
+# ReForma api specification (merged)
+- version: v1.3.0
+- generated_at: 2026-01-14T11:37:59.842899+00:00
+
+## Sources
+- latest/api/reforma-api-spec-v1.0.0-API-条件分岐-追補-適用ガイド-OperationIdマッピング-.json.json (v1.0.0)
+- latest/api/reforma-api-spec-v1.0.0-API-条件分岐評価結果IF-追補-.patch.json.json (v1.0.0)
+- latest/api/reforma-api-spec-v1.0.0-OpenAPI-追補反映-patch-.json.json (v1.0.0)
+- latest/api/reforma-api-spec-v1.0.0-rbac-matrix.draft-20260112-root-only.jso.json (v1.0.0)
+- latest/api/reforma-api-spec-v1.0.0.json (v1.0.0)
+- latest/api/reforma-api-spec-v1.0.0.md (v1.0.0)
+- latest/api/reforma-api-spec-v1.1.0-Laravel12-最小実装設計-API-AuthFormsResponsesA.json (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0-Laravel12-最小実装設計-OpenAPI-full.json.json (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0-openapi-draft.json.json (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0-openapi-draft.yaml.yaml (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0-openapi-full+supplements.json.json (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0-openapi-full+supplements.yaml.yaml (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0-openapi-full.json.json (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0-openapi-full.updated.json.json (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0-openapi-full.yaml.yaml (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0.json (v1.1.0)
+- latest/api/reforma-api-spec-v1.1.0.yaml (v1.1.0)
+- latest/api/reforma-api-spec-v1.3.0.json (v1.3.0)
+- latest/api/reforma-api-spec-v1.3.0.yaml (v1.3.0)
+
+---
+
+## reforma-api-spec-v1.0.0-API-条件分岐-追補-適用ガイド-OperationIdマッピング-.json
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0-API-条件分岐-追補-適用ガイド-OperationIdマッピング-.json.json
+
+```json
+{
+  "meta": {
+    "title": "ReForma API patch apply guide (ConditionState) - operationId mapping",
+    "version": "1.0",
+    "generated_at": "2026-01-12T16:04:32.699437",
+    "timezone": "Asia/Tokyo",
+    "inputs_required": [
+      "backend OpenAPI yaml/json (paths/components)",
+      "ReForma_API_条件分岐評価結果IF_追補_v1.0.patch.json"
+    ]
+  },
+  "mapping_template": [
+    {
+      "purpose": "public_form_get",
+      "description": "公開フォーム初期描画（GET）",
+      "method": "GET",
+      "path": "<fill>",
+      "operationId": "<optional>",
+      "patch": {
+        "add_to_success_response": {
+          "path": "data.condition_state",
+          "schema_ref": "#/components/schemas/ConditionState"
+        }
+      }
+    },
+    {
+      "purpose": "step_transition",
+      "description": "STEP 次へ遷移チェック／次STEP取得",
+      "method": "POST",
+      "path": "<fill>",
+      "operationId": "<optional>",
+      "patch": {
+        "add_to_success_response": {
+          "path": "data.condition_state",
+          "schema_ref": "#/components/schemas/ConditionState"
+        },
+        "add_to_error_422": {
+          "path": "errors.step",
+          "schema_ref": "#/components/schemas/StepTransitionState",
+          "error_code": "STEP_TRANSITION_DENIED"
+        }
+      }
+    },
+    {
+      "purpose": "submit",
+      "description": "最終 submit",
+      "method": "POST",
+      "path": "<fill>",
+      "operationId": "<optional>",
+      "patch": {
+        "notes": [
+          "422 VALIDATION_ERROR errors.fields は visible=true & required=true の field_key のみ返す"
+        ]
+      }
+    }
+  ],
+  "apply_steps": [
+    {
+      "step": "STEP-1",
+      "do": "identify endpoints in OpenAPI (method/path/operationId)"
+    },
+    {
+      "step": "STEP-2",
+      "do": "add schemas_add into components.schemas"
+    },
+    {
+      "step": "STEP-3",
+      "do": "add condition_state into success responses"
+    },
+    {
+      "step": "STEP-4",
+      "do": "add errors.step into 422 for step transition with STEP_TRANSITION_DENIED"
+    },
+    {
+      "step": "STEP-5",
+      "do": "reflect submit validation constraint note"
+    },
+    {
+      "step": "STEP-6",
+      "do": "diff + compatibility check"
+    }
+  ],
+  "verification_checks": [
+    "public GET returns condition_state",
+    "step transition denied returns 422 errors.step",
+    "runtime eval error uses safe fallback",
+    "submit errors.fields only for visible+required"
+  ]
+}
+```
+
+## reforma-api-spec-v1.0.0-API-条件分岐評価結果IF-追補-.patch.json
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0-API-条件分岐評価結果IF-追補-.patch.json.json
+
+```json
+{
+  "meta": {
+    "title": "ReForma API v1.0 patch - ConditionState",
+    "version": "1.0",
+    "generated_at": "2026-01-12T15:57:07.712033",
+    "timezone": "Asia/Tokyo",
+    "targets": [
+      "OpenAPI components.schemas",
+      "Public form GET response",
+      "Step transition response/error",
+      "Submit validation error"
+    ],
+    "notes": [
+      "API正本JSONにはOpenAPI本文が含まれていないため、patchは operationId/purpose ベースで提供する。",
+      "具体の path/operationId は backend repo 側 OpenAPI に合わせてマッピングする。"
+    ]
+  },
+  "schemas_add": {
+    "Reason": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "rule",
+            "type",
+            "missing_field",
+            "unknown_operator"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    "FieldConditionState": {
+      "type": "object",
+      "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "store": {
+          "type": "string",
+          "enum": [
+            "store",
+            "do_not_store"
+          ]
+        },
+        "eval": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "fallback",
+            "error"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Reason"
+          }
+        }
+      },
+      "required": [
+        "visible",
+        "required",
+        "store",
+        "eval"
+      ]
+    },
+    "StepTransitionState": {
+      "type": "object",
+      "properties": {
+        "can_transition": {
+          "type": "boolean"
+        },
+        "eval": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "fallback",
+            "error"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Reason"
+          }
+        }
+      },
+      "required": [
+        "can_transition",
+        "eval"
+      ]
+    },
+    "ConditionState": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "enum": [
+            "1"
+          ]
+        },
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/components/schemas/FieldConditionState"
+          }
+        },
+        "step": {
+          "$ref": "#/components/schemas/StepTransitionState"
+        }
+      },
+      "required": [
+        "version",
+        "evaluated_at",
+        "fields"
+      ]
+    }
+  },
+  "responses_patch": [
+    {
+      "purpose": "public_form_get",
+      "add_to_success_response": {
+        "path": "data.condition_state",
+        "schema_ref": "#/components/schemas/ConditionState"
+      }
+    },
+    {
+      "purpose": "step_transition",
+      "add_to_success_response": {
+        "path": "data.condition_state",
+        "schema_ref": "#/components/schemas/ConditionState"
+      },
+      "add_to_error_422": {
+        "path": "errors.step",
+        "schema_ref": "#/components/schemas/StepTransitionState",
+        "error_code": "STEP_TRANSITION_DENIED"
+      }
+    },
+    {
+      "purpose": "submit",
+      "notes": [
+        "422 VALIDATION_ERROR errors.fields は visible=true & required=true の field_key のみ返す"
+      ]
+    }
+  ],
+  "error_codes_add": [
+    {
+      "code": "STEP_TRANSITION_DENIED",
+      "http": 422,
+      "when": "step transition evaluated false"
+    },
+    {
+      "code": "CONDITION_EVAL_ERROR",
+      "http": [
+        200,
+        422
+      ],
+      "when": "runtime evaluation error; step uses 422 preferred"
+    },
+    {
+      "code": "CONDITION_RULE_INVALID",
+      "http": 422,
+      "when": "rule invalid on admin save/publish"
+    }
+  ]
+}
+```
+
+## reforma-api-spec-v1.0.0-OpenAPI-追補反映-patch-.json
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0-OpenAPI-追補反映-patch-.json.json
+
+```json
+{
+  "meta": {
+    "title": "ReForma OpenAPI 追補反映パッチ（theme_id/theme_tokens + computed field）",
+    "version": "1.0",
+    "generated_at": "2026-01-13T01:10:27.754879",
+    "timezone": "Asia/Tokyo",
+    "patch_type": "openapi_json_patch_like",
+    "base_openapi": "openapi-reforma-v1.1-full.json",
+    "result_version": "1.1-full+supplements"
+  },
+  "operations": [
+    {
+      "op": "add",
+      "path": "/components/schemas/Form/properties/theme_id",
+      "value": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "フォームテーマID（公開フォーム専用）"
+      }
+    },
+    {
+      "op": "add",
+      "path": "/components/schemas/Form/properties/theme_tokens",
+      "value": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "テーマトークン（CSS変数）",
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths//v1/forms/post/requestBody/content/application~1json/schema/properties/theme_id",
+      "value": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths//v1/forms/post/requestBody/content/application~1json/schema/properties/theme_tokens",
+      "value": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths//v1/forms/{id}/put/requestBody/content/application~1json/schema/properties/theme_id",
+      "value": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths//v1/forms/{id}/put/requestBody/content/application~1json/schema/properties/theme_tokens",
+      "value": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "additionalProperties": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/components/schemas/FormField/properties/is_readonly",
+      "value": {
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "description": "readonly（computed等で利用）"
+      }
+    },
+    {
+      "op": "add",
+      "path": "/components/schemas/FormField/properties/computed_rule",
+      "value": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "計算フィールド規則（v1.x: built_in_functions）",
+        "properties": {
+          "engine": {
+            "type": "string",
+            "enum": [
+              "built_in_functions"
+            ]
+          },
+          "fn": {
+            "type": "string",
+            "enum": [
+              "sum",
+              "multiply",
+              "tax",
+              "round",
+              "min",
+              "max",
+              "if"
+            ]
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "description": "ref:FIELD_KEY 形式の参照"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "result_type": {
+            "type": "string",
+            "enum": [
+              "number",
+              "string"
+            ]
+          },
+          "format": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "integer",
+              "decimal",
+              "currency",
+              null
+            ]
+          },
+          "fallback": {
+            "type": "object",
+            "properties": {
+              "on_error": {
+                "type": "string",
+                "enum": [
+                  "blank",
+                  "zero"
+                ]
+              },
+              "store": {
+                "type": "string",
+                "enum": [
+                  "store",
+                  "do_not_store"
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "engine",
+          "fn",
+          "args"
+        ]
+      }
+    },
+    {
+      "op": "add",
+      "path": "/components/schemas/Form/properties/theme_scope",
+      "value": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "(契約) テーマ適用スコープ。公開フォームは form_container_only（管理画面テーマと分離）",
+        "enum": [
+          "form_container_only",
+          null
+        ]
+      }
+    },
+    {
+      "op": "add",
+      "path": "/paths/~1v1~1forms~1{form_key}~1submit/post/requestBody/content/application~1json/schema/description",
+      "value": "（追補）computed フィールドの値を answers に含めても無視され、API側で再計算して確定します。"
+    }
+  ]
+}
+```
+
+## reforma-api-spec-v1.0.0-rbac-matrix.draft-20260112-root-only.jso
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0-rbac-matrix.draft-20260112-root-only.jso.json
+
+```json
+{
+  "meta": {
+    "id": "RBAC_MATRIX_DRAFT",
+    "version": "draft-2026-01-12+root-only",
+    "source": [
+      "02.ReForma 画面仕様書 v1.0",
+      "SUP-FE latest",
+      "backend-frontend handoff 2026-01-12"
+    ],
+    "notes": [
+      "v1.0 allow_roles + S-01 blocks_by_role + SUP S-02..S-05 system_admin only",
+      "Root-only is separated from permission_assignment; enforced by users.is_root",
+      "Root-only must be enforced at both screen and API level"
+    ]
+  },
+  "roles": {
+    "viewer": {
+      "screens_allow": [
+        "A-01",
+        "A-02",
+        "S-01",
+        "E-01",
+        "N-01"
+      ],
+      "apis_deny": [
+        "GET:/api/v1/dashboard/errors"
+      ],
+      "ui_blocks_allow": {
+        "S-01": [
+          "accessible_form_count",
+          "accessible_response_count",
+          "recent_responses_readonly",
+          "notices"
+        ]
+      }
+    },
+    "operator": {
+      "screens_allow": [
+        "A-01",
+        "A-02",
+        "S-01",
+        "R-01",
+        "R-02",
+        "C-01",
+        "E-01",
+        "N-01"
+      ],
+      "apis_deny": [
+        "GET:/api/v1/dashboard/errors"
+      ],
+      "ui_blocks_allow": {
+        "S-01": [
+          "unprocessed_response_count",
+          "responses_by_period",
+          "notification_status_summary",
+          "minor_error_warnings"
+        ]
+      }
+    },
+    "form_admin": {
+      "screens_allow": [
+        "A-01",
+        "A-02",
+        "S-01",
+        "F-01",
+        "F-02",
+        "F-03",
+        "F-04",
+        "R-01",
+        "R-02",
+        "C-01",
+        "E-01",
+        "N-01"
+      ],
+      "apis_deny": [
+        "GET:/api/v1/dashboard/errors"
+      ],
+      "ui_blocks_allow": {
+        "S-01": [
+          "form_level_aggregations",
+          "ack_pdf_setting_status",
+          "recent_form_setting_changes"
+        ]
+      }
+    },
+    "system_admin": {
+      "screens_allow": [
+        "A-01",
+        "A-02",
+        "S-01",
+        "S-02",
+        "S-03",
+        "S-04",
+        "S-05",
+        "F-01",
+        "F-02",
+        "F-03",
+        "F-04",
+        "R-01",
+        "R-02",
+        "L-01",
+        "L-02",
+        "C-01",
+        "E-01",
+        "N-01"
+      ],
+      "apis_allow_overrides": [
+        "GET:/api/v1/dashboard/errors"
+      ],
+      "ui_blocks_allow": {
+        "S-01": [
+          "system_error_summary",
+          "processing_failure_summary",
+          "link_to_logs",
+          "system_info"
+        ]
+      }
+    },
+    "public": {
+      "screens_allow": [
+        "U-01",
+        "A-03",
+        "E-01",
+        "N-01"
+      ]
+    }
+  },
+  "root_only": {
+    "user_attribute": "is_root",
+    "required_role": "system_admin",
+    "screens": [
+      {
+        "screen_id": "S-XX",
+        "name": "SYSTEM_SETTINGS",
+        "route": "/system/settings",
+        "status": "planned"
+      },
+      {
+        "screen_id": "S-YY",
+        "name": "ROLE_PERMISSION_ASSIGN",
+        "route": "/system/roles/permissions",
+        "status": "planned"
+      }
+    ],
+    "apis": [
+      {
+        "api": "GET:/api/v1/system/settings",
+        "status": "planned"
+      },
+      {
+        "api": "PUT:/api/v1/system/settings",
+        "status": "planned"
+      },
+      {
+        "api": "GET:/api/v1/system/roles/permissions",
+        "status": "planned"
+      },
+      {
+        "api": "PUT:/api/v1/system/roles/permissions",
+        "status": "planned"
+      }
+    ],
+    "enforcement": {
+      "screen_flag": "allow_root_only",
+      "api_middleware": "RootOnly (system_admin && is_root)",
+      "double_defense_required": true,
+      "audit_log_required": true
+    }
+  },
+  "screen_catalog": {
+    "A-01": {
+      "route": "/login"
+    },
+    "A-02": {
+      "route": "/logout"
+    },
+    "S-01": {
+      "route": "/dashboard"
+    },
+    "S-02": {
+      "route": "/system/accounts",
+      "source": "SUP"
+    },
+    "S-03": {
+      "route": "/system/accounts/{id}",
+      "source": "SUP"
+    },
+    "S-04": {
+      "route": "/system/accounts/create",
+      "source": "SUP"
+    },
+    "S-05": {
+      "route": "/system/accounts/audit",
+      "source": "SUP"
+    },
+    "S-XX": {
+      "route": "/system/settings",
+      "source": "planned"
+    },
+    "S-YY": {
+      "route": "/system/roles/permissions",
+      "source": "planned"
+    },
+    "F-01": {
+      "route": "/forms"
+    },
+    "F-02": {
+      "route": "/forms/{form_id}/edit"
+    },
+    "F-03": {
+      "route": "/forms/{form_id}/items"
+    },
+    "F-04": {
+      "route": "/forms/{form_id}/preview"
+    },
+    "R-01": {
+      "route": "/responses"
+    },
+    "R-02": {
+      "route": "/responses/{response_id}"
+    },
+    "L-01": {
+      "route": "/logs"
+    },
+    "L-02": {
+      "route": "/logs/{log_id}"
+    },
+    "C-01": {
+      "route": "/search"
+    },
+    "E-01": {
+      "route": "/error"
+    },
+    "N-01": {
+      "route": "*"
+    },
+    "U-01": {
+      "route": "/f/{form_key}"
+    },
+    "A-03": {
+      "route": "/f/{form_key}/ack"
+    }
+  },
+  "api_constraints": [
+    {
+      "api": "GET:/api/v1/dashboard/errors",
+      "screen": "S-01",
+      "allow_roles": [
+        "system_admin"
+      ],
+      "source": "02.ReForma 画面仕様書 v1.0"
+    }
+  ]
+}
+```
+
+## 概要
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0.json
+
+```json
+{
+  "description": "ReForma 基本仕様書 v1.0 および ReForma 画面仕様書 v1.0 に基づく API 仕様。"
+}
+```
+
+## 共通仕様
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0.json
+
+```json
+{
+  "methods": [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE"
+  ],
+  "response_envelope": {
+    "success": "boolean",
+    "data": "object|null",
+    "message": "string|null",
+    "errors": "object|null"
+  },
+  "roles": [
+    "SystemAdmin",
+    "FormAdmin",
+    "Operator",
+    "Viewer"
+  ]
+}
+```
+
+## 一覧系API共通ポリシー
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0.json
+
+```json
+{
+  "pagination": {
+    "type": "page/per_page",
+    "required_query": [
+      "page",
+      "per_page"
+    ],
+    "required_response": [
+      "items",
+      "total",
+      "page",
+      "per_page"
+    ]
+  },
+  "sort": {
+    "enum": [
+      "created_at_desc",
+      "created_at_asc"
+    ],
+    "default": "created_at_desc"
+  }
+}
+```
+
+## APIエンドポイント一覧
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0.json
+
+```json
+{
+  "id": "endpoints",
+  "title": "APIエンドポイント一覧",
+  "attachments_ref": "openapi.yaml"
+}
+```
+
+## RBAC
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0.json
+
+```json
+{
+  "id": "rbac",
+  "title": "RBAC",
+  "attachments_ref": "rbac-matrix.json"
+}
+```
+
+## 差分仕様（v1.1+）
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0.json
+
+```json
+{
+  "async_queue": [
+    "mail",
+    "pdf",
+    "webhook"
+  ],
+  "pdf_regeneration": true,
+  "confirm_url_tokens": [
+    "submitter",
+    "admin",
+    "notifier"
+  ]
+}
+```
+
+## reforma-api-spec-v1.0.0
+
+_Source files:_ latest/api/reforma-api-spec-v1.0.0.md
+
+# ReForma 配布物①：S-02 アカウント一覧（System Admin）実装セット（v1.0 + SUP + 2026-01-12 合意）
+
+## 1. 画面の目的
+- System Admin が管理アカウントを一覧・検索・絞り込み・並び替え・ページングし、招待の再送（bulk）を行う。
+
+## 2. アクセス制御
+- 画面アクセス：System Admin のみ（SUP-FE-006/007）
+- API：Sanctum PAT（Bearer）
+- 401/419：フロントは `/logout?reason=session_invalid` に統一遷移（2026-01-12 合意）
+
+## 3. 一覧取得（List）要件
+### 3.1 機能
+- list / search / filter / sort / pagination
+- 表示は server-side paging を前提
+
+### 3.2 クエリ仕様（共通ポリシー準拠）
+- page: required
+- per_page: required
+- sort: optional（enum）
+  - created_at_desc（default）
+  - created_at_asc
+- keyword: optional（email/name 部分一致の想定）
+- filters（optional）
+  - status: invited | active | disabled
+  - role: system_admin | form_admin | operator | viewer（表示名は別）
+  - invited_only: boolean（invited のみ簡易フィルタ、必要なら）
+
+### 3.3 レスポンス（Envelope + list_policy）
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "email": "user@example.com",
+        "name": "山田 太郎",
+        "role": "system_admin",
+        "status": "active",
+        "note": null,
+        "invited_at": "2026-01-01T12:34:56+09:00",
+        "last_login_at": "2026-01-10T08:00:00+09:00"
+      }
+    ],
+    "total": 123,
+    "page": 1,
+    "per_page": 20
+  },
+  "message": null,
+  "errors": null
+}
+```
+
+## 4. 招待再送（Bulk resend）要件
+### 4.1 機能
+- 一覧のチェックボックスで複数選択 → 「招待再送」
+- 対象は基本的に `status=invited`（active/disabled への再送は UI 上で抑止推奨）
+- 再送ポリシー：新 token 発行・旧 token 無効化（SUP-FE-007）
+- レート制限（SUP-FE-007）
+  - min_interval_sec: 60
+  - per_hour: 5
+  - per_day: 20
+
+### 4.2 リクエスト例（提案API）
+```json
+{
+  "user_ids": [1,2,3]
+}
+```
+
+### 4.3 レスポンス例
+```json
+{
+  "success": true,
+  "data": {
+    "results": [
+      {"user_id": 1, "status": "sent"},
+      {"user_id": 2, "status": "skipped", "reason": "not_invited_status"},
+      {"user_id": 3, "status": "failed", "reason": "rate_limited"}
+    ]
+  },
+  "message": "invite resend processed",
+  "errors": null
+}
+```
+
+## 5. UI 仕様（最小）
+### 5.1 画面構成
+- タイトル：S-02 アカウント一覧
+- 検索/フィルタバー
+  - keyword（input）
+  - status（select）
+  - role（select）
+  - sort（select）
+  - per_page（select 例: 20/50/100）
+  - 検索実行（button）/ クリア（button）
+- 一覧テーブル（推奨列）
+  - checkbox
+  - email
+  - name
+  - role
+  - status
+  - invited_at（任意）
+  - last_login_at（任意）
+  - actions（個別：再送ボタン ※ invited のみ）
+- 一括アクション
+  - 選択件数表示
+  - 招待再送（bulk）
+- pagination（page/per_page 前提）
+
+### 5.2 禁止/安全ルール（必須）
+- cannot disable self / cannot downgrade own system_admin / system_admin 0人禁止（SUP-FE-007）
+  - S-02 では「編集」まで入れないとしても、将来 S-03/S-04 で必須になるので UI 側も前提として扱う
+
+## 6. API（提案：S-02実装に必要な最小セット）
+> ここは v1.0 正本に未収載のため「S-02 実装に必要な追加API（提案）」として定義。
+- GET `/api/v1/system/admin-users`
+  - query: page, per_page, sort, keyword?, status?, role?
+- POST `/api/v1/system/admin-users/invites/resend`
+  - body: user_ids[]
+- GET `/api/v1/system/roles`（role フィルタのマスタ表示が必要な場合）
+
+## 7. フロント実装メモ（事故防止）
+- API base は `/reforma/api/v1`（/api 二重禁止）
+- 401/419 は SessionInvalidWatcher などで統一リダイレクト
+- bulk resend は部分成功を許容し、結果を toast + 詳細ダイアログで表示するのが安全
+
+## reforma-api-spec-v1.1.0-Laravel12-最小実装設計-API-AuthFormsResponsesA
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0-Laravel12-最小実装設計-API-AuthFormsResponsesA.json
+
+```json
+{
+  "meta": {
+    "title": "ReForma Laravel 12 最小実装設計（API v1.1 対象: Auth/Forms/Responses/ACK-PDF/Dashboard/SystemAdmin(SUP)）",
+    "version": "1.0",
+    "generated_at": "2026-01-12T16:27:29.503804",
+    "timezone": "Asia/Tokyo",
+    "assumptions": [
+      "Laravel 12 + Sanctum（SPA session）を基本。token方式を使う場合も bearerAuth 互換。",
+      "Envelope: success/data/message/errors を統一。",
+      "条件分岐 ConditionState は submit/公開フォームGETで返却（UI最小I/F）。"
+    ]
+  },
+  "routing": {
+    "prefix": "/v1",
+    "files": [
+      {
+        "file": "routes/api.php",
+        "groups": [
+          {
+            "name": "public",
+            "middleware": [],
+            "routes": [
+              {
+                "method": "POST",
+                "uri": "/forms/{form_key}/submit",
+                "action": "Public\\FormSubmitController@store"
+              },
+              {
+                "method": "GET",
+                "uri": "/forms/{form_key}/ack",
+                "action": "Public\\AckController@show"
+              }
+            ]
+          },
+          {
+            "name": "auth",
+            "middleware": [
+              "auth:sanctum"
+            ],
+            "routes": [
+              {
+                "method": "POST",
+                "uri": "/auth/logout",
+                "action": "Auth\\LogoutController@__invoke"
+              },
+              {
+                "method": "GET",
+                "uri": "/auth/me",
+                "action": "Auth\\MeController@__invoke"
+              }
+            ]
+          },
+          {
+            "name": "admin",
+            "middleware": [
+              "auth:sanctum"
+            ],
+            "routes": [
+              {
+                "method": "GET",
+                "uri": "/forms",
+                "action": "Admin\\FormsController@index"
+              },
+              {
+                "method": "POST",
+                "uri": "/forms",
+                "action": "Admin\\FormsController@store"
+              },
+              {
+                "method": "GET",
+                "uri": "/forms/{id}",
+                "action": "Admin\\FormsController@show"
+              },
+              {
+                "method": "PUT",
+                "uri": "/forms/{id}",
+                "action": "Admin\\FormsController@update"
+              },
+              {
+                "method": "DELETE",
+                "uri": "/forms/{id}",
+                "action": "Admin\\FormsController@destroy"
+              },
+              {
+                "method": "GET",
+                "uri": "/forms/{id}/fields",
+                "action": "Admin\\FormFieldsController@index"
+              },
+              {
+                "method": "PUT",
+                "uri": "/forms/{id}/fields",
+                "action": "Admin\\FormFieldsController@update"
+              },
+              {
+                "method": "GET",
+                "uri": "/responses",
+                "action": "Admin\\ResponsesController@index"
+              },
+              {
+                "method": "GET",
+                "uri": "/responses/{id}",
+                "action": "Admin\\ResponsesController@show"
+              },
+              {
+                "method": "GET",
+                "uri": "/responses/{id}/pdf",
+                "action": "Admin\\ResponsePdfController@show"
+              },
+              {
+                "method": "GET",
+                "uri": "/dashboard/summary",
+                "action": "Admin\\DashboardController@summary"
+              },
+              {
+                "method": "GET",
+                "uri": "/dashboard/errors",
+                "action": "Admin\\DashboardController@errors"
+              },
+              {
+                "method": "GET",
+                "uri": "/system/admin-users",
+                "action": "System\\AdminUsersController@index"
+              },
+              {
+                "method": "POST",
+                "uri": "/system/admin-users",
+                "action": "System\\AdminUsersController@store"
+              },
+              {
+                "method": "PUT",
+                "uri": "/system/admin-users/{id}",
+                "action": "System\\AdminUsersController@update"
+              },
+              {
+                "method": "POST",
+                "uri": "/system/admin-users/invites/resend",
+                "action": "System\\AdminUsersInviteController@resend"
+              },
+              {
+                "method": "GET",
+                "uri": "/system/admin-audit-logs",
+                "action": "System\\AdminAuditLogsController@index"
+              }
+            ]
+          },
+          {
+            "name": "root_only",
+            "middleware": [
+              "auth:sanctum",
+              "can:root-only"
+            ],
+            "routes": [
+              {
+                "method": "GET",
+                "uri": "/system/roles/permissions",
+                "action": "Root\\RolePermissionsController@show"
+              },
+              {
+                "method": "PUT",
+                "uri": "/system/roles/permissions",
+                "action": "Root\\RolePermissionsController@update"
+              },
+              {
+                "method": "GET",
+                "uri": "/system/settings",
+                "action": "Root\\SettingsController@show"
+              },
+              {
+                "method": "PUT",
+                "uri": "/system/settings",
+                "action": "Root\\SettingsController@update"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "layers": {
+    "controllers": "HTTP層。Request(FormRequest)で入力検証→Service呼び出し→Envelopeで返却。",
+    "services": [
+      "AuthService(Login/Logout/Me)",
+      "FormService(Forms CRUD + publish validation hook)",
+      "FormFieldService(一括更新/条件分岐ルール検証)",
+      "ResponseService(list/detail + access control)",
+      "PublicSubmitService(normalize→evaluate→validate→persist→dispatch async)",
+      "AckService(ACK表示データ組立 + token確認)",
+      "PdfService(PDF生成/取得 + latest判定)",
+      "DashboardService(summary/errors)",
+      "SystemAdminService(admin-users/invite/audit-logs)",
+      "RootOnlyService(settings/role-permissions)"
+    ],
+    "domain_helpers": [
+      "ConditionEvaluator(A-06) : evaluate(rule_json, answers, form_definition) -> ConditionState",
+      "AnswerNormalizer : payload -> typed answers",
+      "RuleValidator : ルールスキーマ・field_key存在・型整合を検証（保存/Publish時）"
+    ]
+  },
+  "models": [
+    {
+      "name": "User",
+      "table": "users",
+      "relations": [
+        "roles (belongsToMany)"
+      ]
+    },
+    {
+      "name": "Role",
+      "table": "roles",
+      "relations": [
+        "users (belongsToMany)"
+      ]
+    },
+    {
+      "name": "Form",
+      "table": "forms",
+      "relations": [
+        "fields (hasMany)",
+        "translations (hasMany)"
+      ]
+    },
+    {
+      "name": "FormField",
+      "table": "form_fields",
+      "relations": [
+        "form (belongsTo)",
+        "translations (hasMany)"
+      ]
+    },
+    {
+      "name": "Submission",
+      "table": "submissions",
+      "relations": [
+        "values (hasMany)",
+        "pdfs (hasMany)",
+        "notifications (hasMany)"
+      ]
+    },
+    {
+      "name": "SubmissionValue",
+      "table": "submission_values",
+      "relations": [
+        "submission (belongsTo)"
+      ]
+    },
+    {
+      "name": "SubmissionPdf",
+      "table": "submission_pdfs",
+      "relations": [
+        "submission (belongsTo)"
+      ]
+    }
+  ],
+  "migrations_min": [
+    "users, roles, user_roles",
+    "forms, form_translations, form_fields, form_field_translations",
+    "submissions, submission_values, notifications",
+    "confirm_tokens(tokens) (v1.1), submission_pdfs (v1.1)",
+    "admin_audit_logs / activity_logs (名称はDB仕様のテーブルに合わせる)"
+  ],
+  "policies_gates": [
+    {
+      "gate": "root-only",
+      "who": "SYSTEM_ADMIN (root flag)",
+      "note": "roles/permissions, settings のみ"
+    },
+    {
+      "policy": "FormPolicy",
+      "rules": [
+        "viewAny(FormAdmin/SystemAdmin)",
+        "update(FormAdmin/SystemAdmin)",
+        "delete(SystemAdmin)"
+      ]
+    },
+    {
+      "policy": "ResponsePolicy",
+      "rules": [
+        "view(LogAdmin/FormAdmin/SystemAdmin)",
+        "downloadPdf(same as view)"
+      ]
+    },
+    {
+      "policy": "SystemAdminPolicy",
+      "rules": [
+        "manageUsers(SystemAdmin)",
+        "viewAudit(SystemAdmin)"
+      ]
+    }
+  ],
+  "validation_notes": [
+    "forms list/responses list/dashboard errors は page/per_page 必須（API仕様のlist_policyに揃える）",
+    "FormFields 更新時に A-06 ルールの検証（RuleValidator）を実施し、CONDITION_RULE_INVALID(422) を返す",
+    "Public submit では ConditionEvaluator で visible/required/store を再評価し、visible=true & required=true のみ入力検証",
+    "PDF取得は権限制御 + is_latest の最新版を返す（再生成ポリシーは保留事項に従う）"
+  ]
+}
+```
+
+## reforma-api-spec-v1.1.0-Laravel12-最小実装設計-OpenAPI-full.json
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0-Laravel12-最小実装設計-OpenAPI-full.json.json
+
+```json
+{
+  "meta": {
+    "title": "ReForma Laravel 12 最小実装設計（OpenAPI v1.1-full 対応）",
+    "version": "1.1-full",
+    "generated_at": "2026-01-12T16:39:26.031600",
+    "timezone": "Asia/Tokyo",
+    "scope": [
+      "7.1 Auth",
+      "7.2 Forms",
+      "7.3 Responses",
+      "7.4 ACK/PDF",
+      "7.7 Dashboard",
+      "7.8 System Admin(SUP)"
+    ]
+  },
+  "stack": {
+    "framework": "Laravel 12",
+    "auth": "Sanctum (SPA session) + optional Bearer token",
+    "queue": "database queue (v1.x) - mail/slack/pdf jobs",
+    "storage": "S3 (pdfs) + local(dev)"
+  },
+  "routing": {
+    "prefix": "/v1",
+    "groups": [
+      {
+        "name": "public",
+        "middleware": [],
+        "routes": [
+          {
+            "method": "POST",
+            "uri": "/forms/{form_key}/submit",
+            "controller": "App\\Http\\Controllers\\Public\\FormSubmitController@store",
+            "request": "PublicSubmitRequest"
+          },
+          {
+            "method": "GET",
+            "uri": "/forms/{form_key}/ack",
+            "controller": "App\\Http\\Controllers\\Public\\AckController@show",
+            "request": "AckShowRequest"
+          }
+        ]
+      },
+      {
+        "name": "auth",
+        "middleware": [
+          "auth:sanctum"
+        ],
+        "routes": [
+          {
+            "method": "POST",
+            "uri": "/auth/logout",
+            "controller": "App\\Http\\Controllers\\Auth\\LogoutController@__invoke"
+          },
+          {
+            "method": "GET",
+            "uri": "/auth/me",
+            "controller": "App\\Http\\Controllers\\Auth\\MeController@__invoke"
+          }
+        ]
+      },
+      {
+        "name": "admin",
+        "middleware": [
+          "auth:sanctum"
+        ],
+        "routes": [
+          {
+            "method": "GET",
+            "uri": "/forms",
+            "controller": "App\\Http\\Controllers\\Admin\\FormsController@index",
+            "request": "IndexRequest"
+          },
+          {
+            "method": "POST",
+            "uri": "/forms",
+            "controller": "App\\Http\\Controllers\\Admin\\FormsController@store",
+            "request": "FormStoreRequest"
+          },
+          {
+            "method": "GET",
+            "uri": "/forms/{id}",
+            "controller": "App\\Http\\Controllers\\Admin\\FormsController@show"
+          },
+          {
+            "method": "PUT",
+            "uri": "/forms/{id}",
+            "controller": "App\\Http\\Controllers\\Admin\\FormsController@update",
+            "request": "FormUpdateRequest"
+          },
+          {
+            "method": "DELETE",
+            "uri": "/forms/{id}",
+            "controller": "App\\Http\\Controllers\\Admin\\FormsController@destroy"
+          },
+          {
+            "method": "GET",
+            "uri": "/forms/{id}/fields",
+            "controller": "App\\Http\\Controllers\\Admin\\FormFieldsController@index",
+            "request": "FormFieldsIndexRequest"
+          },
+          {
+            "method": "PUT",
+            "uri": "/forms/{id}/fields",
+            "controller": "App\\Http\\Controllers\\Admin\\FormFieldsController@update",
+            "request": "FormFieldsUpdateRequest"
+          },
+          {
+            "method": "GET",
+            "uri": "/responses",
+            "controller": "App\\Http\\Controllers\\Admin\\ResponsesController@index",
+            "request": "ResponsesIndexRequest"
+          },
+          {
+            "method": "GET",
+            "uri": "/responses/{id}",
+            "controller": "App\\Http\\Controllers\\Admin\\ResponsesController@show"
+          },
+          {
+            "method": "GET",
+            "uri": "/responses/{id}/pdf",
+            "controller": "App\\Http\\Controllers\\Admin\\ResponsePdfController@show",
+            "request": "ResponsePdfShowRequest"
+          },
+          {
+            "method": "GET",
+            "uri": "/dashboard/summary",
+            "controller": "App\\Http\\Controllers\\Admin\\DashboardController@summary"
+          },
+          {
+            "method": "GET",
+            "uri": "/dashboard/errors",
+            "controller": "App\\Http\\Controllers\\Admin\\DashboardController@errors",
+            "request": "IndexRequest"
+          },
+          {
+            "method": "GET",
+            "uri": "/system/admin-users",
+            "controller": "App\\Http\\Controllers\\System\\AdminUsersController@index",
+            "request": "IndexRequest"
+          },
+          {
+            "method": "POST",
+            "uri": "/system/admin-users",
+            "controller": "App\\Http\\Controllers\\System\\AdminUsersController@store",
+            "request": "AdminUserStoreRequest"
+          },
+          {
+            "method": "PUT",
+            "uri": "/system/admin-users/{id}",
+            "controller": "App\\Http\\Controllers\\System\\AdminUsersController@update",
+            "request": "AdminUserUpdateRequest"
+          },
+          {
+            "method": "POST",
+            "uri": "/system/admin-users/invites/resend",
+            "controller": "App\\Http\\Controllers\\System\\AdminUsersInviteController@resend",
+            "request": "AdminUserInviteResendRequest"
+          },
+          {
+            "method": "GET",
+            "uri": "/system/admin-audit-logs",
+            "controller": "App\\Http\\Controllers\\System\\AdminAuditLogsController@index",
+            "request": "IndexRequest"
+          }
+        ]
+      },
+      {
+        "name": "root_only",
+        "middleware": [
+          "auth:sanctum",
+          "can:root-only"
+        ],
+        "routes": [
+          {
+            "method": "GET",
+            "uri": "/system/roles/permissions",
+            "controller": "App\\Http\\Controllers\\Root\\RolePermissionsController@show"
+          },
+          {
+            "method": "PUT",
+            "uri": "/system/roles/permissions",
+            "controller": "App\\Http\\Controllers\\Root\\RolePermissionsController@update",
+            "request": "RolePermissionsUpdateRequest"
+          },
+          {
+            "method": "GET",
+            "uri": "/system/settings",
+            "controller": "App\\Http\\Controllers\\Root\\SettingsController@show"
+          },
+          {
+            "method": "PUT",
+            "uri": "/system/settings",
+            "controller": "App\\Http\\Controllers\\Root\\SettingsController@update",
+            "request": "SettingsUpdateRequest"
+          }
+        ]
+      }
+    ]
+  },
+  "requests": {
+    "common": [
+      {
+        "name": "IndexRequest",
+        "rules": {
+          "page": "required|integer|min:1",
+          "per_page": "required|integer|min:1|max:200",
+          "sort": "nullable|in:created_at_desc,created_at_asc"
+        }
+      }
+    ],
+    "admin": [
+      {
+        "name": "FormStoreRequest",
+        "rules": {
+          "code": "required|string|max:100|unique:forms,code",
+          "is_public": "boolean",
+          "translations": "array",
+          "translations.*.locale": "in:ja,en",
+          "translations.*.title": "required_with:translations|string"
+        }
+      },
+      {
+        "name": "FormUpdateRequest",
+        "rules": {
+          "status": "in:draft,published,closed",
+          "is_public": "boolean",
+          "translations": "array"
+        }
+      },
+      {
+        "name": "FormFieldsUpdateRequest",
+        "rules": {
+          "fields": "required|array",
+          "fields.*.field_key": "required|string",
+          "fields.*.type": "required|string",
+          "fields.*.sort_order": "required|integer",
+          "fields.*.is_required": "boolean",
+          "fields.*.visibility_rule": "nullable|array",
+          "fields.*.required_rule": "nullable|array",
+          "fields.*.step_transition_rule": "nullable|array"
+        }
+      },
+      {
+        "name": "ResponsesIndexRequest",
+        "rules": {
+          "page": "required|integer|min:1",
+          "per_page": "required|integer|min:1|max:200",
+          "sort": "nullable|in:created_at_desc,created_at_asc",
+          "form_id": "nullable|integer",
+          "status": "nullable|in:received,confirmed",
+          "q": "nullable|string"
+        }
+      },
+      {
+        "name": "ResponsePdfShowRequest",
+        "rules": {
+          "pdf_type": "nullable|in:submission,ack"
+        }
+      },
+      {
+        "name": "AdminUserStoreRequest",
+        "rules": {
+          "name": "required|string",
+          "email": "required|email|unique:users,email",
+          "roles": "required|array",
+          "roles.*": "in:SYSTEM_ADMIN,FORM_ADMIN,LOG_ADMIN"
+        }
+      },
+      {
+        "name": "AdminUserUpdateRequest",
+        "rules": {
+          "name": "nullable|string",
+          "status": "nullable|in:active,suspended",
+          "roles": "nullable|array",
+          "roles.*": "in:SYSTEM_ADMIN,FORM_ADMIN,LOG_ADMIN"
+        }
+      },
+      {
+        "name": "AdminUserInviteResendRequest",
+        "rules": {
+          "user_id": "required|integer|exists:users,id"
+        }
+      }
+    ],
+    "public": [
+      {
+        "name": "PublicSubmitRequest",
+        "rules": {
+          "answers": "required|array",
+          "locale": "nullable|in:ja,en",
+          "mode": "nullable|in:both,value,label"
+        }
+      },
+      {
+        "name": "AckShowRequest",
+        "rules": {
+          "token": "nullable|string",
+          "submission_id": "nullable|integer"
+        }
+      }
+    ],
+    "root_only": [
+      {
+        "name": "RolePermissionsUpdateRequest",
+        "rules": {
+          "roles": "required|array",
+          "roles.*.role": "required|string",
+          "roles.*.permissions": "required|array"
+        }
+      },
+      {
+        "name": "SettingsUpdateRequest",
+        "rules": {
+          "settings": "required|array"
+        }
+      }
+    ]
+  },
+  "services": [
+    {
+      "name": "ConditionEvaluator",
+      "responsibility": "A-06 ルール評価→ConditionState生成（安全側フォールバック）"
+    },
+    {
+      "name": "RuleValidator",
+      "responsibility": "フォーム項目更新/Publish時にルール妥当性検証（CONDITION_RULE_INVALID）"
+    },
+    {
+      "name": "PublicSubmitService",
+      "responsibility": "answers正規化→評価→visible/required検証→保存→notifications/pdf jobs dispatch"
+    },
+    {
+      "name": "PdfService",
+      "responsibility": "submission_pdfs の最新版取得/生成（再生成ポリシーは保留事項へ委譲）"
+    },
+    {
+      "name": "DashboardService",
+      "responsibility": "集計/エラー一覧"
+    },
+    {
+      "name": "SystemAdminService",
+      "responsibility": "管理者ユーザ管理/招待/監査ログ"
+    },
+    {
+      "name": "RootOnlyService",
+      "responsibility": "settings/role-permissions"
+    }
+  ],
+  "jobs": [
+    {
+      "name": "SendNotificationJob",
+      "channel": "mail/slack",
+      "trigger": "after submission commit"
+    },
+    {
+      "name": "GenerateSubmissionPdfJob",
+      "trigger": "after submission commit or on-demand"
+    }
+  ],
+  "models": [
+    {
+      "name": "User",
+      "table": "users"
+    },
+    {
+      "name": "Role",
+      "table": "roles"
+    },
+    {
+      "name": "Form",
+      "table": "forms"
+    },
+    {
+      "name": "FormTranslation",
+      "table": "form_translations"
+    },
+    {
+      "name": "FormField",
+      "table": "form_fields"
+    },
+    {
+      "name": "FormFieldTranslation",
+      "table": "form_field_translations"
+    },
+    {
+      "name": "Submission",
+      "table": "submissions"
+    },
+    {
+      "name": "SubmissionValue",
+      "table": "submission_values"
+    },
+    {
+      "name": "Notification",
+      "table": "notifications"
+    },
+    {
+      "name": "SubmissionPdf",
+      "table": "submission_pdfs"
+    }
+  ],
+  "policies": [
+    {
+      "name": "FormPolicy",
+      "rules": [
+        "viewAny(form_admin|system_admin)",
+        "update(form_admin|system_admin)",
+        "delete(system_admin)"
+      ]
+    },
+    {
+      "name": "ResponsePolicy",
+      "rules": [
+        "view(log_admin|form_admin|system_admin)",
+        "downloadPdf(viewと同等)"
+      ]
+    },
+    {
+      "name": "SystemAdminPolicy",
+      "rules": [
+        "manageUsers(system_admin)",
+        "viewAudit(system_admin)"
+      ]
+    }
+  ],
+  "responses": {
+    "envelope": "success/data/message/errors",
+    "error_codes": [
+      "VALIDATION_ERROR",
+      "CONDITION_RULE_INVALID",
+      "CONDITION_EVAL_ERROR",
+      "STEP_TRANSITION_DENIED",
+      "UNAUTHORIZED",
+      "FORBIDDEN"
+    ]
+  }
+}
+```
+
+## reforma-api-spec-v1.1.0-openapi-draft.json
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0-openapi-draft.json.json
+
+```json
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ReForma API v1.1 (OpenAPI Draft) - Auth/Forms/Responses/ACK-PDF/Dashboard/SystemAdmin(SUP)",
+    "version": "1.1-draft",
+    "description": "03.ReForma API 仕様書 v1.1（統合版）を元に、実装フェーズ向けに OpenAPI を起草（不足パラメータは v1.1 正本で追補予定）。"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Forms"
+    },
+    {
+      "name": "Responses"
+    },
+    {
+      "name": "ACK"
+    },
+    {
+      "name": "PDF"
+    },
+    {
+      "name": "Dashboard"
+    },
+    {
+      "name": "System"
+    },
+    {
+      "name": "SUP (root-only)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "v1.0例は Bearer JWT。v1.1は Sanctum等のSPAセッションも許容（実装で統一）。"
+      }
+    },
+    "schemas": {
+      "EnvelopeSuccess": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors"
+        ]
+      },
+      "EnvelopeError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "null"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "ユーザID"
+          },
+          "name": {
+            "type": "string",
+            "description": "表示名"
+          },
+          "email": {
+            "type": "string",
+            "description": "メールアドレス"
+          },
+          "status": {
+            "type": "string",
+            "description": "active / suspended",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "description": "ロール（代表）"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "status"
+        ]
+      },
+      "Form": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "フォームID"
+          },
+          "code": {
+            "type": "string",
+            "description": "フォーム識別子（form_key/公開キー）"
+          },
+          "status": {
+            "type": "string",
+            "description": "draft / published / closed",
+            "enum": [
+              "draft",
+              "published",
+              "closed"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64",
+            "description": "定義バージョン（任意）"
+          },
+          "title": {
+            "type": "string",
+            "description": "フォーム名（既定ロケール）"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "status"
+        ]
+      },
+      "FormField": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "項目ID"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "field_key"
+          },
+          "type": {
+            "type": "string",
+            "description": "field type"
+          },
+          "label": {
+            "type": "string",
+            "description": "表示ラベル（既定ロケール）"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "固定必須"
+          },
+          "visibility_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 条件分岐 JSON (visibility_rule)"
+          },
+          "required_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 条件分岐 JSON (required_rule)"
+          }
+        },
+        "required": [
+          "id",
+          "field_key",
+          "type",
+          "label",
+          "is_required"
+        ]
+      },
+      "ConditionState": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "enum": [
+              "1"
+            ]
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "visible": {
+                  "type": "boolean"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "store": {
+                  "type": "string",
+                  "enum": [
+                    "store",
+                    "do_not_store"
+                  ]
+                },
+                "eval": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "fallback",
+                    "error"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "rule",
+                          "type",
+                          "missing_field",
+                          "unknown_operator"
+                        ]
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description": "任意（デバッグ用途）"
+                }
+              },
+              "required": [
+                "visible",
+                "required",
+                "store",
+                "eval"
+              ]
+            }
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "STEP遷移状態（将来/STEPモード）"
+          }
+        },
+        "required": [
+          "version",
+          "evaluated_at",
+          "fields"
+        ],
+        "description": "条件分岐評価結果（API→UI I/F）"
+      },
+      "Submission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "送信ID"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.id"
+          },
+          "status": {
+            "type": "string",
+            "description": "received / confirmed",
+            "enum": [
+              "received",
+              "confirmed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "status",
+          "created_at"
+        ]
+      },
+      "SubmissionValue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "field_key": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "array",
+              "object",
+              "null"
+            ],
+            "description": "value(JSON)"
+          },
+          "label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "label snapshot (optional)"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "field_key",
+          "value"
+        ]
+      },
+      "PaginatedForms": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "フォームID"
+                },
+                "code": {
+                  "type": "string",
+                  "description": "フォーム識別子（form_key/公開キー）"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "draft / published / closed",
+                  "enum": [
+                    "draft",
+                    "published",
+                    "closed"
+                  ]
+                },
+                "version": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "定義バージョン（任意）"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "フォーム名（既定ロケール）"
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "code",
+                "status"
+              ]
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "per_page",
+          "total"
+        ]
+      },
+      "PaginatedResponses": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "送信ID"
+                },
+                "form_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "forms.id"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "received / confirmed",
+                  "enum": [
+                    "received",
+                    "confirmed"
+                  ]
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "form_id",
+                "status",
+                "created_at"
+              ]
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "per_page",
+          "total"
+        ]
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "401 Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "null"
+                },
+                "message": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "errors": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "success",
+                "data",
+                "message",
+                "errors"
+              ]
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "403 Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "null"
+                },
+                "message": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "errors": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "success",
+                "data",
+                "message",
+                "errors"
+              ]
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "422 Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "null"
+                },
+                "message": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "errors": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "success",
+                "data",
+                "message",
+                "errors"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログイン",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": "string",
+                          "description": "Bearer token (if token-based)"
+                        },
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "remember": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログアウト",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "自分自身の情報",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/forms": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム一覧取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "forms": {
+                          "$ref": "#/components/schemas/PaginatedForms"
+                        }
+                      },
+                      "required": [
+                        "forms"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム作成",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "フォーム識別子"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "フォーム名"
+                  }
+                },
+                "required": [
+                  "code",
+                  "title"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{id}": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "published",
+                      "closed"
+                    ]
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム削除（論理）",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{id}/fields": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一覧取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一括更新（定義JSON保存）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormField"
+                    }
+                  }
+                },
+                "required": [
+                  "fields"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/responses": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信一覧（Responses）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "responses": {
+                          "$ref": "#/components/schemas/PaginatedResponses"
+                        }
+                      },
+                      "required": [
+                        "responses"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "form_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "received",
+                "confirmed"
+              ]
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信詳細（Responses）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/Submission"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionValue"
+                          }
+                        }
+                      },
+                      "required": [
+                        "response",
+                        "values"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{form_key}/submit": {
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "公開 submit",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "submission_id": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "ack_url": {
+                          "type": "string",
+                          "description": "ACK URL（UI遷移用）"
+                        },
+                        "condition_state": {
+                          "$ref": "#/components/schemas/ConditionState"
+                        }
+                      },
+                      "required": [
+                        "submission_id",
+                        "ack_url"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answers": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  },
+                  "locale": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "answers"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{form_key}/ack": {
+      "get": {
+        "tags": [
+          "ACK"
+        ],
+        "summary": "ACK 表示データ取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "ack": {
+                          "type": "object",
+                          "description": "ACK 表示用（テンプレ/文言は仕様へ委譲）"
+                        },
+                        "pdf_url": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "PDFダウンロードURL（許可される場合）"
+                        }
+                      },
+                      "required": [
+                        "ack"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "confirm_url token（必要な場合）"
+          },
+          {
+            "name": "submission_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}/pdf": {
+      "get": {
+        "tags": [
+          "PDF"
+        ],
+        "summary": "PDF 取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "submission",
+                "ack"
+              ]
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード集計",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "summary": {
+                          "type": "object",
+                          "description": "件数など（詳細は正本へ委譲）"
+                        }
+                      },
+                      "required": [
+                        "summary"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/errors": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード エラー一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "errors": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "kind": {
+                                    "type": "string"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "kind",
+                                  "message",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "per_page",
+                            "total"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "errors"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/admin-users": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "管理者ユーザ一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "users": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64",
+                                    "description": "ユーザID"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "表示名"
+                                  },
+                                  "email": {
+                                    "type": "string",
+                                    "description": "メールアドレス"
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "description": "active / suspended",
+                                    "enum": [
+                                      "active",
+                                      "suspended"
+                                    ]
+                                  },
+                                  "roles": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "enum": [
+                                        "SYSTEM_ADMIN",
+                                        "FORM_ADMIN",
+                                        "LOG_ADMIN"
+                                      ]
+                                    },
+                                    "description": "ロール（代表）"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "email",
+                                  "status"
+                                ]
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "per_page",
+                            "total"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "users"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "管理者ユーザ作成（招待）",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "format": "int64",
+                              "description": "ユーザID"
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "表示名"
+                            },
+                            "email": {
+                              "type": "string",
+                              "description": "メールアドレス"
+                            },
+                            "status": {
+                              "type": "string",
+                              "description": "active / suspended",
+                              "enum": [
+                                "active",
+                                "suspended"
+                              ]
+                            },
+                            "roles": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "SYSTEM_ADMIN",
+                                  "FORM_ADMIN",
+                                  "LOG_ADMIN"
+                                ]
+                              },
+                              "description": "ロール（代表）"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "email",
+                            "status"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "付与ロール"
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-users/{id}": {
+      "put": {
+        "tags": [
+          "System"
+        ],
+        "summary": "管理者ユーザ更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "format": "int64",
+                              "description": "ユーザID"
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "表示名"
+                            },
+                            "email": {
+                              "type": "string",
+                              "description": "メールアドレス"
+                            },
+                            "status": {
+                              "type": "string",
+                              "description": "active / suspended",
+                              "enum": [
+                                "active",
+                                "suspended"
+                              ]
+                            },
+                            "roles": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "SYSTEM_ADMIN",
+                                  "FORM_ADMIN",
+                                  "LOG_ADMIN"
+                                ]
+                              },
+                              "description": "ロール（代表）"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "email",
+                            "status"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "suspended"
+                    ]
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-users/invites/resend": {
+      "post": {
+        "tags": [
+          "System"
+        ],
+        "summary": "招待メール再送",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sent": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "sent"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "user_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-audit-logs": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "監査ログ一覧（管理者）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logs": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "actor_user_id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "action": {
+                                    "type": "string"
+                                  },
+                                  "target": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "actor_user_id",
+                                  "action",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "page",
+                            "per_page",
+                            "total"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "logs"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/roles/permissions": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義取得（root-only）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "permissions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "role",
+                              "permissions"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "roles"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義更新（root-only）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "updated": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "updated"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "role": {
+                          "type": "string"
+                        },
+                        "permissions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "role",
+                        "permissions"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/settings": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定取得（root-only）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定更新（root-only）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "settings": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "settings"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## reforma-api-spec-v1.1.0-openapi-draft.yaml
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0-openapi-draft.yaml.yaml
+
+```yaml
+openapi: 3.0.3
+info:
+  title: ReForma API v1.1 (OpenAPI Draft) - Auth/Forms/Responses/ACK-PDF/Dashboard/SystemAdmin(SUP)
+  version: 1.1-draft
+  description: 03.ReForma API 仕様書 v1.1（統合版）を元に、実装フェーズ向けに OpenAPI を起草（不足パラメータは v1.1
+    正本で追補予定）。
+servers:
+- url: /
+tags:
+- name: Auth
+- name: Forms
+- name: Responses
+- name: ACK
+- name: PDF
+- name: Dashboard
+- name: System
+- name: SUP (root-only)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: v1.0例は Bearer JWT。v1.1は Sanctum等のSPAセッションも許容（実装で統一）。
+  schemas:
+    EnvelopeSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type:
+          - object
+          - 'null'
+      required:
+      - success
+      - data
+      - message
+      - errors
+    EnvelopeError: &id003
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type:
+          - object
+          - 'null'
+      required:
+      - success
+      - data
+      - message
+      - errors
+    User: &id014
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ユーザID
+        name:
+          type: string
+          description: 表示名
+        email:
+          type: string
+          description: メールアドレス
+        status:
+          type: string
+          description: active / suspended
+          enum:
+          - active
+          - suspended
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+            - SYSTEM_ADMIN
+            - FORM_ADMIN
+            - LOG_ADMIN
+          description: ロール（代表）
+      required:
+      - id
+      - name
+      - email
+      - status
+    Form: &id001
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: フォームID
+        code:
+          type: string
+          description: フォーム識別子（form_key/公開キー）
+        status:
+          type: string
+          description: draft / published / closed
+          enum:
+          - draft
+          - published
+          - closed
+        version:
+          type: integer
+          format: int64
+          description: 定義バージョン（任意）
+        title:
+          type: string
+          description: フォーム名（既定ロケール）
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - code
+      - status
+    FormField:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 項目ID
+        field_key:
+          type: string
+          description: field_key
+        type:
+          type: string
+          description: field type
+        label:
+          type: string
+          description: 表示ラベル（既定ロケール）
+        is_required:
+          type: boolean
+          description: 固定必須
+        visibility_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 条件分岐 JSON (visibility_rule)
+        required_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 条件分岐 JSON (required_rule)
+      required:
+      - id
+      - field_key
+      - type
+      - label
+      - is_required
+    ConditionState:
+      type: object
+      properties:
+        version:
+          type: string
+          enum:
+          - '1'
+        evaluated_at:
+          type: string
+          format: date-time
+        fields:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              visible:
+                type: boolean
+              required:
+                type: boolean
+              store:
+                type: string
+                enum:
+                - store
+                - do_not_store
+              eval:
+                type: string
+                enum:
+                - ok
+                - fallback
+                - error
+              reasons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    kind:
+                      type: string
+                      enum:
+                      - rule
+                      - type
+                      - missing_field
+                      - unknown_operator
+                    path:
+                      type: string
+                    message:
+                      type: string
+                description: 任意（デバッグ用途）
+            required:
+            - visible
+            - required
+            - store
+            - eval
+        step:
+          type:
+          - object
+          - 'null'
+          description: STEP遷移状態（将来/STEPモード）
+      required:
+      - version
+      - evaluated_at
+      - fields
+      description: 条件分岐評価結果（API→UI I/F）
+    Submission: &id002
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 送信ID
+        form_id:
+          type: integer
+          format: int64
+          description: forms.id
+        status:
+          type: string
+          description: received / confirmed
+          enum:
+          - received
+          - confirmed
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - form_id
+      - status
+      - created_at
+    SubmissionValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        field_key:
+          type: string
+        value:
+          type:
+          - string
+          - number
+          - boolean
+          - array
+          - object
+          - 'null'
+          description: value(JSON)
+        label:
+          type:
+          - string
+          - 'null'
+          description: label snapshot (optional)
+      required:
+      - id
+      - submission_id
+      - field_key
+      - value
+    PaginatedForms:
+      type: object
+      properties:
+        items:
+          type: array
+          items: *id001
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+      required:
+      - items
+      - page
+      - per_page
+      - total
+    PaginatedResponses:
+      type: object
+      properties:
+        items:
+          type: array
+          items: *id002
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+      required:
+      - items
+      - page
+      - per_page
+      - total
+  responses:
+    Unauthorized: &id005
+      description: 401 Unauthorized
+      content:
+        application/json:
+          schema: *id003
+    Forbidden: &id006
+      description: 403 Forbidden
+      content:
+        application/json:
+          schema: *id003
+    ValidationError: &id004
+      description: 422 Validation Error
+      content:
+        application/json:
+          schema: *id003
+paths:
+  /v1/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: ログイン
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        description: Bearer token (if token-based)
+                      user:
+                        $ref: '#/components/schemas/User'
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422': *id004
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                remember:
+                  type: boolean
+              required:
+              - email
+              - password
+  /v1/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: ログアウト
+      responses:
+        '204':
+          description: No Content
+        '401': *id005
+      security:
+      - bearerAuth: []
+  /v1/auth/me:
+    get:
+      tags:
+      - Auth
+      summary: 自分自身の情報
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+      security:
+      - bearerAuth: []
+  /v1/forms:
+    get:
+      tags:
+      - Forms
+      summary: フォーム一覧取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      forms:
+                        $ref: '#/components/schemas/PaginatedForms'
+                    required:
+                    - forms
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters: &id013
+      - &id008
+        name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - &id009
+        name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - &id010
+        name: sort
+        in: query
+        schema:
+          type: string
+        required: false
+    post:
+      tags:
+      - Forms
+      summary: フォーム作成
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+        '422': *id004
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: フォーム識別子
+                title:
+                  type: string
+                  description: フォーム名
+              required:
+              - code
+              - title
+  /v1/forms/{id}:
+    get:
+      tags:
+      - Forms
+      summary: フォーム取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters: &id007
+      - &id012
+        name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+    put:
+      tags:
+      - Forms
+      summary: フォーム更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+        '422': *id004
+      security:
+      - bearerAuth: []
+      parameters: *id007
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - published
+                  - closed
+                title:
+                  type: string
+    delete:
+      tags:
+      - Forms
+      summary: フォーム削除（論理）
+      responses:
+        '204':
+          description: No Content
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters: *id007
+  /v1/forms/{id}/fields:
+    get:
+      tags:
+      - Forms
+      summary: フォーム項目一覧取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters: *id007
+    put:
+      tags:
+      - Forms
+      summary: フォーム項目一括更新（定義JSON保存）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+        '422': *id004
+      security:
+      - bearerAuth: []
+      parameters: *id007
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormField'
+              required:
+              - fields
+  /v1/responses:
+    get:
+      tags:
+      - Responses
+      summary: 送信一覧（Responses）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      responses:
+                        $ref: '#/components/schemas/PaginatedResponses'
+                    required:
+                    - responses
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters:
+      - *id008
+      - *id009
+      - *id010
+      - name: form_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - received
+          - confirmed
+        required: false
+  /v1/responses/{id}:
+    get:
+      tags:
+      - Responses
+      summary: 送信詳細（Responses）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      response:
+                        $ref: '#/components/schemas/Submission'
+                      values:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionValue'
+                    required:
+                    - response
+                    - values
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters: *id007
+  /v1/forms/{form_key}/submit:
+    post:
+      tags:
+      - Forms
+      summary: 公開 submit
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      submission_id:
+                        type: integer
+                        format: int64
+                      ack_url:
+                        type: string
+                        description: ACK URL（UI遷移用）
+                      condition_state:
+                        $ref: '#/components/schemas/ConditionState'
+                    required:
+                    - submission_id
+                    - ack_url
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422': *id004
+      parameters:
+      - &id011
+        name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+                  additionalProperties: {}
+                locale:
+                  type: string
+              required:
+              - answers
+  /v1/forms/{form_key}/ack:
+    get:
+      tags:
+      - ACK
+      summary: ACK 表示データ取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      ack:
+                        type: object
+                        description: ACK 表示用（テンプレ/文言は仕様へ委譲）
+                      pdf_url:
+                        type:
+                        - string
+                        - 'null'
+                        description: PDFダウンロードURL（許可される場合）
+                    required:
+                    - ack
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+      parameters:
+      - *id011
+      - name: token
+        in: query
+        schema:
+          type: string
+        required: false
+        description: confirm_url token（必要な場合）
+      - name: submission_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+  /v1/responses/{id}/pdf:
+    get:
+      tags:
+      - PDF
+      summary: PDF 取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters:
+      - *id012
+      - name: type
+        in: query
+        schema:
+          type: string
+          enum:
+          - submission
+          - ack
+        required: false
+  /v1/dashboard/summary:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード集計
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        description: 件数など（詳細は正本へ委譲）
+                    required:
+                    - summary
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+  /v1/dashboard/errors:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード エラー一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                kind:
+                                  type: string
+                                message:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - kind
+                              - message
+                              - created_at
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          total:
+                            type: integer
+                            format: int32
+                        required:
+                        - items
+                        - page
+                        - per_page
+                        - total
+                    required:
+                    - errors
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters: *id013
+  /v1/system/admin-users:
+    get:
+      tags:
+      - System
+      summary: 管理者ユーザ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items: *id014
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          total:
+                            type: integer
+                            format: int32
+                        required:
+                        - items
+                        - page
+                        - per_page
+                        - total
+                    required:
+                    - users
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters: *id013
+    post:
+      tags:
+      - System
+      summary: 管理者ユーザ作成（招待）
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user: *id014
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+        '422': *id004
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                roles:
+                  type: array
+                  items:
+                    type: string
+                  description: 付与ロール
+              required:
+              - name
+              - email
+              - roles
+  /v1/system/admin-users/{id}:
+    put:
+      tags:
+      - System
+      summary: 管理者ユーザ更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user: *id014
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+        '422': *id004
+      security:
+      - bearerAuth: []
+      parameters: *id007
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                  - active
+                  - suspended
+                roles:
+                  type: array
+                  items:
+                    type: string
+  /v1/system/admin-users/invites/resend:
+    post:
+      tags:
+      - System
+      summary: 招待メール再送
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      sent:
+                        type: boolean
+                    required:
+                    - sent
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+        '422': *id004
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  format: int64
+              required:
+              - user_id
+  /v1/system/admin-audit-logs:
+    get:
+      tags:
+      - System
+      summary: 監査ログ一覧（管理者）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logs:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                actor_user_id:
+                                  type: integer
+                                  format: int64
+                                action:
+                                  type: string
+                                target:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - actor_user_id
+                              - action
+                              - created_at
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          total:
+                            type: integer
+                            format: int32
+                        required:
+                        - items
+                        - page
+                        - per_page
+                        - total
+                    required:
+                    - logs
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+      parameters:
+      - *id008
+      - *id009
+      - *id010
+      - name: user_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: action
+        in: query
+        schema:
+          type: string
+        required: false
+  /v1/system/roles/permissions:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義取得（root-only）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            role:
+                              type: string
+                            permissions:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - role
+                          - permissions
+                    required:
+                    - roles
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義更新（root-only）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      updated:
+                        type: boolean
+                    required:
+                    - updated
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+        '422': *id004
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - role
+                    - permissions
+              required:
+              - roles
+  /v1/system/settings:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: システム設定取得（root-only）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: システム設定更新（root-only）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id005
+        '403': *id006
+        '422': *id004
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settings:
+                  type: object
+              required:
+              - settings
+```
+
+## reforma-api-spec-v1.1.0-openapi-full+supplements.json
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0-openapi-full+supplements.json.json
+
+```json
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ReForma API v1.1 OpenAPI（追補反映: theme/computed）",
+    "version": "1.1-openapi-draft-full+supplements",
+    "description": "API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI を“実装可能な粒度”まで増補した草案。"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Forms"
+    },
+    {
+      "name": "Responses"
+    },
+    {
+      "name": "ACK/PDF"
+    },
+    {
+      "name": "Dashboard"
+    },
+    {
+      "name": "System Admin"
+    },
+    {
+      "name": "SUP (root-only)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "XSRF-TOKEN",
+        "description": "Sanctum SPA session（例）。実装により Bearer 併用可"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    },
+    "schemas": {
+      "EnvelopeSuccess": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors"
+        ]
+      },
+      "EnvelopeError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "null"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "エラーコード"
+              },
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "エラーメッセージ配列"
+                }
+              },
+              "rule": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "step": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors"
+        ]
+      },
+      "ErrorObject": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "エラーメッセージ配列"
+            }
+          },
+          "rule": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "users.id"
+          },
+          "name": {
+            "type": "string",
+            "description": "表示名"
+          },
+          "email": {
+            "type": "string",
+            "description": "メールアドレス",
+            "format": "email"
+          },
+          "status": {
+            "type": "string",
+            "description": "active / suspended",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "description": "付与ロール"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "status",
+          "roles"
+        ]
+      },
+      "Form": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.id"
+          },
+          "code": {
+            "type": "string",
+            "description": "forms.code（フォーム識別子）"
+          },
+          "status": {
+            "type": "string",
+            "description": "forms.status",
+            "enum": [
+              "draft",
+              "published",
+              "closed"
+            ]
+          },
+          "is_public": {
+            "type": "boolean",
+            "description": "forms.is_public"
+          },
+          "created_by": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.created_by"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "theme_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "フォームテーマID（公開フォーム専用）"
+          },
+          "theme_tokens": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "テーマトークン（CSS変数）",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "theme_scope": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "(契約) テーマ適用スコープ。公開フォームは form_container_only（管理画面テーマと分離）",
+            "enum": [
+              "form_container_only",
+              null
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "status",
+          "is_public",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "FormTranslation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ja",
+              "en"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "フォーム名"
+          },
+          "description": {
+            "type": "string",
+            "description": "説明",
+            "example": ""
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "locale",
+          "title"
+        ]
+      },
+      "FormField": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.form_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "form_fields.field_key"
+          },
+          "type": {
+            "type": "string",
+            "description": "form_fields.type（input種別）"
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "form_fields.sort_order"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "form_fields.is_required（固定必須）"
+          },
+          "options_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "選択肢など（JSON）"
+          },
+          "visibility_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 visibility_rule(JSON)"
+          },
+          "required_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 required_rule(JSON)"
+          },
+          "step_transition_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 step_transition_rule(JSON)"
+          },
+          "is_readonly": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "readonly（computed等で利用）"
+          },
+          "computed_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "計算フィールド規則（v1.x: built_in_functions）",
+            "properties": {
+              "engine": {
+                "type": "string",
+                "enum": [
+                  "built_in_functions"
+                ]
+              },
+              "fn": {
+                "type": "string",
+                "enum": [
+                  "sum",
+                  "multiply",
+                  "tax",
+                  "round",
+                  "min",
+                  "max",
+                  "if"
+                ]
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "description": "ref:FIELD_KEY 形式の参照"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "result_type": {
+                "type": "string",
+                "enum": [
+                  "number",
+                  "string"
+                ]
+              },
+              "format": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "integer",
+                  "decimal",
+                  "currency",
+                  null
+                ]
+              },
+              "fallback": {
+                "type": "object",
+                "properties": {
+                  "on_error": {
+                    "type": "string",
+                    "enum": [
+                      "blank",
+                      "zero"
+                    ]
+                  },
+                  "store": {
+                    "type": "string",
+                    "enum": [
+                      "store",
+                      "do_not_store"
+                    ]
+                  }
+                }
+              }
+            },
+            "required": [
+              "engine",
+              "fn",
+              "args"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "field_key",
+          "type",
+          "sort_order",
+          "is_required"
+        ]
+      },
+      "ConditionState": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "enum": [
+              "1"
+            ]
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "visible": {
+                  "type": "boolean"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "store": {
+                  "type": "string",
+                  "enum": [
+                    "store",
+                    "do_not_store"
+                  ]
+                },
+                "eval": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "fallback",
+                    "error"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "rule",
+                          "type",
+                          "missing_field",
+                          "unknown_operator"
+                        ]
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description": "任意（デバッグ用途）"
+                }
+              },
+              "required": [
+                "visible",
+                "required",
+                "store",
+                "eval"
+              ]
+            }
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "STEP遷移状態（STEPモードで利用）"
+          }
+        },
+        "required": [
+          "version",
+          "evaluated_at",
+          "fields"
+        ],
+        "description": "条件分岐評価結果（API→UI I/F）"
+      },
+      "Submission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.form_id"
+          },
+          "status": {
+            "type": "string",
+            "description": "submissions.status",
+            "enum": [
+              "received",
+              "confirmed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "SubmissionValue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.id"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.submission_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "submission_values.field_key"
+          },
+          "field_label_snapshot": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ラベルスナップショット"
+          },
+          "value_json": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "回答 value（JSON）"
+          },
+          "label_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "label スナップショット（JSON）"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "field_key",
+          "value_json",
+          "created_at"
+        ]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "mail",
+              "slack"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "sent",
+              "failed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "channel",
+          "status",
+          "created_at"
+        ]
+      },
+      "SubmissionPdf": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pdf_type": {
+            "type": "string",
+            "enum": [
+              "submission",
+              "ack"
+            ]
+          },
+          "storage_path": {
+            "type": "string",
+            "description": "S3等の保存先パス"
+          },
+          "is_latest": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "pdf_type",
+          "storage_path",
+          "is_latest",
+          "created_at"
+        ]
+      },
+      "PaginatedForms": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Form"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "PaginatedResponses": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Submission"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "SortEnum": {
+        "type": "string",
+        "description": "一覧系 sort。既定=created_at_desc",
+        "enum": [
+          "created_at_desc",
+          "created_at_asc"
+        ]
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "401 Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "403 Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "422 Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログイン",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "token方式の場合に返却（Sanctum SPAの場合null）"
+                        },
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "remember": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログアウト",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logged_out": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "logged_out"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "自分自身の情報",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/forms": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "forms": {
+                          "$ref": "#/components/schemas/PaginatedForms"
+                        }
+                      },
+                      "required": [
+                        "forms"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "closed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（部分一致）"
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム作成",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "フォーム識別子",
+                    "example": "CONTACT_2026"
+                  },
+                  "is_public": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    },
+                    "description": "多言語（初期）"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{id}": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        },
+                        "translations": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormTranslation"
+                          }
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "published",
+                      "closed"
+                    ]
+                  },
+                  "is_public": {
+                    "type": "boolean"
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム削除（論理）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "deleted": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "deleted"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{id}/fields": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "include_rules",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "description": "visibility/required rules を含める"
+            },
+            "required": false
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一括更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormField"
+                    }
+                  }
+                },
+                "required": [
+                  "fields"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/responses": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信一覧（Responses）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "responses": {
+                          "$ref": "#/components/schemas/PaginatedResponses"
+                        }
+                      },
+                      "required": [
+                        "responses"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "form_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "received",
+                "confirmed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（メール/氏名など：A-02検索マトリクスに委譲）"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信詳細",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/Submission"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionValue"
+                          }
+                        },
+                        "notifications": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Notification"
+                          }
+                        },
+                        "pdfs": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionPdf"
+                          }
+                        }
+                      },
+                      "required": [
+                        "response",
+                        "values"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{form_key}/submit": {
+      "post": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "公開 submit",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "submission_id": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "ack_url": {
+                          "type": "string",
+                          "description": "ACK URL（UI遷移用）"
+                        },
+                        "condition_state": {
+                          "$ref": "#/components/schemas/ConditionState"
+                        }
+                      },
+                      "required": [
+                        "submission_id",
+                        "ack_url"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "object"
+                        },
+                        {
+                          "type": "array"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "ja",
+                      "en"
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "description": "both/value/label (CSV等の表現に委譲)",
+                    "enum": [
+                      "both",
+                      "value",
+                      "label"
+                    ]
+                  }
+                },
+                "required": [
+                  "answers"
+                ],
+                "description": "（追補）computed フィールドの値を answers に含めても無視され、API側で再計算して確定します。"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{form_key}/ack": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "ACK 表示",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "ack": {
+                          "type": "object",
+                          "description": "ACK 表示データ（テンプレ/変数はA-04に委譲）"
+                        },
+                        "pdf_url": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "PDFダウンロードURL（許可される場合）"
+                        }
+                      },
+                      "required": [
+                        "ack"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "confirm_url token"
+            },
+            "required": false
+          },
+          {
+            "name": "submission_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}/pdf": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "PDF 取得（管理側）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "pdf_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "submission",
+                "ack"
+              ]
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード集計",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "forms_count": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_today": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_total": {
+                              "type": "integer",
+                              "format": "int32"
+                            }
+                          },
+                          "required": [
+                            "forms_count",
+                            "responses_today",
+                            "responses_total"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "summary"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/errors": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード（エラー/失敗一覧）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "errors": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "mail_failed",
+                                      "slack_failed",
+                                      "pdf_failed",
+                                      "eval_error",
+                                      "other"
+                                    ]
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "kind",
+                                  "message",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "errors"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/admin-users": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "users": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/User"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "users"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（email/name）"
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ作成（招待）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SYSTEM_ADMIN",
+                        "FORM_ADMIN",
+                        "LOG_ADMIN"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-users/{id}": {
+      "put": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "suspended"
+                    ]
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SYSTEM_ADMIN",
+                        "FORM_ADMIN",
+                        "LOG_ADMIN"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-users/invites/resend": {
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "招待再送",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sent": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "sent"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "user_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-audit-logs": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "監査ログ一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logs": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "actor_user_id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "action": {
+                                    "type": "string"
+                                  },
+                                  "target_type": {
+                                    "type": "string"
+                                  },
+                                  "target_id": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "actor_user_id",
+                                  "action",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "logs"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/roles/permissions": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "permissions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "role",
+                              "permissions"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "roles"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "updated": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "updated"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "role": {
+                          "type": "string"
+                        },
+                        "permissions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "role",
+                        "permissions"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/settings": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "settings": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "settings"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "": {
+      "v1": {
+        "forms": {
+          "post": {
+            "requestBody": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "properties": {
+                      "theme_id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "theme_tokens": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "additionalProperties": {
+                          "oneOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "{id}": {
+            "put": {
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "properties": {
+                        "theme_id": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "theme_tokens": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "additionalProperties": {
+                            "oneOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## reforma-api-spec-v1.1.0-openapi-full+supplements.yaml
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0-openapi-full+supplements.yaml.yaml
+
+```yaml
+openapi: 3.0.3
+info:
+  title: 'ReForma API v1.1 OpenAPI（追補反映: theme/computed）'
+  version: 1.1-openapi-draft-full+supplements
+  description: API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI
+    を“実装可能な粒度”まで増補した草案。
+servers:
+- url: /
+tags:
+- name: Auth
+- name: Forms
+- name: Responses
+- name: ACK/PDF
+- name: Dashboard
+- name: System Admin
+- name: SUP (root-only)
+components:
+  securitySchemes:
+    sanctum:
+      type: apiKey
+      in: cookie
+      name: XSRF-TOKEN
+      description: Sanctum SPA session（例）。実装により Bearer 併用可
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+  schemas:
+    EnvelopeSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type:
+          - object
+          - 'null'
+      required:
+      - success
+      - data
+      - message
+      - errors
+    EnvelopeError:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type: object
+          properties:
+            code:
+              type: string
+              description: エラーコード
+            fields:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+                description: エラーメッセージ配列
+            rule:
+              type:
+              - object
+              - 'null'
+            step:
+              type:
+              - object
+              - 'null'
+          required:
+          - code
+          description: errors 本体（用途に応じて fields/rule/step を利用）
+      required:
+      - success
+      - data
+      - message
+      - errors
+    ErrorObject:
+      type: object
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        fields:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+            description: エラーメッセージ配列
+        rule:
+          type:
+          - object
+          - 'null'
+        step:
+          type:
+          - object
+          - 'null'
+      required:
+      - code
+      description: errors 本体（用途に応じて fields/rule/step を利用）
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: users.id
+        name:
+          type: string
+          description: 表示名
+        email:
+          type: string
+          description: メールアドレス
+          format: email
+        status:
+          type: string
+          description: active / suspended
+          enum:
+          - active
+          - suspended
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+            - SYSTEM_ADMIN
+            - FORM_ADMIN
+            - LOG_ADMIN
+          description: 付与ロール
+      required:
+      - id
+      - name
+      - email
+      - status
+      - roles
+    Form:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: forms.id
+        code:
+          type: string
+          description: forms.code（フォーム識別子）
+        status:
+          type: string
+          description: forms.status
+          enum:
+          - draft
+          - published
+          - closed
+        is_public:
+          type: boolean
+          description: forms.is_public
+        created_by:
+          type: integer
+          format: int64
+          description: forms.created_by
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        theme_id:
+          type:
+          - string
+          - 'null'
+          description: フォームテーマID（公開フォーム専用）
+        theme_tokens:
+          type:
+          - object
+          - 'null'
+          description: テーマトークン（CSS変数）
+          additionalProperties:
+            oneOf:
+            - type: string
+            - type: number
+            - type: boolean
+            - type: 'null'
+        theme_scope:
+          type:
+          - string
+          - 'null'
+          description: (契約) テーマ適用スコープ。公開フォームは form_container_only（管理画面テーマと分離）
+          enum:
+          - form_container_only
+          - null
+      required:
+      - id
+      - code
+      - status
+      - is_public
+      - created_by
+      - created_at
+      - updated_at
+    FormTranslation:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        form_id:
+          type: integer
+          format: int64
+        locale:
+          type: string
+          enum:
+          - ja
+          - en
+        title:
+          type: string
+          description: フォーム名
+        description:
+          type: string
+          description: 説明
+          example: ''
+      required:
+      - id
+      - form_id
+      - locale
+      - title
+    FormField:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: form_fields.id
+        form_id:
+          type: integer
+          format: int64
+          description: form_fields.form_id
+        field_key:
+          type: string
+          description: form_fields.field_key
+        type:
+          type: string
+          description: form_fields.type（input種別）
+        sort_order:
+          type: integer
+          format: int32
+          description: form_fields.sort_order
+        is_required:
+          type: boolean
+          description: form_fields.is_required（固定必須）
+        options_json:
+          type:
+          - object
+          - 'null'
+          description: 選択肢など（JSON）
+        visibility_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 visibility_rule(JSON)
+        required_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 required_rule(JSON)
+        step_transition_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 step_transition_rule(JSON)
+        is_readonly:
+          type:
+          - boolean
+          - 'null'
+          description: readonly（computed等で利用）
+        computed_rule:
+          type:
+          - object
+          - 'null'
+          description: '計算フィールド規則（v1.x: built_in_functions）'
+          properties:
+            engine:
+              type: string
+              enum:
+              - built_in_functions
+            fn:
+              type: string
+              enum:
+              - sum
+              - multiply
+              - tax
+              - round
+              - min
+              - max
+              - if
+            args:
+              type: array
+              items:
+                oneOf:
+                - type: string
+                  description: ref:FIELD_KEY 形式の参照
+                - type: number
+                - type: boolean
+                - type: 'null'
+            result_type:
+              type: string
+              enum:
+              - number
+              - string
+            format:
+              type:
+              - string
+              - 'null'
+              enum:
+              - integer
+              - decimal
+              - currency
+              - null
+            fallback:
+              type: object
+              properties:
+                on_error:
+                  type: string
+                  enum:
+                  - blank
+                  - zero
+                store:
+                  type: string
+                  enum:
+                  - store
+                  - do_not_store
+          required:
+          - engine
+          - fn
+          - args
+      required:
+      - id
+      - form_id
+      - field_key
+      - type
+      - sort_order
+      - is_required
+    ConditionState:
+      type: object
+      properties:
+        version:
+          type: string
+          enum:
+          - '1'
+        evaluated_at:
+          type: string
+          format: date-time
+        fields:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              visible:
+                type: boolean
+              required:
+                type: boolean
+              store:
+                type: string
+                enum:
+                - store
+                - do_not_store
+              eval:
+                type: string
+                enum:
+                - ok
+                - fallback
+                - error
+              reasons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    kind:
+                      type: string
+                      enum:
+                      - rule
+                      - type
+                      - missing_field
+                      - unknown_operator
+                    path:
+                      type: string
+                    message:
+                      type: string
+                description: 任意（デバッグ用途）
+            required:
+            - visible
+            - required
+            - store
+            - eval
+        step:
+          type:
+          - object
+          - 'null'
+          description: STEP遷移状態（STEPモードで利用）
+      required:
+      - version
+      - evaluated_at
+      - fields
+      description: 条件分岐評価結果（API→UI I/F）
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submissions.id
+        form_id:
+          type: integer
+          format: int64
+          description: submissions.form_id
+        status:
+          type: string
+          description: submissions.status
+          enum:
+          - received
+          - confirmed
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - form_id
+      - status
+      - created_at
+      - updated_at
+    SubmissionValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submission_values.id
+        submission_id:
+          type: integer
+          format: int64
+          description: submission_values.submission_id
+        field_key:
+          type: string
+          description: submission_values.field_key
+        field_label_snapshot:
+          type:
+          - string
+          - 'null'
+          description: ラベルスナップショット
+        value_json:
+          oneOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: object
+          - type: array
+          - type: 'null'
+          description: 回答 value（JSON）
+        label_json:
+          type:
+          - object
+          - 'null'
+          description: label スナップショット（JSON）
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - field_key
+      - value_json
+      - created_at
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        channel:
+          type: string
+          enum:
+          - mail
+          - slack
+        status:
+          type: string
+          enum:
+          - queued
+          - sent
+          - failed
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - channel
+      - status
+      - created_at
+    SubmissionPdf:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        pdf_type:
+          type: string
+          enum:
+          - submission
+          - ack
+        storage_path:
+          type: string
+          description: S3等の保存先パス
+        is_latest:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - pdf_type
+      - storage_path
+      - is_latest
+      - created_at
+    PaginatedForms:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Form'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    PaginatedResponses:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submission'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    SortEnum:
+      type: string
+      description: 一覧系 sort。既定=created_at_desc
+      enum:
+      - created_at_desc
+      - created_at_asc
+  responses:
+    Unauthorized:
+      description: 401 Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    Forbidden:
+      description: 403 Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    ValidationError:
+      description: 422 Validation Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+paths:
+  /v1/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: ログイン
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type:
+                        - string
+                        - 'null'
+                        description: token方式の場合に返却（Sanctum SPAの場合null）
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                remember:
+                  type: boolean
+              required:
+              - email
+              - password
+  /v1/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: ログアウト
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logged_out:
+                        type: boolean
+                    required:
+                    - logged_out
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/auth/me:
+    get:
+      tags:
+      - Auth
+      summary: 自分自身の情報
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/forms:
+    get:
+      tags:
+      - Forms
+      summary: フォーム一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      forms:
+                        $ref: '#/components/schemas/PaginatedForms'
+                    required:
+                    - forms
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - draft
+          - published
+          - closed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（部分一致）
+        required: false
+    post:
+      tags:
+      - Forms
+      summary: フォーム作成
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: フォーム識別子
+                  example: CONTACT_2026
+                is_public:
+                  type: boolean
+                  example: false
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+                  description: 多言語（初期）
+              required:
+              - code
+  /v1/forms/{id}:
+    get:
+      tags:
+      - Forms
+      summary: フォーム取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                      translations:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormTranslation'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+    put:
+      tags:
+      - Forms
+      summary: フォーム更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - published
+                  - closed
+                is_public:
+                  type: boolean
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+    delete:
+      tags:
+      - Forms
+      summary: フォーム削除（論理）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      deleted:
+                        type: boolean
+                    required:
+                    - deleted
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+  /v1/forms/{id}/fields:
+    get:
+      tags:
+      - Forms
+      summary: フォーム項目一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - name: include_rules
+        in: query
+        schema:
+          type: boolean
+          description: visibility/required rules を含める
+        required: false
+    put:
+      tags:
+      - Forms
+      summary: フォーム項目一括更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormField'
+              required:
+              - fields
+  /v1/responses:
+    get:
+      tags:
+      - Responses
+      summary: 送信一覧（Responses）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      responses:
+                        $ref: '#/components/schemas/PaginatedResponses'
+                    required:
+                    - responses
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: form_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - received
+          - confirmed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（メール/氏名など：A-02検索マトリクスに委譲）
+        required: false
+  /v1/responses/{id}:
+    get:
+      tags:
+      - Responses
+      summary: 送信詳細
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      response:
+                        $ref: '#/components/schemas/Submission'
+                      values:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionValue'
+                      notifications:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Notification'
+                      pdfs:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionPdf'
+                    required:
+                    - response
+                    - values
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+  /v1/forms/{form_key}/submit:
+    post:
+      tags:
+      - ACK/PDF
+      summary: 公開 submit
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      submission_id:
+                        type: integer
+                        format: int64
+                      ack_url:
+                        type: string
+                        description: ACK URL（UI遷移用）
+                      condition_state:
+                        $ref: '#/components/schemas/ConditionState'
+                    required:
+                    - submission_id
+                    - ack_url
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      parameters:
+      - name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                    - type: number
+                    - type: boolean
+                    - type: object
+                    - type: array
+                    - type: 'null'
+                locale:
+                  type: string
+                  enum:
+                  - ja
+                  - en
+                mode:
+                  type: string
+                  description: both/value/label (CSV等の表現に委譲)
+                  enum:
+                  - both
+                  - value
+                  - label
+              required:
+              - answers
+              description: （追補）computed フィールドの値を answers に含めても無視され、API側で再計算して確定します。
+  /v1/forms/{form_key}/ack:
+    get:
+      tags:
+      - ACK/PDF
+      summary: ACK 表示
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      ack:
+                        type: object
+                        description: ACK 表示データ（テンプレ/変数はA-04に委譲）
+                      pdf_url:
+                        type:
+                        - string
+                        - 'null'
+                        description: PDFダウンロードURL（許可される場合）
+                    required:
+                    - ack
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+      parameters:
+      - name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: token
+        in: query
+        schema:
+          type: string
+          description: confirm_url token
+        required: false
+      - name: submission_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+  /v1/responses/{id}/pdf:
+    get:
+      tags:
+      - ACK/PDF
+      summary: PDF 取得（管理側）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - name: pdf_type
+        in: query
+        schema:
+          type: string
+          enum:
+          - submission
+          - ack
+        required: false
+  /v1/dashboard/summary:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード集計
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        properties:
+                          forms_count:
+                            type: integer
+                            format: int32
+                          responses_today:
+                            type: integer
+                            format: int32
+                          responses_total:
+                            type: integer
+                            format: int32
+                        required:
+                        - forms_count
+                        - responses_today
+                        - responses_total
+                    required:
+                    - summary
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/dashboard/errors:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード（エラー/失敗一覧）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                kind:
+                                  type: string
+                                  enum:
+                                  - mail_failed
+                                  - slack_failed
+                                  - pdf_failed
+                                  - eval_error
+                                  - other
+                                message:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - kind
+                              - message
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - errors
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+  /v1/system/admin-users:
+    get:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/User'
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - users
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: role
+        in: query
+        schema:
+          type: string
+          enum:
+          - SYSTEM_ADMIN
+          - FORM_ADMIN
+          - LOG_ADMIN
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - active
+          - suspended
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（email/name）
+        required: false
+    post:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ作成（招待）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - SYSTEM_ADMIN
+                    - FORM_ADMIN
+                    - LOG_ADMIN
+              required:
+              - name
+              - email
+              - roles
+  /v1/system/admin-users/{id}:
+    put:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                  - active
+                  - suspended
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - SYSTEM_ADMIN
+                    - FORM_ADMIN
+                    - LOG_ADMIN
+  /v1/system/admin-users/invites/resend:
+    post:
+      tags:
+      - System Admin
+      summary: 招待再送
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      sent:
+                        type: boolean
+                    required:
+                    - sent
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  format: int64
+              required:
+              - user_id
+  /v1/system/admin-audit-logs:
+    get:
+      tags:
+      - System Admin
+      summary: 監査ログ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logs:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                actor_user_id:
+                                  type: integer
+                                  format: int64
+                                action:
+                                  type: string
+                                target_type:
+                                  type: string
+                                target_id:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - actor_user_id
+                              - action
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - logs
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: user_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: action
+        in: query
+        schema:
+          type: string
+        required: false
+  /v1/system/roles/permissions:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            role:
+                              type: string
+                            permissions:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - role
+                          - permissions
+                    required:
+                    - roles
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      updated:
+                        type: boolean
+                    required:
+                    - updated
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - role
+                    - permissions
+              required:
+              - roles
+  /v1/system/settings:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: システム設定取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: システム設定更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settings:
+                  type: object
+              required:
+              - settings
+  ? ''
+  : v1:
+      forms:
+        post:
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  properties:
+                    theme_id:
+                      type:
+                      - string
+                      - 'null'
+                    theme_tokens:
+                      type:
+                      - object
+                      - 'null'
+                      additionalProperties:
+                        oneOf:
+                        - type: string
+                        - type: number
+                        - type: boolean
+                        - type: 'null'
+        '{id}':
+          put:
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    properties:
+                      theme_id:
+                        type:
+                        - string
+                        - 'null'
+                      theme_tokens:
+                        type:
+                        - object
+                        - 'null'
+                        additionalProperties:
+                          oneOf:
+                          - type: string
+                          - type: number
+                          - type: boolean
+                          - type: 'null'
+```
+
+## reforma-api-spec-v1.1.0-openapi-full.json
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0-openapi-full.json.json
+
+```json
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8）",
+    "version": "1.1-openapi-draft-full",
+    "description": "API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI を“実装可能な粒度”まで増補した草案。"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Forms"
+    },
+    {
+      "name": "Responses"
+    },
+    {
+      "name": "ACK/PDF"
+    },
+    {
+      "name": "Dashboard"
+    },
+    {
+      "name": "System Admin"
+    },
+    {
+      "name": "SUP (root-only)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "XSRF-TOKEN",
+        "description": "Sanctum SPA session（例）。実装により Bearer 併用可"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    },
+    "schemas": {
+      "EnvelopeSuccess": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors"
+        ]
+      },
+      "EnvelopeError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "null"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "エラーコード"
+              },
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "エラーメッセージ配列"
+                }
+              },
+              "rule": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "step": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "message",
+          "errors"
+        ]
+      },
+      "ErrorObject": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "エラーメッセージ配列"
+            }
+          },
+          "rule": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "users.id"
+          },
+          "name": {
+            "type": "string",
+            "description": "表示名"
+          },
+          "email": {
+            "type": "string",
+            "description": "メールアドレス",
+            "format": "email"
+          },
+          "status": {
+            "type": "string",
+            "description": "active / suspended",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "description": "付与ロール"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "status",
+          "roles"
+        ]
+      },
+      "Form": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.id"
+          },
+          "code": {
+            "type": "string",
+            "description": "forms.code（フォーム識別子）"
+          },
+          "status": {
+            "type": "string",
+            "description": "forms.status",
+            "enum": [
+              "draft",
+              "published",
+              "closed"
+            ]
+          },
+          "is_public": {
+            "type": "boolean",
+            "description": "forms.is_public"
+          },
+          "created_by": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.created_by"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "status",
+          "is_public",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "FormTranslation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ja",
+              "en"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "フォーム名"
+          },
+          "description": {
+            "type": "string",
+            "description": "説明",
+            "example": ""
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "locale",
+          "title"
+        ]
+      },
+      "FormField": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.form_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "form_fields.field_key"
+          },
+          "type": {
+            "type": "string",
+            "description": "form_fields.type（input種別）"
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "form_fields.sort_order"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "form_fields.is_required（固定必須）"
+          },
+          "options_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "選択肢など（JSON）"
+          },
+          "visibility_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 visibility_rule(JSON)"
+          },
+          "required_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 required_rule(JSON)"
+          },
+          "step_transition_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 step_transition_rule(JSON)"
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "field_key",
+          "type",
+          "sort_order",
+          "is_required"
+        ]
+      },
+      "ConditionState": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "enum": [
+              "1"
+            ]
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "visible": {
+                  "type": "boolean"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "store": {
+                  "type": "string",
+                  "enum": [
+                    "store",
+                    "do_not_store"
+                  ]
+                },
+                "eval": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "fallback",
+                    "error"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "rule",
+                          "type",
+                          "missing_field",
+                          "unknown_operator"
+                        ]
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description": "任意（デバッグ用途）"
+                }
+              },
+              "required": [
+                "visible",
+                "required",
+                "store",
+                "eval"
+              ]
+            }
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "STEP遷移状態（STEPモードで利用）"
+          }
+        },
+        "required": [
+          "version",
+          "evaluated_at",
+          "fields"
+        ],
+        "description": "条件分岐評価結果（API→UI I/F）"
+      },
+      "Submission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.form_id"
+          },
+          "status": {
+            "type": "string",
+            "description": "submissions.status",
+            "enum": [
+              "received",
+              "confirmed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "SubmissionValue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.id"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.submission_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "submission_values.field_key"
+          },
+          "field_label_snapshot": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ラベルスナップショット"
+          },
+          "value_json": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "回答 value（JSON）"
+          },
+          "label_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "label スナップショット（JSON）"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "field_key",
+          "value_json",
+          "created_at"
+        ]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "mail",
+              "slack"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "sent",
+              "failed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "channel",
+          "status",
+          "created_at"
+        ]
+      },
+      "SubmissionPdf": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pdf_type": {
+            "type": "string",
+            "enum": [
+              "submission",
+              "ack"
+            ]
+          },
+          "storage_path": {
+            "type": "string",
+            "description": "S3等の保存先パス"
+          },
+          "is_latest": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "pdf_type",
+          "storage_path",
+          "is_latest",
+          "created_at"
+        ]
+      },
+      "PaginatedForms": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Form"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "PaginatedResponses": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Submission"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "SortEnum": {
+        "type": "string",
+        "description": "一覧系 sort。既定=created_at_desc",
+        "enum": [
+          "created_at_desc",
+          "created_at_asc"
+        ]
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "401 Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "403 Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "422 Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログイン",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "token方式の場合に返却（Sanctum SPAの場合null）"
+                        },
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "remember": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログアウト",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logged_out": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "logged_out"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "自分自身の情報",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/forms": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "forms": {
+                          "$ref": "#/components/schemas/PaginatedForms"
+                        }
+                      },
+                      "required": [
+                        "forms"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "closed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（部分一致）"
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム作成",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "フォーム識別子",
+                    "example": "CONTACT_2026"
+                  },
+                  "is_public": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    },
+                    "description": "多言語（初期）"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{id}": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        },
+                        "translations": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormTranslation"
+                          }
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "published",
+                      "closed"
+                    ]
+                  },
+                  "is_public": {
+                    "type": "boolean"
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム削除（論理）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "deleted": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "deleted"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{id}/fields": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "include_rules",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "description": "visibility/required rules を含める"
+            },
+            "required": false
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一括更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormField"
+                    }
+                  }
+                },
+                "required": [
+                  "fields"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/responses": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信一覧（Responses）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "responses": {
+                          "$ref": "#/components/schemas/PaginatedResponses"
+                        }
+                      },
+                      "required": [
+                        "responses"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "form_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "received",
+                "confirmed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（メール/氏名など：A-02検索マトリクスに委譲）"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信詳細",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/Submission"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionValue"
+                          }
+                        },
+                        "notifications": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Notification"
+                          }
+                        },
+                        "pdfs": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionPdf"
+                          }
+                        }
+                      },
+                      "required": [
+                        "response",
+                        "values"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{form_key}/submit": {
+      "post": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "公開 submit",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "submission_id": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "ack_url": {
+                          "type": "string",
+                          "description": "ACK URL（UI遷移用）"
+                        },
+                        "condition_state": {
+                          "$ref": "#/components/schemas/ConditionState"
+                        }
+                      },
+                      "required": [
+                        "submission_id",
+                        "ack_url"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "object"
+                        },
+                        {
+                          "type": "array"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "ja",
+                      "en"
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "description": "both/value/label (CSV等の表現に委譲)",
+                    "enum": [
+                      "both",
+                      "value",
+                      "label"
+                    ]
+                  }
+                },
+                "required": [
+                  "answers"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{form_key}/ack": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "ACK 表示",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "ack": {
+                          "type": "object",
+                          "description": "ACK 表示データ（テンプレ/変数はA-04に委譲）"
+                        },
+                        "pdf_url": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "PDFダウンロードURL（許可される場合）"
+                        }
+                      },
+                      "required": [
+                        "ack"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "confirm_url token"
+            },
+            "required": false
+          },
+          {
+            "name": "submission_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}/pdf": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "PDF 取得（管理側）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "pdf_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "submission",
+                "ack"
+              ]
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード集計",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "forms_count": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_today": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_total": {
+                              "type": "integer",
+                              "format": "int32"
+                            }
+                          },
+                          "required": [
+                            "forms_count",
+                            "responses_today",
+                            "responses_total"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "summary"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/errors": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード（エラー/失敗一覧）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "errors": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "mail_failed",
+                                      "slack_failed",
+                                      "pdf_failed",
+                                      "eval_error",
+                                      "other"
+                                    ]
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "kind",
+                                  "message",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "errors"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/admin-users": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "users": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/User"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "users"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（email/name）"
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ作成（招待）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SYSTEM_ADMIN",
+                        "FORM_ADMIN",
+                        "LOG_ADMIN"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-users/{id}": {
+      "put": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "suspended"
+                    ]
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SYSTEM_ADMIN",
+                        "FORM_ADMIN",
+                        "LOG_ADMIN"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-users/invites/resend": {
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "招待再送",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sent": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "sent"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "user_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-audit-logs": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "監査ログ一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logs": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "actor_user_id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "action": {
+                                    "type": "string"
+                                  },
+                                  "target_type": {
+                                    "type": "string"
+                                  },
+                                  "target_id": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "actor_user_id",
+                                  "action",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "logs"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/roles/permissions": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "permissions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "role",
+                              "permissions"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "roles"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "updated": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "updated"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "role": {
+                          "type": "string"
+                        },
+                        "permissions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "role",
+                        "permissions"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/settings": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "settings": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "settings"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## reforma-api-spec-v1.1.0-openapi-full.updated.json
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0-openapi-full.updated.json.json
+
+```json
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8）",
+    "version": "1.1-openapi-draft-full",
+    "description": "API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI を“実装可能な粒度”まで増補した草案。"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Forms"
+    },
+    {
+      "name": "Responses"
+    },
+    {
+      "name": "ACK/PDF"
+    },
+    {
+      "name": "Dashboard"
+    },
+    {
+      "name": "System Admin"
+    },
+    {
+      "name": "SUP (root-only)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "XSRF-TOKEN",
+        "description": "Sanctum SPA session（例）。実装により Bearer 併用可"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    },
+    "schemas": {
+      "EnvelopeSuccess": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "description": "API共通コード（成功時はOK等）",
+            "example": "OK"
+          },
+          "request_id": {
+            "type": "string",
+            "description": "リクエストID（追跡用）",
+            "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          }
+        },
+        "required": [
+          "success",
+          "code",
+          "request_id",
+          "message",
+          "data",
+          "errors"
+        ]
+      },
+      "EnvelopeError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "null"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "エラーコード"
+              },
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "エラーメッセージ配列"
+                }
+              },
+              "rule": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "step": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "description": "失敗理由（機械判定用）。例: ROOT_ONLY / SYSTEM_ADMIN_REQUIRED / TOKEN_EXPIRED など",
+                "example": "ROOT_ONLY"
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+          },
+          "code": {
+            "type": "string",
+            "description": "API共通コード（例: FORBIDDEN / CONSTRAINT_VIOLATION / VALIDATION_ERROR 等）",
+            "example": "FORBIDDEN"
+          },
+          "request_id": {
+            "type": "string",
+            "description": "リクエストID（追跡用）",
+            "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          }
+        },
+        "required": [
+          "success",
+          "code",
+          "request_id",
+          "message",
+          "data",
+          "errors"
+        ]
+      },
+      "ErrorObject": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "エラーメッセージ配列"
+            }
+          },
+          "rule": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "description": "失敗理由（機械判定用）",
+            "example": "ROOT_ONLY"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "users.id"
+          },
+          "name": {
+            "type": "string",
+            "description": "表示名"
+          },
+          "email": {
+            "type": "string",
+            "description": "メールアドレス",
+            "format": "email"
+          },
+          "status": {
+            "type": "string",
+            "description": "active / suspended",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "description": "付与ロール"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "status",
+          "roles"
+        ]
+      },
+      "Form": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.id"
+          },
+          "code": {
+            "type": "string",
+            "description": "forms.code（フォーム識別子）"
+          },
+          "status": {
+            "type": "string",
+            "description": "forms.status",
+            "enum": [
+              "draft",
+              "published",
+              "closed"
+            ]
+          },
+          "is_public": {
+            "type": "boolean",
+            "description": "forms.is_public"
+          },
+          "created_by": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.created_by"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "status",
+          "is_public",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "FormTranslation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ja",
+              "en"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "フォーム名"
+          },
+          "description": {
+            "type": "string",
+            "description": "説明",
+            "example": ""
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "locale",
+          "title"
+        ]
+      },
+      "FormField": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.form_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "form_fields.field_key"
+          },
+          "type": {
+            "type": "string",
+            "description": "form_fields.type（input種別）"
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "form_fields.sort_order"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "form_fields.is_required（固定必須）"
+          },
+          "options_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "選択肢など（JSON）"
+          },
+          "visibility_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 visibility_rule(JSON)"
+          },
+          "required_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 required_rule(JSON)"
+          },
+          "step_transition_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 step_transition_rule(JSON)"
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "field_key",
+          "type",
+          "sort_order",
+          "is_required"
+        ]
+      },
+      "ConditionState": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "enum": [
+              "1"
+            ]
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "visible": {
+                  "type": "boolean"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "store": {
+                  "type": "string",
+                  "enum": [
+                    "store",
+                    "do_not_store"
+                  ]
+                },
+                "eval": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "fallback",
+                    "error"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "rule",
+                          "type",
+                          "missing_field",
+                          "unknown_operator"
+                        ]
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description": "任意（デバッグ用途）"
+                }
+              },
+              "required": [
+                "visible",
+                "required",
+                "store",
+                "eval"
+              ]
+            }
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "STEP遷移状態（STEPモードで利用）"
+          }
+        },
+        "required": [
+          "version",
+          "evaluated_at",
+          "fields"
+        ],
+        "description": "条件分岐評価結果（API→UI I/F）"
+      },
+      "Submission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.form_id"
+          },
+          "status": {
+            "type": "string",
+            "description": "submissions.status",
+            "enum": [
+              "received",
+              "confirmed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "SubmissionValue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.id"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.submission_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "submission_values.field_key"
+          },
+          "field_label_snapshot": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ラベルスナップショット"
+          },
+          "value_json": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "回答 value（JSON）"
+          },
+          "label_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "label スナップショット（JSON）"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "field_key",
+          "value_json",
+          "created_at"
+        ]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "mail",
+              "slack"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "sent",
+              "failed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "channel",
+          "status",
+          "created_at"
+        ]
+      },
+      "SubmissionPdf": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pdf_type": {
+            "type": "string",
+            "enum": [
+              "submission",
+              "ack"
+            ]
+          },
+          "storage_path": {
+            "type": "string",
+            "description": "S3等の保存先パス"
+          },
+          "is_latest": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "pdf_type",
+          "storage_path",
+          "is_latest",
+          "created_at"
+        ]
+      },
+      "PaginatedForms": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Form"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "PaginatedResponses": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Submission"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "SortEnum": {
+        "type": "string",
+        "description": "一覧系 sort。既定=created_at_desc",
+        "enum": [
+          "created_at_desc",
+          "created_at_asc"
+        ]
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "401 Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "403 Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "422 Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      }
+    },
+    "examples": {
+      "ForbiddenRootOnly": {
+        "summary": "root-only により拒否",
+        "value": {
+          "success": false,
+          "data": null,
+          "message": "Forbidden.",
+          "errors": {
+            "reason": "ROOT_ONLY"
+          },
+          "code": "FORBIDDEN",
+          "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+      },
+      "ForbiddenSystemAdminRequired": {
+        "summary": "system_admin 必須により拒否",
+        "value": {
+          "success": false,
+          "data": null,
+          "message": "Forbidden.",
+          "errors": {
+            "reason": "SYSTEM_ADMIN_REQUIRED"
+          },
+          "code": "FORBIDDEN",
+          "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログイン",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "token方式の場合に返却（Sanctum SPAの場合null）"
+                        },
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "remember": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログアウト",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logged_out": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "logged_out"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "自分自身の情報",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/forms": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "forms": {
+                          "$ref": "#/components/schemas/PaginatedForms"
+                        }
+                      },
+                      "required": [
+                        "forms"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "closed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（部分一致）"
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム作成",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "フォーム識別子",
+                    "example": "CONTACT_2026"
+                  },
+                  "is_public": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    },
+                    "description": "多言語（初期）"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{id}": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        },
+                        "translations": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormTranslation"
+                          }
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "published",
+                      "closed"
+                    ]
+                  },
+                  "is_public": {
+                    "type": "boolean"
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム削除（論理）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "deleted": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "deleted"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{id}/fields": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "include_rules",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "description": "visibility/required rules を含める"
+            },
+            "required": false
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一括更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormField"
+                    }
+                  }
+                },
+                "required": [
+                  "fields"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/responses": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信一覧（Responses）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "responses": {
+                          "$ref": "#/components/schemas/PaginatedResponses"
+                        }
+                      },
+                      "required": [
+                        "responses"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "form_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "received",
+                "confirmed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（メール/氏名など：A-02検索マトリクスに委譲）"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信詳細",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/Submission"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionValue"
+                          }
+                        },
+                        "notifications": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Notification"
+                          }
+                        },
+                        "pdfs": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionPdf"
+                          }
+                        }
+                      },
+                      "required": [
+                        "response",
+                        "values"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{form_key}/submit": {
+      "post": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "公開 submit",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "submission_id": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "ack_url": {
+                          "type": "string",
+                          "description": "ACK URL（UI遷移用）"
+                        },
+                        "condition_state": {
+                          "$ref": "#/components/schemas/ConditionState"
+                        }
+                      },
+                      "required": [
+                        "submission_id",
+                        "ack_url"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "object"
+                        },
+                        {
+                          "type": "array"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "ja",
+                      "en"
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "description": "both/value/label (CSV等の表現に委譲)",
+                    "enum": [
+                      "both",
+                      "value",
+                      "label"
+                    ]
+                  }
+                },
+                "required": [
+                  "answers"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{form_key}/ack": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "ACK 表示",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "ack": {
+                          "type": "object",
+                          "description": "ACK 表示データ（テンプレ/変数はA-04に委譲）"
+                        },
+                        "pdf_url": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "PDFダウンロードURL（許可される場合）"
+                        }
+                      },
+                      "required": [
+                        "ack"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "confirm_url token"
+            },
+            "required": false
+          },
+          {
+            "name": "submission_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}/pdf": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "PDF 取得（管理側）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "pdf_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "submission",
+                "ack"
+              ]
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード集計",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "forms_count": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_today": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_total": {
+                              "type": "integer",
+                              "format": "int32"
+                            }
+                          },
+                          "required": [
+                            "forms_count",
+                            "responses_today",
+                            "responses_total"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "summary"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/errors": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード（エラー/失敗一覧）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "errors": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "mail_failed",
+                                      "slack_failed",
+                                      "pdf_failed",
+                                      "eval_error",
+                                      "other"
+                                    ]
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "kind",
+                                  "message",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "errors"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/admin-users": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "users": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/User"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "users"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（email/name）"
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ作成（招待）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SYSTEM_ADMIN",
+                        "FORM_ADMIN",
+                        "LOG_ADMIN"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-users/{id}": {
+      "put": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                },
+                "examples": {
+                  "ROOT_ONLY": {
+                    "$ref": "#/components/examples/ForbiddenRootOnly"
+                  },
+                  "SYSTEM_ADMIN_REQUIRED": {
+                    "$ref": "#/components/examples/ForbiddenSystemAdminRequired"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "suspended"
+                    ]
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SYSTEM_ADMIN",
+                        "FORM_ADMIN",
+                        "LOG_ADMIN"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "### RBAC\n- 必須: system_admin\n- **system_admin 付与（昇格）**は root-only（is_root=true 必須）\n- system_admin 剥奪（降格）は system_admin で可（ただし自己降格禁止・最後の system_admin 禁止）"
+      }
+    },
+    "/v1/system/admin-users/invites/resend": {
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "招待再送",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sent": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "sent"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "user_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-audit-logs": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "監査ログ一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logs": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "actor_user_id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "action": {
+                                    "type": "string"
+                                  },
+                                  "target_type": {
+                                    "type": "string"
+                                  },
+                                  "target_id": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "actor_user_id",
+                                  "action",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "logs"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/roles/permissions": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "permissions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "role",
+                              "permissions"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "roles"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "updated": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "updated"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "role": {
+                          "type": "string"
+                        },
+                        "permissions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "role",
+                        "permissions"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/settings": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "settings": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "settings"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/root-only/ping": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "root-only 動作確認（ping）",
+        "description": "root-only ミドルウェア動作確認用。system_admin を満たした上で is_root=true の場合のみ成功。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "pong": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "pong"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "request_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "code",
+                    "request_id"
+                  ]
+                },
+                "examples": {
+                  "OK": {
+                    "summary": "成功",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "pong": true
+                      },
+                      "message": null,
+                      "errors": null,
+                      "code": "OK",
+                      "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                },
+                "examples": {
+                  "ROOT_ONLY": {
+                    "$ref": "#/components/examples/ForbiddenRootOnly"
+                  },
+                  "SYSTEM_ADMIN_REQUIRED": {
+                    "$ref": "#/components/examples/ForbiddenSystemAdminRequired"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## reforma-api-spec-v1.1.0-openapi-full.yaml
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0-openapi-full.yaml.yaml
+
+```yaml
+openapi: 3.0.3
+info:
+  title: ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8）
+  version: 1.1-openapi-draft-full
+  description: API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI
+    を“実装可能な粒度”まで増補した草案。
+servers:
+- url: /
+tags:
+- name: Auth
+- name: Forms
+- name: Responses
+- name: ACK/PDF
+- name: Dashboard
+- name: System Admin
+- name: SUP (root-only)
+components:
+  securitySchemes:
+    sanctum:
+      type: apiKey
+      in: cookie
+      name: XSRF-TOKEN
+      description: Sanctum SPA session（例）。実装により Bearer 併用可
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+  schemas:
+    EnvelopeSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type:
+          - object
+          - 'null'
+      required:
+      - success
+      - data
+      - message
+      - errors
+    EnvelopeError:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        errors: &id001
+          type: object
+          properties:
+            code:
+              type: string
+              description: エラーコード
+            fields:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+                description: エラーメッセージ配列
+            rule:
+              type:
+              - object
+              - 'null'
+            step:
+              type:
+              - object
+              - 'null'
+          required:
+          - code
+          description: errors 本体（用途に応じて fields/rule/step を利用）
+      required:
+      - success
+      - data
+      - message
+      - errors
+    ErrorObject: *id001
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: users.id
+        name:
+          type: string
+          description: 表示名
+        email:
+          type: string
+          description: メールアドレス
+          format: email
+        status:
+          type: string
+          description: active / suspended
+          enum:
+          - active
+          - suspended
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+            - SYSTEM_ADMIN
+            - FORM_ADMIN
+            - LOG_ADMIN
+          description: 付与ロール
+      required:
+      - id
+      - name
+      - email
+      - status
+      - roles
+    Form:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: forms.id
+        code:
+          type: string
+          description: forms.code（フォーム識別子）
+        status:
+          type: string
+          description: forms.status
+          enum:
+          - draft
+          - published
+          - closed
+        is_public:
+          type: boolean
+          description: forms.is_public
+        created_by:
+          type: integer
+          format: int64
+          description: forms.created_by
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - code
+      - status
+      - is_public
+      - created_by
+      - created_at
+      - updated_at
+    FormTranslation:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        form_id:
+          type: integer
+          format: int64
+        locale:
+          type: string
+          enum:
+          - ja
+          - en
+        title:
+          type: string
+          description: フォーム名
+        description:
+          type: string
+          description: 説明
+          example: ''
+      required:
+      - id
+      - form_id
+      - locale
+      - title
+    FormField:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: form_fields.id
+        form_id:
+          type: integer
+          format: int64
+          description: form_fields.form_id
+        field_key:
+          type: string
+          description: form_fields.field_key
+        type:
+          type: string
+          description: form_fields.type（input種別）
+        sort_order:
+          type: integer
+          format: int32
+          description: form_fields.sort_order
+        is_required:
+          type: boolean
+          description: form_fields.is_required（固定必須）
+        options_json:
+          type:
+          - object
+          - 'null'
+          description: 選択肢など（JSON）
+        visibility_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 visibility_rule(JSON)
+        required_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 required_rule(JSON)
+        step_transition_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 step_transition_rule(JSON)
+      required:
+      - id
+      - form_id
+      - field_key
+      - type
+      - sort_order
+      - is_required
+    ConditionState:
+      type: object
+      properties:
+        version:
+          type: string
+          enum:
+          - '1'
+        evaluated_at:
+          type: string
+          format: date-time
+        fields:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              visible:
+                type: boolean
+              required:
+                type: boolean
+              store:
+                type: string
+                enum:
+                - store
+                - do_not_store
+              eval:
+                type: string
+                enum:
+                - ok
+                - fallback
+                - error
+              reasons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    kind:
+                      type: string
+                      enum:
+                      - rule
+                      - type
+                      - missing_field
+                      - unknown_operator
+                    path:
+                      type: string
+                    message:
+                      type: string
+                description: 任意（デバッグ用途）
+            required:
+            - visible
+            - required
+            - store
+            - eval
+        step:
+          type:
+          - object
+          - 'null'
+          description: STEP遷移状態（STEPモードで利用）
+      required:
+      - version
+      - evaluated_at
+      - fields
+      description: 条件分岐評価結果（API→UI I/F）
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submissions.id
+        form_id:
+          type: integer
+          format: int64
+          description: submissions.form_id
+        status:
+          type: string
+          description: submissions.status
+          enum:
+          - received
+          - confirmed
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - form_id
+      - status
+      - created_at
+      - updated_at
+    SubmissionValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submission_values.id
+        submission_id:
+          type: integer
+          format: int64
+          description: submission_values.submission_id
+        field_key:
+          type: string
+          description: submission_values.field_key
+        field_label_snapshot:
+          type:
+          - string
+          - 'null'
+          description: ラベルスナップショット
+        value_json:
+          oneOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: object
+          - type: array
+          - type: 'null'
+          description: 回答 value（JSON）
+        label_json:
+          type:
+          - object
+          - 'null'
+          description: label スナップショット（JSON）
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - field_key
+      - value_json
+      - created_at
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        channel:
+          type: string
+          enum:
+          - mail
+          - slack
+        status:
+          type: string
+          enum:
+          - queued
+          - sent
+          - failed
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - channel
+      - status
+      - created_at
+    SubmissionPdf:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        pdf_type:
+          type: string
+          enum:
+          - submission
+          - ack
+        storage_path:
+          type: string
+          description: S3等の保存先パス
+        is_latest:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - pdf_type
+      - storage_path
+      - is_latest
+      - created_at
+    PaginatedForms:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Form'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum: &id002
+          - created_at_desc
+          - created_at_asc
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    PaginatedResponses:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submission'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum: *id002
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    SortEnum:
+      type: string
+      description: 一覧系 sort。既定=created_at_desc
+      enum: *id002
+  responses:
+    Unauthorized: &id004
+      description: 401 Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    Forbidden: &id005
+      description: 403 Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    ValidationError: &id003
+      description: 422 Validation Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+paths:
+  /v1/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: ログイン
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type:
+                        - string
+                        - 'null'
+                        description: token方式の場合に返却（Sanctum SPAの場合null）
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422': *id003
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                remember:
+                  type: boolean
+              required:
+              - email
+              - password
+  /v1/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: ログアウト
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logged_out:
+                        type: boolean
+                    required:
+                    - logged_out
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+      security:
+      - bearerAuth: []
+  /v1/auth/me:
+    get:
+      tags:
+      - Auth
+      summary: 自分自身の情報
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+      security:
+      - bearerAuth: []
+  /v1/forms:
+    get:
+      tags:
+      - Forms
+      summary: フォーム一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      forms:
+                        $ref: '#/components/schemas/PaginatedForms'
+                    required:
+                    - forms
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters:
+      - &id009
+        name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - &id010
+        name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - &id011
+        name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - draft
+          - published
+          - closed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（部分一致）
+        required: false
+    post:
+      tags:
+      - Forms
+      summary: フォーム作成
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: &id006
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id006
+        '401': *id004
+        '403': *id005
+        '422': *id003
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: フォーム識別子
+                  example: CONTACT_2026
+                is_public:
+                  type: boolean
+                  example: false
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+                  description: 多言語（初期）
+              required:
+              - code
+  /v1/forms/{id}:
+    get:
+      tags:
+      - Forms
+      summary: フォーム取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                      translations:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormTranslation'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters: &id007
+      - &id008
+        name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+    put:
+      tags:
+      - Forms
+      summary: フォーム更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+        '422': *id003
+      security:
+      - bearerAuth: []
+      parameters: *id007
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - published
+                  - closed
+                is_public:
+                  type: boolean
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+    delete:
+      tags:
+      - Forms
+      summary: フォーム削除（論理）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      deleted:
+                        type: boolean
+                    required:
+                    - deleted
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters: *id007
+  /v1/forms/{id}/fields:
+    get:
+      tags:
+      - Forms
+      summary: フォーム項目一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters:
+      - *id008
+      - name: include_rules
+        in: query
+        schema:
+          type: boolean
+          description: visibility/required rules を含める
+        required: false
+    put:
+      tags:
+      - Forms
+      summary: フォーム項目一括更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+        '422': *id003
+      security:
+      - bearerAuth: []
+      parameters: *id007
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormField'
+              required:
+              - fields
+  /v1/responses:
+    get:
+      tags:
+      - Responses
+      summary: 送信一覧（Responses）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      responses:
+                        $ref: '#/components/schemas/PaginatedResponses'
+                    required:
+                    - responses
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters:
+      - *id009
+      - *id010
+      - *id011
+      - name: form_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - received
+          - confirmed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（メール/氏名など：A-02検索マトリクスに委譲）
+        required: false
+  /v1/responses/{id}:
+    get:
+      tags:
+      - Responses
+      summary: 送信詳細
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      response:
+                        $ref: '#/components/schemas/Submission'
+                      values:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionValue'
+                      notifications:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Notification'
+                      pdfs:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionPdf'
+                    required:
+                    - response
+                    - values
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters: *id007
+  /v1/forms/{form_key}/submit:
+    post:
+      tags:
+      - ACK/PDF
+      summary: 公開 submit
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      submission_id:
+                        type: integer
+                        format: int64
+                      ack_url:
+                        type: string
+                        description: ACK URL（UI遷移用）
+                      condition_state:
+                        $ref: '#/components/schemas/ConditionState'
+                    required:
+                    - submission_id
+                    - ack_url
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422': *id003
+      parameters:
+      - &id012
+        name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                    - type: number
+                    - type: boolean
+                    - type: object
+                    - type: array
+                    - type: 'null'
+                locale:
+                  type: string
+                  enum:
+                  - ja
+                  - en
+                mode:
+                  type: string
+                  description: both/value/label (CSV等の表現に委譲)
+                  enum:
+                  - both
+                  - value
+                  - label
+              required:
+              - answers
+  /v1/forms/{form_key}/ack:
+    get:
+      tags:
+      - ACK/PDF
+      summary: ACK 表示
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      ack:
+                        type: object
+                        description: ACK 表示データ（テンプレ/変数はA-04に委譲）
+                      pdf_url:
+                        type:
+                        - string
+                        - 'null'
+                        description: PDFダウンロードURL（許可される場合）
+                    required:
+                    - ack
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+      parameters:
+      - *id012
+      - name: token
+        in: query
+        schema:
+          type: string
+          description: confirm_url token
+        required: false
+      - name: submission_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+  /v1/responses/{id}/pdf:
+    get:
+      tags:
+      - ACK/PDF
+      summary: PDF 取得（管理側）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters:
+      - *id008
+      - name: pdf_type
+        in: query
+        schema:
+          type: string
+          enum:
+          - submission
+          - ack
+        required: false
+  /v1/dashboard/summary:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード集計
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        properties:
+                          forms_count:
+                            type: integer
+                            format: int32
+                          responses_today:
+                            type: integer
+                            format: int32
+                          responses_total:
+                            type: integer
+                            format: int32
+                        required:
+                        - forms_count
+                        - responses_today
+                        - responses_total
+                    required:
+                    - summary
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+  /v1/dashboard/errors:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード（エラー/失敗一覧）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                kind:
+                                  type: string
+                                  enum:
+                                  - mail_failed
+                                  - slack_failed
+                                  - pdf_failed
+                                  - eval_error
+                                  - other
+                                message:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - kind
+                              - message
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum: *id002
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - errors
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters:
+      - *id009
+      - *id010
+      - *id011
+  /v1/system/admin-users:
+    get:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/User'
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum: *id002
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - users
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters:
+      - *id009
+      - *id010
+      - *id011
+      - name: role
+        in: query
+        schema:
+          type: string
+          enum:
+          - SYSTEM_ADMIN
+          - FORM_ADMIN
+          - LOG_ADMIN
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - active
+          - suspended
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（email/name）
+        required: false
+    post:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ作成（招待）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: &id013
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: *id013
+        '401': *id004
+        '403': *id005
+        '422': *id003
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - SYSTEM_ADMIN
+                    - FORM_ADMIN
+                    - LOG_ADMIN
+              required:
+              - name
+              - email
+              - roles
+  /v1/system/admin-users/{id}:
+    put:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+        '422': *id003
+      security:
+      - bearerAuth: []
+      parameters: *id007
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                  - active
+                  - suspended
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - SYSTEM_ADMIN
+                    - FORM_ADMIN
+                    - LOG_ADMIN
+  /v1/system/admin-users/invites/resend:
+    post:
+      tags:
+      - System Admin
+      summary: 招待再送
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      sent:
+                        type: boolean
+                    required:
+                    - sent
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+        '422': *id003
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  format: int64
+              required:
+              - user_id
+  /v1/system/admin-audit-logs:
+    get:
+      tags:
+      - System Admin
+      summary: 監査ログ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logs:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                actor_user_id:
+                                  type: integer
+                                  format: int64
+                                action:
+                                  type: string
+                                target_type:
+                                  type: string
+                                target_id:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - actor_user_id
+                              - action
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum: *id002
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - logs
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+      parameters:
+      - *id009
+      - *id010
+      - *id011
+      - name: user_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: action
+        in: query
+        schema:
+          type: string
+        required: false
+  /v1/system/roles/permissions:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            role:
+                              type: string
+                            permissions:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - role
+                          - permissions
+                    required:
+                    - roles
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      updated:
+                        type: boolean
+                    required:
+                    - updated
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+        '422': *id003
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - role
+                    - permissions
+              required:
+              - roles
+  /v1/system/settings:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: システム設定取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: システム設定更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401': *id004
+        '403': *id005
+        '422': *id003
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settings:
+                  type: object
+              required:
+              - settings
+```
+
+## reforma-api-spec-v1.1.0
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0.json
+
+```json
+{
+  "meta": {
+    "title": "03.ReForma API 仕様書 v1.1（統合版）",
+    "version": "1.1",
+    "type": "consolidated",
+    "generated_at": "2026-01-12T13:08:16.120363"
+  },
+  "mount": {
+    "spa_base": "/reforma/",
+    "api_base": "/reforma/api/",
+    "version_prefix": "/v1",
+    "example": "/reforma/api/v1/auth/me",
+    "no_api_double_prefix": true
+  },
+  "auth": {
+    "v1_0_example": "Bearer JWT",
+    "v1_1_official": "SPA session auth (Sanctum or equivalent)",
+    "public_token": "confirm_url token (when required)"
+  },
+  "envelope": {
+    "success": "boolean",
+    "data": "any",
+    "message": "string|null",
+    "errors": "object|null",
+    "error_extras": {
+      "code": "string|null",
+      "request_id": "string"
+    }
+  },
+  "list_policy": {
+    "page_required": true,
+    "per_page_required": true,
+    "sort_optional": true,
+    "sort_enum": [
+      "created_at_desc",
+      "created_at_asc"
+    ],
+    "default_sort": "created_at_desc",
+    "response_required_fields": [
+      "items",
+      "total",
+      "page",
+      "per_page"
+    ]
+  },
+  "async_policy": {
+    "queue_required": true,
+    "targets": [
+      "mail",
+      "slack",
+      "pdf"
+    ],
+    "accepted_status": 202
+  },
+  "root_only": {
+    "user_attribute": "is_root",
+    "required_role": "system_admin",
+    "screen_flag": "allow_root_only",
+    "api_middleware": "RootOnly (system_admin && is_root)",
+    "double_defense_required": true,
+    "planned": true
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/login",
+      "category": "auth",
+      "auth_required": false,
+      "allow_roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/logout",
+      "category": "auth",
+      "auth_required": true,
+      "allow_roles": [
+        "viewer",
+        "operator",
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/me",
+      "category": "auth",
+      "auth_required": true,
+      "allow_roles": [
+        "viewer",
+        "operator",
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms",
+      "category": "forms",
+      "auth_required": true,
+      "allow_roles": [
+        "form_admin",
+        "system_admin"
+      ],
+      "list": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/forms",
+      "category": "forms",
+      "auth_required": true,
+      "allow_roles": [
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms/{id}",
+      "category": "forms",
+      "auth_required": true,
+      "allow_roles": [
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/forms/{id}",
+      "category": "forms",
+      "auth_required": true,
+      "allow_roles": [
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/forms/{id}",
+      "category": "forms",
+      "auth_required": true,
+      "allow_roles": [
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms/{id}/fields",
+      "category": "fields",
+      "auth_required": true,
+      "allow_roles": [
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/forms/{id}/fields",
+      "category": "fields",
+      "auth_required": true,
+      "allow_roles": [
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/responses",
+      "category": "responses",
+      "auth_required": true,
+      "allow_roles": [
+        "operator",
+        "form_admin",
+        "system_admin"
+      ],
+      "list": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/responses/{id}",
+      "category": "responses",
+      "auth_required": true,
+      "allow_roles": [
+        "operator",
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/forms/{form_key}/submit",
+      "category": "public",
+      "auth_required": false,
+      "allow_roles": [
+        "public"
+      ],
+      "public": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms/{form_key}/ack",
+      "category": "public",
+      "auth_required": false,
+      "allow_roles": [
+        "public"
+      ],
+      "public": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/responses/{id}/pdf",
+      "category": "pdf",
+      "auth_required": true,
+      "allow_roles": [
+        "operator",
+        "form_admin",
+        "system_admin"
+      ],
+      "async": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/search",
+      "category": "search",
+      "auth_required": true,
+      "allow_roles": [
+        "operator",
+        "form_admin",
+        "system_admin"
+      ],
+      "list": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/logs",
+      "category": "logs",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "list": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/logs/{id}",
+      "category": "logs",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dashboard/summary",
+      "category": "dashboard",
+      "auth_required": true,
+      "allow_roles": [
+        "viewer",
+        "operator",
+        "form_admin",
+        "system_admin"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dashboard/errors",
+      "category": "dashboard",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "note": "additional restriction beyond screen allow_roles"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/admin-users",
+      "category": "system",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "list": true,
+      "source": "SUP"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/system/admin-users",
+      "category": "system",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "source": "SUP"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/system/admin-users/{id}",
+      "category": "system",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "source": "SUP"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/system/admin-users/invites/resend",
+      "category": "system",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "source": "SUP"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/admin-audit-logs",
+      "category": "system",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "list": true,
+      "source": "SUP"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/settings",
+      "category": "root_only",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "root_only": true,
+      "status": "planned"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/system/settings",
+      "category": "root_only",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "root_only": true,
+      "status": "planned"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/roles/permissions",
+      "category": "root_only",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "root_only": true,
+      "status": "planned"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/system/roles/permissions",
+      "category": "root_only",
+      "auth_required": true,
+      "allow_roles": [
+        "system_admin"
+      ],
+      "root_only": true,
+      "status": "planned"
+    }
+  ],
+  "delegation": {
+    "basic_spec": "01.ReForma 基本仕様書 v1.1（統合版）",
+    "screen_spec": "02.ReForma 画面仕様書 v1.1（統合版）",
+    "db_spec": "04.ReForma DB 仕様書 v1.1",
+    "extension_spec": "05.ReForma 拡張仕様書 v1.1"
+  }
+}
+```
+
+## reforma-api-spec-v1.1.0
+
+_Source files:_ latest/api/reforma-api-spec-v1.1.0.yaml
+
+```yaml
+openapi: 3.0.3
+info:
+  title: ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8）
+  version: 1.1-openapi-draft-full
+  description: API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI を“実装可能な粒度”まで増補した草案。
+servers:
+- url: /
+tags:
+- name: Auth
+- name: Forms
+- name: Responses
+- name: ACK/PDF
+- name: Dashboard
+- name: System Admin
+- name: SUP (root-only)
+components:
+  securitySchemes:
+    sanctum:
+      type: apiKey
+      in: cookie
+      name: XSRF-TOKEN
+      description: Sanctum SPA session（例）。実装により Bearer 併用可
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+  schemas:
+    EnvelopeSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type:
+          - object
+          - 'null'
+        code:
+          type: string
+          description: API共通コード（成功時はOK等）
+          example: OK
+        request_id:
+          type: string
+          description: リクエストID（追跡用）
+          example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      required:
+      - success
+      - code
+      - request_id
+      - message
+      - data
+      - errors
+    EnvelopeError:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type: object
+          properties:
+            code:
+              type: string
+              description: エラーコード
+            fields:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+                description: エラーメッセージ配列
+            rule:
+              type:
+              - object
+              - 'null'
+            step:
+              type:
+              - object
+              - 'null'
+            reason:
+              type: string
+              description: '失敗理由（機械判定用）。例: ROOT_ONLY / SYSTEM_ADMIN_REQUIRED / TOKEN_EXPIRED など'
+              example: ROOT_ONLY
+          required:
+          - code
+          description: errors 本体（用途に応じて fields/rule/step を利用）
+        code:
+          type: string
+          description: 'API共通コード（例: FORBIDDEN / CONSTRAINT_VIOLATION / VALIDATION_ERROR 等）'
+          example: FORBIDDEN
+        request_id:
+          type: string
+          description: リクエストID（追跡用）
+          example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      required:
+      - success
+      - code
+      - request_id
+      - message
+      - data
+      - errors
+    ErrorObject:
+      type: object
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        fields:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+            description: エラーメッセージ配列
+        rule:
+          type:
+          - object
+          - 'null'
+        step:
+          type:
+          - object
+          - 'null'
+        reason:
+          type: string
+          description: 失敗理由（機械判定用）
+          example: ROOT_ONLY
+      required:
+      - code
+      description: errors 本体（用途に応じて fields/rule/step を利用）
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: users.id
+        name:
+          type: string
+          description: 表示名
+        email:
+          type: string
+          description: メールアドレス
+          format: email
+        status:
+          type: string
+          description: active / suspended
+          enum:
+          - active
+          - suspended
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+            - SYSTEM_ADMIN
+            - FORM_ADMIN
+            - LOG_ADMIN
+          description: 付与ロール
+      required:
+      - id
+      - name
+      - email
+      - status
+      - roles
+    Form:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: forms.id
+        code:
+          type: string
+          description: forms.code（フォーム識別子）
+        status:
+          type: string
+          description: forms.status
+          enum:
+          - draft
+          - published
+          - closed
+        is_public:
+          type: boolean
+          description: forms.is_public
+        created_by:
+          type: integer
+          format: int64
+          description: forms.created_by
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - code
+      - status
+      - is_public
+      - created_by
+      - created_at
+      - updated_at
+    FormTranslation:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        form_id:
+          type: integer
+          format: int64
+        locale:
+          type: string
+          enum:
+          - ja
+          - en
+        title:
+          type: string
+          description: フォーム名
+        description:
+          type: string
+          description: 説明
+          example: ''
+      required:
+      - id
+      - form_id
+      - locale
+      - title
+    FormField:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: form_fields.id
+        form_id:
+          type: integer
+          format: int64
+          description: form_fields.form_id
+        field_key:
+          type: string
+          description: form_fields.field_key
+        type:
+          type: string
+          description: form_fields.type（input種別）
+        sort_order:
+          type: integer
+          format: int32
+          description: form_fields.sort_order
+        is_required:
+          type: boolean
+          description: form_fields.is_required（固定必須）
+        options_json:
+          type:
+          - object
+          - 'null'
+          description: 選択肢など（JSON）
+        visibility_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 visibility_rule(JSON)
+        required_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 required_rule(JSON)
+        step_transition_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 step_transition_rule(JSON)
+      required:
+      - id
+      - form_id
+      - field_key
+      - type
+      - sort_order
+      - is_required
+    ConditionState:
+      type: object
+      properties:
+        version:
+          type: string
+          enum:
+          - '1'
+        evaluated_at:
+          type: string
+          format: date-time
+        fields:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              visible:
+                type: boolean
+              required:
+                type: boolean
+              store:
+                type: string
+                enum:
+                - store
+                - do_not_store
+              eval:
+                type: string
+                enum:
+                - ok
+                - fallback
+                - error
+              reasons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    kind:
+                      type: string
+                      enum:
+                      - rule
+                      - type
+                      - missing_field
+                      - unknown_operator
+                    path:
+                      type: string
+                    message:
+                      type: string
+                description: 任意（デバッグ用途）
+            required:
+            - visible
+            - required
+            - store
+            - eval
+        step:
+          type:
+          - object
+          - 'null'
+          description: STEP遷移状態（STEPモードで利用）
+      required:
+      - version
+      - evaluated_at
+      - fields
+      description: 条件分岐評価結果（API→UI I/F）
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submissions.id
+        form_id:
+          type: integer
+          format: int64
+          description: submissions.form_id
+        status:
+          type: string
+          description: submissions.status
+          enum:
+          - received
+          - confirmed
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - form_id
+      - status
+      - created_at
+      - updated_at
+    SubmissionValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submission_values.id
+        submission_id:
+          type: integer
+          format: int64
+          description: submission_values.submission_id
+        field_key:
+          type: string
+          description: submission_values.field_key
+        field_label_snapshot:
+          type:
+          - string
+          - 'null'
+          description: ラベルスナップショット
+        value_json:
+          oneOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: object
+          - type: array
+          - type: 'null'
+          description: 回答 value（JSON）
+        label_json:
+          type:
+          - object
+          - 'null'
+          description: label スナップショット（JSON）
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - field_key
+      - value_json
+      - created_at
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        channel:
+          type: string
+          enum:
+          - mail
+          - slack
+        status:
+          type: string
+          enum:
+          - queued
+          - sent
+          - failed
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - channel
+      - status
+      - created_at
+    SubmissionPdf:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        pdf_type:
+          type: string
+          enum:
+          - submission
+          - ack
+        storage_path:
+          type: string
+          description: S3等の保存先パス
+        is_latest:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - pdf_type
+      - storage_path
+      - is_latest
+      - created_at
+    PaginatedForms:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Form'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    PaginatedResponses:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submission'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    SortEnum:
+      type: string
+      description: 一覧系 sort。既定=created_at_desc
+      enum:
+      - created_at_desc
+      - created_at_asc
+  responses:
+    Unauthorized:
+      description: 401 Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    Forbidden:
+      description: 403 Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    ValidationError:
+      description: 422 Validation Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+  examples:
+    ForbiddenRootOnly:
+      summary: root-only により拒否
+      value:
+        success: false
+        data: null
+        message: Forbidden.
+        errors:
+          reason: ROOT_ONLY
+        code: FORBIDDEN
+        request_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    ForbiddenSystemAdminRequired:
+      summary: system_admin 必須により拒否
+      value:
+        success: false
+        data: null
+        message: Forbidden.
+        errors:
+          reason: SYSTEM_ADMIN_REQUIRED
+        code: FORBIDDEN
+        request_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+paths:
+  /v1/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: ログイン
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type:
+                        - string
+                        - 'null'
+                        description: token方式の場合に返却（Sanctum SPAの場合null）
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                remember:
+                  type: boolean
+              required:
+              - email
+              - password
+  /v1/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: ログアウト
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logged_out:
+                        type: boolean
+                    required:
+                    - logged_out
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/auth/me:
+    get:
+      tags:
+      - Auth
+      summary: 自分自身の情報
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/forms:
+    get:
+      tags:
+      - Forms
+      summary: フォーム一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      forms:
+                        $ref: '#/components/schemas/PaginatedForms'
+                    required:
+                    - forms
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - draft
+          - published
+          - closed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（部分一致）
+        required: false
+    post:
+      tags:
+      - Forms
+      summary: フォーム作成
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: フォーム識別子
+                  example: CONTACT_2026
+                is_public:
+                  type: boolean
+                  example: false
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+                  description: 多言語（初期）
+              required:
+              - code
+  /v1/forms/{id}:
+    get:
+      tags:
+      - Forms
+      summary: フォーム取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                      translations:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormTranslation'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+    put:
+      tags:
+      - Forms
+      summary: フォーム更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - published
+                  - closed
+                is_public:
+                  type: boolean
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+    delete:
+      tags:
+      - Forms
+      summary: フォーム削除（論理）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      deleted:
+                        type: boolean
+                    required:
+                    - deleted
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+  /v1/forms/{id}/fields:
+    get:
+      tags:
+      - Forms
+      summary: フォーム項目一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - name: include_rules
+        in: query
+        schema:
+          type: boolean
+          description: visibility/required rules を含める
+        required: false
+    put:
+      tags:
+      - Forms
+      summary: フォーム項目一括更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormField'
+              required:
+              - fields
+  /v1/responses:
+    get:
+      tags:
+      - Responses
+      summary: 送信一覧（Responses）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      responses:
+                        $ref: '#/components/schemas/PaginatedResponses'
+                    required:
+                    - responses
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: form_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - received
+          - confirmed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（メール/氏名など：A-02検索マトリクスに委譲）
+        required: false
+  /v1/responses/{id}:
+    get:
+      tags:
+      - Responses
+      summary: 送信詳細
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      response:
+                        $ref: '#/components/schemas/Submission'
+                      values:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionValue'
+                      notifications:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Notification'
+                      pdfs:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionPdf'
+                    required:
+                    - response
+                    - values
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+  /v1/forms/{form_key}/submit:
+    post:
+      tags:
+      - ACK/PDF
+      summary: 公開 submit
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      submission_id:
+                        type: integer
+                        format: int64
+                      ack_url:
+                        type: string
+                        description: ACK URL（UI遷移用）
+                      condition_state:
+                        $ref: '#/components/schemas/ConditionState'
+                    required:
+                    - submission_id
+                    - ack_url
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      parameters:
+      - name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                    - type: number
+                    - type: boolean
+                    - type: object
+                    - type: array
+                    - type: 'null'
+                locale:
+                  type: string
+                  enum:
+                  - ja
+                  - en
+                mode:
+                  type: string
+                  description: both/value/label (CSV等の表現に委譲)
+                  enum:
+                  - both
+                  - value
+                  - label
+              required:
+              - answers
+  /v1/forms/{form_key}/ack:
+    get:
+      tags:
+      - ACK/PDF
+      summary: ACK 表示
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      ack:
+                        type: object
+                        description: ACK 表示データ（テンプレ/変数はA-04に委譲）
+                      pdf_url:
+                        type:
+                        - string
+                        - 'null'
+                        description: PDFダウンロードURL（許可される場合）
+                    required:
+                    - ack
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+      parameters:
+      - name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: token
+        in: query
+        schema:
+          type: string
+          description: confirm_url token
+        required: false
+      - name: submission_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+  /v1/responses/{id}/pdf:
+    get:
+      tags:
+      - ACK/PDF
+      summary: PDF 取得（管理側）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - name: pdf_type
+        in: query
+        schema:
+          type: string
+          enum:
+          - submission
+          - ack
+        required: false
+  /v1/dashboard/summary:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード集計
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        properties:
+                          forms_count:
+                            type: integer
+                            format: int32
+                          responses_today:
+                            type: integer
+                            format: int32
+                          responses_total:
+                            type: integer
+                            format: int32
+                        required:
+                        - forms_count
+                        - responses_today
+                        - responses_total
+                    required:
+                    - summary
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/dashboard/errors:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード（エラー/失敗一覧）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                kind:
+                                  type: string
+                                  enum:
+                                  - mail_failed
+                                  - slack_failed
+                                  - pdf_failed
+                                  - eval_error
+                                  - other
+                                message:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - kind
+                              - message
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - errors
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+  /v1/system/admin-users:
+    get:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/User'
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - users
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: role
+        in: query
+        schema:
+          type: string
+          enum:
+          - SYSTEM_ADMIN
+          - FORM_ADMIN
+          - LOG_ADMIN
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - active
+          - suspended
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（email/name）
+        required: false
+    post:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ作成（招待）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - SYSTEM_ADMIN
+                    - FORM_ADMIN
+                    - LOG_ADMIN
+              required:
+              - name
+              - email
+              - roles
+  /v1/system/admin-users/{id}:
+    put:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+              examples:
+                ROOT_ONLY:
+                  $ref: '#/components/examples/ForbiddenRootOnly'
+                SYSTEM_ADMIN_REQUIRED:
+                  $ref: '#/components/examples/ForbiddenSystemAdminRequired'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                  - active
+                  - suspended
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - SYSTEM_ADMIN
+                    - FORM_ADMIN
+                    - LOG_ADMIN
+      description: '### RBAC
+
+        - 必須: system_admin
+
+        - **system_admin 付与（昇格）**は root-only（is_root=true 必須）
+
+        - system_admin 剥奪（降格）は system_admin で可（ただし自己降格禁止・最後の system_admin 禁止）'
+  /v1/system/admin-users/invites/resend:
+    post:
+      tags:
+      - System Admin
+      summary: 招待再送
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      sent:
+                        type: boolean
+                    required:
+                    - sent
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  format: int64
+              required:
+              - user_id
+  /v1/system/admin-audit-logs:
+    get:
+      tags:
+      - System Admin
+      summary: 監査ログ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logs:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                actor_user_id:
+                                  type: integer
+                                  format: int64
+                                action:
+                                  type: string
+                                target_type:
+                                  type: string
+                                target_id:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - actor_user_id
+                              - action
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - logs
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: user_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: action
+        in: query
+        schema:
+          type: string
+        required: false
+  /v1/system/roles/permissions:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            role:
+                              type: string
+                            permissions:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - role
+                          - permissions
+                    required:
+                    - roles
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      updated:
+                        type: boolean
+                    required:
+                    - updated
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - role
+                    - permissions
+              required:
+              - roles
+  /v1/system/settings:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: システム設定取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: システム設定更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settings:
+                  type: object
+              required:
+              - settings
+  /v1/system/root-only/ping:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: root-only 動作確認（ping）
+      description: root-only ミドルウェア動作確認用。system_admin を満たした上で is_root=true の場合のみ成功。
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      pong:
+                        type: boolean
+                    required:
+                    - pong
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                  code:
+                    type: string
+                    example: OK
+                  request_id:
+                    type: string
+                required:
+                - success
+                - data
+                - code
+                - request_id
+              examples:
+                OK:
+                  summary: 成功
+                  value:
+                    success: true
+                    data:
+                      pong: true
+                    message: null
+                    errors: null
+                    code: OK
+                    request_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+              examples:
+                ROOT_ONLY:
+                  $ref: '#/components/examples/ForbiddenRootOnly'
+                SYSTEM_ADMIN_REQUIRED:
+                  $ref: '#/components/examples/ForbiddenSystemAdminRequired'
+```
+
+## reforma-api-spec-v1.3.0
+
+_Source files:_ latest/api/reforma-api-spec-v1.3.0.json
+
+```json
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8） (v1.3.0)",
+    "version": "1.3.0",
+    "description": "API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI を“実装可能な粒度”まで増補した草案。"
+  },
+  "servers": [
+    {
+      "url": "/reforma/api"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Forms"
+    },
+    {
+      "name": "Responses"
+    },
+    {
+      "name": "ACK/PDF"
+    },
+    {
+      "name": "Dashboard"
+    },
+    {
+      "name": "System Admin"
+    },
+    {
+      "name": "SUP (root-only)"
+    },
+    {
+      "name": "progress",
+      "description": "進捗取得"
+    },
+    {
+      "name": "search",
+      "description": "横断検索"
+    },
+    {
+      "name": "logs",
+      "description": "ログ"
+    },
+    {
+      "name": "public-forms",
+      "description": "公開フォーム"
+    },
+    {
+      "name": "system-admin-users",
+      "description": "管理者ユーザ"
+    },
+    {
+      "name": "exports",
+      "description": "成果物"
+    },
+    {
+      "name": "responses",
+      "description": "回答"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "XSRF-TOKEN",
+        "description": "Sanctum SPA session（例）。実装により Bearer 併用可"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    },
+    "schemas": {
+      "EnvelopeSuccess": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "description": "API共通コード（成功時はOK等）",
+            "example": "OK"
+          },
+          "request_id": {
+            "type": "string",
+            "description": "リクエストID（追跡用）",
+            "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          }
+        },
+        "required": [
+          "success",
+          "code",
+          "request_id",
+          "message",
+          "data",
+          "errors"
+        ]
+      },
+      "EnvelopeError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "null"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": "object",
+            "properties": {
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "エラーメッセージ配列"
+                }
+              },
+              "rule": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "step": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "description": "失敗理由（機械判定用）。例: ROOT_ONLY / EXPIRED / URL_EXPIRED / SYSTEM_ADMIN_REQUIRED / TOKEN_EXPIRED",
+                "example": "ROOT_ONLY"
+              }
+            },
+            "required": [],
+            "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+          },
+          "code": {
+            "type": "string",
+            "description": "API共通コード（例: FORBIDDEN / CONSTRAINT_VIOLATION / VALIDATION_ERROR 等）",
+            "example": "FORBIDDEN"
+          },
+          "request_id": {
+            "type": "string",
+            "description": "リクエストID（追跡用）",
+            "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          }
+        },
+        "required": [
+          "success",
+          "code",
+          "request_id",
+          "message",
+          "data",
+          "errors"
+        ]
+      },
+      "ErrorObject": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "エラーメッセージ配列"
+            }
+          },
+          "rule": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "description": "失敗理由（機械判定用）",
+            "example": "ROOT_ONLY"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "users.id"
+          },
+          "name": {
+            "type": "string",
+            "description": "表示名"
+          },
+          "email": {
+            "type": "string",
+            "description": "メールアドレス",
+            "format": "email"
+          },
+          "status": {
+            "type": "string",
+            "description": "active / suspended",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "description": "付与ロール"
+          },
+          "is_root": {
+            "type": "boolean",
+            "description": "root-only 判定フラグ（/auth/me 正本）"
+          },
+          "form_create_limit_enabled": {
+            "type": "boolean",
+            "description": "フォーム作成数制限を適用するか"
+          },
+          "form_create_limit": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "フォーム作成可能数（enabled=true の場合のみ有効。min=1）",
+            "minimum": 1
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "deprecated": true,
+            "description": "(deprecated) 互換のため残置。正本は roles[]。将来削除予定。",
+            "enum": [
+              "SYSTEM_ADMIN",
+              "FORM_ADMIN",
+              "LOG_ADMIN",
+              "system_admin",
+              "form_admin",
+              "log_admin"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "status",
+          "roles",
+          "is_root",
+          "form_create_limit_enabled",
+          "form_create_limit"
+        ]
+      },
+      "Form": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.id"
+          },
+          "code": {
+            "type": "string",
+            "description": "forms.code（フォーム識別子）"
+          },
+          "status": {
+            "type": "string",
+            "description": "forms.status",
+            "enum": [
+              "draft",
+              "published",
+              "closed"
+            ]
+          },
+          "is_public": {
+            "type": "boolean",
+            "description": "forms.is_public"
+          },
+          "created_by": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.created_by"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "status",
+          "is_public",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "FormTranslation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ja",
+              "en"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "フォーム名"
+          },
+          "description": {
+            "type": "string",
+            "description": "説明",
+            "example": ""
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "locale",
+          "title"
+        ]
+      },
+      "FormField": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.form_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "form_fields.field_key"
+          },
+          "type": {
+            "type": "string",
+            "description": "form_fields.type（input種別）"
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "form_fields.sort_order"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "form_fields.is_required（固定必須）"
+          },
+          "options_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "選択肢など（JSON）"
+          },
+          "visibility_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 visibility_rule(JSON)"
+          },
+          "required_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 required_rule(JSON)"
+          },
+          "step_transition_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 step_transition_rule(JSON)"
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "field_key",
+          "type",
+          "sort_order",
+          "is_required"
+        ]
+      },
+      "ConditionState": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "enum": [
+              "1"
+            ]
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "visible": {
+                  "type": "boolean"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "store": {
+                  "type": "string",
+                  "enum": [
+                    "store",
+                    "do_not_store"
+                  ]
+                },
+                "eval": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "fallback",
+                    "error"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "rule",
+                          "type",
+                          "missing_field",
+                          "unknown_operator"
+                        ]
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description": "任意（デバッグ用途）"
+                }
+              },
+              "required": [
+                "visible",
+                "required",
+                "store",
+                "eval"
+              ]
+            }
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "STEP遷移状態（STEPモードで利用）"
+          }
+        },
+        "required": [
+          "version",
+          "evaluated_at",
+          "fields"
+        ],
+        "description": "条件分岐評価結果（API→UI I/F）"
+      },
+      "Submission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.form_id"
+          },
+          "status": {
+            "type": "string",
+            "description": "submissions.status",
+            "enum": [
+              "received",
+              "confirmed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "SubmissionValue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.id"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.submission_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "submission_values.field_key"
+          },
+          "field_label_snapshot": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "ラベルスナップショット"
+          },
+          "value_json": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "回答 value（JSON）"
+          },
+          "label_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "label スナップショット（JSON）"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "field_key",
+          "value_json",
+          "created_at"
+        ]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "mail",
+              "slack"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "sent",
+              "failed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "channel",
+          "status",
+          "created_at"
+        ]
+      },
+      "SubmissionPdf": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pdf_type": {
+            "type": "string",
+            "enum": [
+              "submission",
+              "ack"
+            ]
+          },
+          "storage_path": {
+            "type": "string",
+            "description": "S3等の保存先パス"
+          },
+          "is_latest": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "pdf_type",
+          "storage_path",
+          "is_latest",
+          "created_at"
+        ]
+      },
+      "PaginatedForms": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Form"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "PaginatedResponses": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Submission"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "SortEnum": {
+        "type": "string",
+        "description": "一覧系 sort。既定=created_at_desc",
+        "enum": [
+          "created_at_desc",
+          "created_at_asc"
+        ]
+      },
+      "ProgressJob": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ジョブID"
+          },
+          "type": {
+            "type": "string",
+            "description": "ジョブ種別（CSV_EXPORT/PDF_GENERATE 等）"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "succeeded",
+              "failed",
+              "canceled"
+            ]
+          },
+          "percent": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 100,
+            "description": "進捗率（不明な場合 null 可）"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "進捗メッセージ（任意）"
+          },
+          "result": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "download_url": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "完了時の成果物DL URL（署名URLなど）"
+              }
+            }
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "進捗参照期限（TTL）"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "status",
+          "percent",
+          "message",
+          "result",
+          "updated_at",
+          "expires_at"
+        ]
+      },
+      "EnvelopeProgress": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "job": {
+                    "$ref": "#/components/schemas/ProgressJob"
+                  }
+                },
+                "required": [
+                  "job"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "AdminUserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "表示名（任意）"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended"
+            ],
+            "description": "ステータス（任意）"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 1,
+            "description": "付与ロール（現状は単一ロール運用のため要素数1固定）"
+          },
+          "is_root": {
+            "type": "boolean",
+            "description": "root-only フラグ（変更には root 権限が必要）"
+          },
+          "form_create_limit_enabled": {
+            "type": "boolean",
+            "description": "フォーム作成数制限を適用するか"
+          },
+          "form_create_limit": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "description": "フォーム作成可能数（enabled=true の場合のみ有効。min=1）"
+          }
+        },
+        "required": [
+          "roles"
+        ],
+        "additionalProperties": false
+      },
+      "SearchHit": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "検索対象種別",
+            "enum": [
+              "form",
+              "response",
+              "audit_log",
+              "admin_user",
+              "log"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "description": "対象ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "表示タイトル"
+          },
+          "snippet": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "抜粋"
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "遷移先（UI側で組み立てる場合はnull）"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "title",
+          "snippet",
+          "url"
+        ]
+      },
+      "EnvelopeSearch": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "hits": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SearchHit"
+                    }
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "hits",
+                  "total"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "AdminLogItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "info",
+              "warn",
+              "error"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "description": "分類（auth/audit/system/api 等）"
+          },
+          "message": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "endpoint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "errors.reason 等"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "category",
+          "message",
+          "request_id",
+          "endpoint",
+          "reason",
+          "created_at"
+        ]
+      },
+      "EnvelopeLogsList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "logs": {
+                    "type": "object",
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/AdminLogItem"
+                        }
+                      },
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "page": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "per_page": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "items",
+                      "total",
+                      "page",
+                      "per_page"
+                    ]
+                  }
+                },
+                "required": [
+                  "logs"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "EnvelopeLogDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "log": {
+                    "$ref": "#/components/schemas/AdminLogItem"
+                  }
+                },
+                "required": [
+                  "log"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "PublicFormView": {
+        "type": "object",
+        "properties": {
+          "form_key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "condition_state": {
+            "$ref": "#/components/schemas/ConditionState"
+          }
+        },
+        "required": [
+          "form_key",
+          "title",
+          "description",
+          "fields",
+          "condition_state"
+        ]
+      },
+      "EnvelopePublicFormView": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "form": {
+                    "$ref": "#/components/schemas/PublicFormView"
+                  }
+                },
+                "required": [
+                  "form"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "ResponsesCsvExportRequest": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "検索キーワード（任意）"
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "active",
+              "suspended"
+            ],
+            "description": "（任意）"
+          },
+          "date_from": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "開始日（任意）"
+          },
+          "date_to": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "終了日（任意）"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EnvelopeJobAccepted": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "job_id": {
+                    "type": "string"
+                  },
+                  "progress_url": {
+                    "type": "string",
+                    "description": "GET /v1/progress/{job_id}"
+                  },
+                  "download_url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "完了後に利用できるDL URL（必要なら）"
+                  }
+                },
+                "required": [
+                  "job_id",
+                  "progress_url",
+                  "download_url"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "401 Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "403 Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "422 Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      }
+    },
+    "examples": {
+      "ForbiddenRootOnly": {
+        "summary": "root-only により拒否",
+        "value": {
+          "success": false,
+          "data": null,
+          "message": "Forbidden.",
+          "errors": {
+            "reason": "ROOT_ONLY"
+          },
+          "code": "FORBIDDEN",
+          "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+      },
+      "ForbiddenSystemAdminRequired": {
+        "summary": "system_admin 必須により拒否",
+        "value": {
+          "success": false,
+          "data": null,
+          "message": "Forbidden.",
+          "errors": {
+            "reason": "SYSTEM_ADMIN_REQUIRED"
+          },
+          "code": "FORBIDDEN",
+          "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログイン",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "token方式の場合に返却（Sanctum SPAの場合null）"
+                        },
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "remember": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "ログアウト",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logged_out": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "logged_out"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "自分自身の情報",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/forms": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "forms": {
+                          "$ref": "#/components/schemas/PaginatedForms"
+                        }
+                      },
+                      "required": [
+                        "forms"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "closed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（部分一致）"
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム作成",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "フォーム識別子",
+                    "example": "CONTACT_2026"
+                  },
+                  "is_public": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    },
+                    "description": "多言語（初期）"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{id}": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        },
+                        "translations": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormTranslation"
+                          }
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "published",
+                      "closed"
+                    ]
+                  },
+                  "is_public": {
+                    "type": "boolean"
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム削除（論理）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "deleted": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "deleted"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{id}/fields": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "include_rules",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "description": "visibility/required rules を含める"
+            },
+            "required": false
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "フォーム項目一括更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormField"
+                    }
+                  }
+                },
+                "required": [
+                  "fields"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/responses": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信一覧（Responses）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "responses": {
+                          "$ref": "#/components/schemas/PaginatedResponses"
+                        }
+                      },
+                      "required": [
+                        "responses"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "form_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "received",
+                "confirmed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（メール/氏名など：A-02検索マトリクスに委譲）"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "送信詳細",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/Submission"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionValue"
+                          }
+                        },
+                        "notifications": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Notification"
+                          }
+                        },
+                        "pdfs": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionPdf"
+                          }
+                        }
+                      },
+                      "required": [
+                        "response",
+                        "values"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{form_key}/submit": {
+      "post": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "公開 submit",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "submission_id": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "ack_url": {
+                          "type": "string",
+                          "description": "ACK URL（UI遷移用）"
+                        },
+                        "condition_state": {
+                          "$ref": "#/components/schemas/ConditionState"
+                        }
+                      },
+                      "required": [
+                        "submission_id",
+                        "ack_url"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "object"
+                        },
+                        {
+                          "type": "array"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "ja",
+                      "en"
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "description": "both/value/label (CSV等の表現に委譲)",
+                    "enum": [
+                      "both",
+                      "value",
+                      "label"
+                    ]
+                  }
+                },
+                "required": [
+                  "answers"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{form_key}/ack": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "ACK 表示",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "ack": {
+                          "type": "object",
+                          "description": "ACK 表示データ（テンプレ/変数はA-04に委譲）"
+                        },
+                        "pdf_url": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "PDFダウンロードURL（許可される場合）"
+                        }
+                      },
+                      "required": [
+                        "ack"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "confirm_url token"
+            },
+            "required": false
+          },
+          {
+            "name": "submission_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}/pdf": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "PDF 取得（管理側）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "pdf_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "submission",
+                "ack"
+              ]
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード集計",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "forms_count": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_today": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_total": {
+                              "type": "integer",
+                              "format": "int32"
+                            }
+                          },
+                          "required": [
+                            "forms_count",
+                            "responses_today",
+                            "responses_total"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "summary"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/errors": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "ダッシュボード（エラー/失敗一覧）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "errors": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "mail_failed",
+                                      "slack_failed",
+                                      "pdf_failed",
+                                      "eval_error",
+                                      "other"
+                                    ]
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "kind",
+                                  "message",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "errors"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/admin-users": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "users": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/User"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "users"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "検索（email/name）"
+            },
+            "required": false
+          }
+        ],
+        "description": "- 返却の正本ロールは `roles[]`。\n- `role` は互換のための deprecated フィールド（将来削除予定）。"
+      },
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ作成（招待）",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SYSTEM_ADMIN",
+                        "FORM_ADMIN",
+                        "LOG_ADMIN"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-users/{id}": {
+      "put": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "管理者ユーザ更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                },
+                "examples": {
+                  "ROOT_ONLY": {
+                    "$ref": "#/components/examples/ForbiddenRootOnly"
+                  },
+                  "SYSTEM_ADMIN_REQUIRED": {
+                    "$ref": "#/components/examples/ForbiddenSystemAdminRequired"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserUpdateRequest"
+              }
+            }
+          }
+        },
+        "description": "### RBAC\n- 必須: system_admin\n- **system_admin 付与（昇格）**は root-only（is_root=true 必須）\n- system_admin 剥奪（降格）は system_admin で可（ただし自己降格禁止・最後の system_admin 禁止）\n\n- `roles` は現状単一ロール運用（要素数1）\n- `is_root` 変更は root 権限が必要"
+      },
+      "get": {
+        "tags": [
+          "system-admin-users"
+        ],
+        "summary": "管理者アカウント詳細取得",
+        "description": "S-03 アカウント詳細/編集用。返却ロールは roles[] が正本。role は返さない。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/EnvelopeSuccess"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "user": {
+                              "$ref": "#/components/schemas/User"
+                            }
+                          },
+                          "required": [
+                            "user"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/system/admin-users/invites/resend": {
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "招待再送",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sent": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "sent"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "user_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-audit-logs": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "監査ログ一覧",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logs": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "actor_user_id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "action": {
+                                    "type": "string"
+                                  },
+                                  "target_type": {
+                                    "type": "string"
+                                  },
+                                  "target_id": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "actor_user_id",
+                                  "action",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "logs"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/roles/permissions": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "permissions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "role",
+                              "permissions"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "roles"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "ロール権限定義更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "updated": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "updated"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "role": {
+                          "type": "string"
+                        },
+                        "permissions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "role",
+                        "permissions"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/settings": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定取得",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "システム設定更新",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "settings": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "settings"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/root-only/ping": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "root-only 動作確認（ping）",
+        "description": "root-only ミドルウェア動作確認用。system_admin を満たした上で is_root=true の場合のみ成功。",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "pong": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "pong"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "request_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "code",
+                    "request_id"
+                  ]
+                },
+                "examples": {
+                  "OK": {
+                    "summary": "成功",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "pong": true
+                      },
+                      "message": null,
+                      "errors": null,
+                      "code": "OK",
+                      "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                },
+                "examples": {
+                  "ROOT_ONLY": {
+                    "$ref": "#/components/examples/ForbiddenRootOnly"
+                  },
+                  "SYSTEM_ADMIN_REQUIRED": {
+                    "$ref": "#/components/examples/ForbiddenSystemAdminRequired"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/progress/{job_id}": {
+      "get": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "進捗取得",
+        "description": "CSV/PDF/ファイル操作等の進捗を取得する。",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeProgress"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found / expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/search": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "summary": "横断検索",
+        "description": "フォーム/回答/監査ログ/アカウント等を横断検索する（S-06）。",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "form",
+                  "response",
+                  "audit_log",
+                  "admin_user",
+                  "log"
+                ]
+              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSearch"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/logs": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "ログ一覧",
+        "description": "L-01 ログ一覧。",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "info",
+                "warn",
+                "error"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeLogsList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/logs/{id}": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "ログ詳細",
+        "description": "L-02 ログ詳細。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeLogDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/public/forms/{form_key}": {
+      "get": {
+        "tags": [
+          "public-forms"
+        ],
+        "summary": "公開フォーム表示取得",
+        "description": "Respondent 用フォーム表示（/f/{form_key}）。条件分岐がある場合は condition_state を返す。",
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopePublicFormView"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/responses/export/csv": {
+      "post": {
+        "tags": [
+          "responses"
+        ],
+        "summary": "回答CSVエクスポート（ジョブ開始）",
+        "description": "回答一覧のCSVエクスポートを非同期ジョブとして開始し、job_id を返す。",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResponsesCsvExportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeJobAccepted"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/exports/{job_id}/download": {
+      "get": {
+        "tags": [
+          "exports"
+        ],
+        "summary": "成果物ダウンロード",
+        "description": "エクスポート成果物のダウンロード。URL期限切れ時は再署名（settings に依存）。",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to signed download URL"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found / expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "x-generated-at": "2026-01-14T10:29:08Z"
+}
+```
+
+## reforma-api-spec-v1.3.0
+
+_Source files:_ latest/api/reforma-api-spec-v1.3.0.yaml
+
+```yaml
+openapi: 3.0.3
+info:
+  title: ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8） (v1.3.0)
+  version: 1.3.0
+  description: API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI
+    を“実装可能な粒度”まで増補した草案。
+servers:
+- url: /reforma/api
+tags:
+- name: Auth
+- name: Forms
+- name: Responses
+- name: ACK/PDF
+- name: Dashboard
+- name: System Admin
+- name: SUP (root-only)
+- name: progress
+  description: 進捗取得
+- name: search
+  description: 横断検索
+- name: logs
+  description: ログ
+- name: public-forms
+  description: 公開フォーム
+- name: system-admin-users
+  description: 管理者ユーザ
+- name: exports
+  description: 成果物
+- name: responses
+  description: 回答
+components:
+  securitySchemes:
+    sanctum:
+      type: apiKey
+      in: cookie
+      name: XSRF-TOKEN
+      description: Sanctum SPA session（例）。実装により Bearer 併用可
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+  schemas:
+    EnvelopeSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type:
+          - object
+          - 'null'
+        code:
+          type: string
+          description: API共通コード（成功時はOK等）
+          example: OK
+        request_id:
+          type: string
+          description: リクエストID（追跡用）
+          example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      required:
+      - success
+      - code
+      - request_id
+      - message
+      - data
+      - errors
+    EnvelopeError:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type: object
+          properties:
+            fields:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+                description: エラーメッセージ配列
+            rule:
+              type:
+              - object
+              - 'null'
+            step:
+              type:
+              - object
+              - 'null'
+            reason:
+              type: string
+              description: '失敗理由（機械判定用）。例: ROOT_ONLY / EXPIRED / URL_EXPIRED / SYSTEM_ADMIN_REQUIRED
+                / TOKEN_EXPIRED'
+              example: ROOT_ONLY
+          required: []
+          description: errors 本体（用途に応じて fields/rule/step を利用）
+        code:
+          type: string
+          description: 'API共通コード（例: FORBIDDEN / CONSTRAINT_VIOLATION / VALIDATION_ERROR
+            等）'
+          example: FORBIDDEN
+        request_id:
+          type: string
+          description: リクエストID（追跡用）
+          example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      required:
+      - success
+      - code
+      - request_id
+      - message
+      - data
+      - errors
+    ErrorObject:
+      type: object
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        fields:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+            description: エラーメッセージ配列
+        rule:
+          type:
+          - object
+          - 'null'
+        step:
+          type:
+          - object
+          - 'null'
+        reason:
+          type: string
+          description: 失敗理由（機械判定用）
+          example: ROOT_ONLY
+      required:
+      - code
+      description: errors 本体（用途に応じて fields/rule/step を利用）
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: users.id
+        name:
+          type: string
+          description: 表示名
+        email:
+          type: string
+          description: メールアドレス
+          format: email
+        status:
+          type: string
+          description: active / suspended
+          enum:
+          - active
+          - suspended
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+            - SYSTEM_ADMIN
+            - FORM_ADMIN
+            - LOG_ADMIN
+          description: 付与ロール
+        is_root:
+          type: boolean
+          description: root-only 判定フラグ（/auth/me 正本）
+        form_create_limit_enabled:
+          type: boolean
+          description: フォーム作成数制限を適用するか
+        form_create_limit:
+          type:
+          - integer
+          - 'null'
+          description: フォーム作成可能数（enabled=true の場合のみ有効。min=1）
+          minimum: 1
+        role:
+          type:
+          - string
+          - 'null'
+          deprecated: true
+          description: (deprecated) 互換のため残置。正本は roles[]。将来削除予定。
+          enum:
+          - SYSTEM_ADMIN
+          - FORM_ADMIN
+          - LOG_ADMIN
+          - system_admin
+          - form_admin
+          - log_admin
+      required:
+      - id
+      - name
+      - email
+      - status
+      - roles
+      - is_root
+      - form_create_limit_enabled
+      - form_create_limit
+    Form:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: forms.id
+        code:
+          type: string
+          description: forms.code（フォーム識別子）
+        status:
+          type: string
+          description: forms.status
+          enum:
+          - draft
+          - published
+          - closed
+        is_public:
+          type: boolean
+          description: forms.is_public
+        created_by:
+          type: integer
+          format: int64
+          description: forms.created_by
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - code
+      - status
+      - is_public
+      - created_by
+      - created_at
+      - updated_at
+    FormTranslation:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        form_id:
+          type: integer
+          format: int64
+        locale:
+          type: string
+          enum:
+          - ja
+          - en
+        title:
+          type: string
+          description: フォーム名
+        description:
+          type: string
+          description: 説明
+          example: ''
+      required:
+      - id
+      - form_id
+      - locale
+      - title
+    FormField:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: form_fields.id
+        form_id:
+          type: integer
+          format: int64
+          description: form_fields.form_id
+        field_key:
+          type: string
+          description: form_fields.field_key
+        type:
+          type: string
+          description: form_fields.type（input種別）
+        sort_order:
+          type: integer
+          format: int32
+          description: form_fields.sort_order
+        is_required:
+          type: boolean
+          description: form_fields.is_required（固定必須）
+        options_json:
+          type:
+          - object
+          - 'null'
+          description: 選択肢など（JSON）
+        visibility_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 visibility_rule(JSON)
+        required_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 required_rule(JSON)
+        step_transition_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 step_transition_rule(JSON)
+      required:
+      - id
+      - form_id
+      - field_key
+      - type
+      - sort_order
+      - is_required
+    ConditionState:
+      type: object
+      properties:
+        version:
+          type: string
+          enum:
+          - '1'
+        evaluated_at:
+          type: string
+          format: date-time
+        fields:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              visible:
+                type: boolean
+              required:
+                type: boolean
+              store:
+                type: string
+                enum:
+                - store
+                - do_not_store
+              eval:
+                type: string
+                enum:
+                - ok
+                - fallback
+                - error
+              reasons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    kind:
+                      type: string
+                      enum:
+                      - rule
+                      - type
+                      - missing_field
+                      - unknown_operator
+                    path:
+                      type: string
+                    message:
+                      type: string
+                description: 任意（デバッグ用途）
+            required:
+            - visible
+            - required
+            - store
+            - eval
+        step:
+          type:
+          - object
+          - 'null'
+          description: STEP遷移状態（STEPモードで利用）
+      required:
+      - version
+      - evaluated_at
+      - fields
+      description: 条件分岐評価結果（API→UI I/F）
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submissions.id
+        form_id:
+          type: integer
+          format: int64
+          description: submissions.form_id
+        status:
+          type: string
+          description: submissions.status
+          enum:
+          - received
+          - confirmed
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - form_id
+      - status
+      - created_at
+      - updated_at
+    SubmissionValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submission_values.id
+        submission_id:
+          type: integer
+          format: int64
+          description: submission_values.submission_id
+        field_key:
+          type: string
+          description: submission_values.field_key
+        field_label_snapshot:
+          type:
+          - string
+          - 'null'
+          description: ラベルスナップショット
+        value_json:
+          oneOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: object
+          - type: array
+          - type: 'null'
+          description: 回答 value（JSON）
+        label_json:
+          type:
+          - object
+          - 'null'
+          description: label スナップショット（JSON）
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - field_key
+      - value_json
+      - created_at
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        channel:
+          type: string
+          enum:
+          - mail
+          - slack
+        status:
+          type: string
+          enum:
+          - queued
+          - sent
+          - failed
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - channel
+      - status
+      - created_at
+    SubmissionPdf:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        pdf_type:
+          type: string
+          enum:
+          - submission
+          - ack
+        storage_path:
+          type: string
+          description: S3等の保存先パス
+        is_latest:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - pdf_type
+      - storage_path
+      - is_latest
+      - created_at
+    PaginatedForms:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Form'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    PaginatedResponses:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submission'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    SortEnum:
+      type: string
+      description: 一覧系 sort。既定=created_at_desc
+      enum:
+      - created_at_desc
+      - created_at_asc
+    ProgressJob:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ジョブID
+        type:
+          type: string
+          description: ジョブ種別（CSV_EXPORT/PDF_GENERATE 等）
+        status:
+          type: string
+          enum:
+          - queued
+          - running
+          - succeeded
+          - failed
+          - canceled
+        percent:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 100
+          description: 進捗率（不明な場合 null 可）
+        message:
+          type:
+          - string
+          - 'null'
+          description: 進捗メッセージ（任意）
+        result:
+          type:
+          - object
+          - 'null'
+          properties:
+            download_url:
+              type:
+              - string
+              - 'null'
+              description: 完了時の成果物DL URL（署名URLなど）
+        updated_at:
+          type: string
+          format: date-time
+        expires_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: 進捗参照期限（TTL）
+      required:
+      - id
+      - type
+      - status
+      - percent
+      - message
+      - result
+      - updated_at
+      - expires_at
+    EnvelopeProgress:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              job:
+                $ref: '#/components/schemas/ProgressJob'
+            required:
+            - job
+    AdminUserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 表示名（任意）
+        status:
+          type: string
+          enum:
+          - active
+          - suspended
+          description: ステータス（任意）
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+            - SYSTEM_ADMIN
+            - FORM_ADMIN
+            - LOG_ADMIN
+          minItems: 1
+          maxItems: 1
+          description: 付与ロール（現状は単一ロール運用のため要素数1固定）
+        is_root:
+          type: boolean
+          description: root-only フラグ（変更には root 権限が必要）
+        form_create_limit_enabled:
+          type: boolean
+          description: フォーム作成数制限を適用するか
+        form_create_limit:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          description: フォーム作成可能数（enabled=true の場合のみ有効。min=1）
+      required:
+      - roles
+      additionalProperties: false
+    SearchHit:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 検索対象種別
+          enum:
+          - form
+          - response
+          - audit_log
+          - admin_user
+          - log
+        id:
+          type: string
+          description: 対象ID
+        title:
+          type: string
+          description: 表示タイトル
+        snippet:
+          type:
+          - string
+          - 'null'
+          description: 抜粋
+        url:
+          type:
+          - string
+          - 'null'
+          description: 遷移先（UI側で組み立てる場合はnull）
+      required:
+      - type
+      - id
+      - title
+      - snippet
+      - url
+    EnvelopeSearch:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              hits:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchHit'
+              total:
+                type: integer
+                minimum: 0
+            required:
+            - hits
+            - total
+    AdminLogItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        level:
+          type: string
+          enum:
+          - info
+          - warn
+          - error
+        category:
+          type: string
+          description: 分類（auth/audit/system/api 等）
+        message:
+          type: string
+        request_id:
+          type:
+          - string
+          - 'null'
+        endpoint:
+          type:
+          - string
+          - 'null'
+        reason:
+          type:
+          - string
+          - 'null'
+          description: errors.reason 等
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - level
+      - category
+      - message
+      - request_id
+      - endpoint
+      - reason
+      - created_at
+    EnvelopeLogsList:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              logs:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminLogItem'
+                  total:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  per_page:
+                    type: integer
+                    minimum: 1
+                required:
+                - items
+                - total
+                - page
+                - per_page
+            required:
+            - logs
+    EnvelopeLogDetail:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              log:
+                $ref: '#/components/schemas/AdminLogItem'
+            required:
+            - log
+    PublicFormView:
+      type: object
+      properties:
+        form_key:
+          type: string
+        title:
+          type: string
+        description:
+          type:
+          - string
+          - 'null'
+        fields:
+          type: array
+          items:
+            type: object
+        condition_state:
+          $ref: '#/components/schemas/ConditionState'
+      required:
+      - form_key
+      - title
+      - description
+      - fields
+      - condition_state
+    EnvelopePublicFormView:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              form:
+                $ref: '#/components/schemas/PublicFormView'
+            required:
+            - form
+    ResponsesCsvExportRequest:
+      type: object
+      properties:
+        q:
+          type:
+          - string
+          - 'null'
+          description: 検索キーワード（任意）
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - active
+          - suspended
+          description: （任意）
+        date_from:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: 開始日（任意）
+        date_to:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: 終了日（任意）
+      additionalProperties: false
+    EnvelopeJobAccepted:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              job_id:
+                type: string
+              progress_url:
+                type: string
+                description: GET /v1/progress/{job_id}
+              download_url:
+                type:
+                - string
+                - 'null'
+                description: 完了後に利用できるDL URL（必要なら）
+            required:
+            - job_id
+            - progress_url
+            - download_url
+  responses:
+    Unauthorized:
+      description: 401 Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    Forbidden:
+      description: 403 Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    ValidationError:
+      description: 422 Validation Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+  examples:
+    ForbiddenRootOnly:
+      summary: root-only により拒否
+      value:
+        success: false
+        data: null
+        message: Forbidden.
+        errors:
+          reason: ROOT_ONLY
+        code: FORBIDDEN
+        request_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    ForbiddenSystemAdminRequired:
+      summary: system_admin 必須により拒否
+      value:
+        success: false
+        data: null
+        message: Forbidden.
+        errors:
+          reason: SYSTEM_ADMIN_REQUIRED
+        code: FORBIDDEN
+        request_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+paths:
+  /v1/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: ログイン
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type:
+                        - string
+                        - 'null'
+                        description: token方式の場合に返却（Sanctum SPAの場合null）
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                remember:
+                  type: boolean
+              required:
+              - email
+              - password
+  /v1/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: ログアウト
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logged_out:
+                        type: boolean
+                    required:
+                    - logged_out
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/auth/me:
+    get:
+      tags:
+      - Auth
+      summary: 自分自身の情報
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/forms:
+    get:
+      tags:
+      - Forms
+      summary: フォーム一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      forms:
+                        $ref: '#/components/schemas/PaginatedForms'
+                    required:
+                    - forms
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - draft
+          - published
+          - closed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（部分一致）
+        required: false
+    post:
+      tags:
+      - Forms
+      summary: フォーム作成
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: フォーム識別子
+                  example: CONTACT_2026
+                is_public:
+                  type: boolean
+                  example: false
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+                  description: 多言語（初期）
+              required:
+              - code
+  /v1/forms/{id}:
+    get:
+      tags:
+      - Forms
+      summary: フォーム取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                      translations:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormTranslation'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+    put:
+      tags:
+      - Forms
+      summary: フォーム更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - published
+                  - closed
+                is_public:
+                  type: boolean
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+    delete:
+      tags:
+      - Forms
+      summary: フォーム削除（論理）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      deleted:
+                        type: boolean
+                    required:
+                    - deleted
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+  /v1/forms/{id}/fields:
+    get:
+      tags:
+      - Forms
+      summary: フォーム項目一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - name: include_rules
+        in: query
+        schema:
+          type: boolean
+          description: visibility/required rules を含める
+        required: false
+    put:
+      tags:
+      - Forms
+      summary: フォーム項目一括更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormField'
+              required:
+              - fields
+  /v1/responses:
+    get:
+      tags:
+      - Responses
+      summary: 送信一覧（Responses）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      responses:
+                        $ref: '#/components/schemas/PaginatedResponses'
+                    required:
+                    - responses
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: form_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - received
+          - confirmed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（メール/氏名など：A-02検索マトリクスに委譲）
+        required: false
+  /v1/responses/{id}:
+    get:
+      tags:
+      - Responses
+      summary: 送信詳細
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      response:
+                        $ref: '#/components/schemas/Submission'
+                      values:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionValue'
+                      notifications:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Notification'
+                      pdfs:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionPdf'
+                    required:
+                    - response
+                    - values
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+  /v1/forms/{form_key}/submit:
+    post:
+      tags:
+      - ACK/PDF
+      summary: 公開 submit
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      submission_id:
+                        type: integer
+                        format: int64
+                      ack_url:
+                        type: string
+                        description: ACK URL（UI遷移用）
+                      condition_state:
+                        $ref: '#/components/schemas/ConditionState'
+                    required:
+                    - submission_id
+                    - ack_url
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      parameters:
+      - name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                    - type: number
+                    - type: boolean
+                    - type: object
+                    - type: array
+                    - type: 'null'
+                locale:
+                  type: string
+                  enum:
+                  - ja
+                  - en
+                mode:
+                  type: string
+                  description: both/value/label (CSV等の表現に委譲)
+                  enum:
+                  - both
+                  - value
+                  - label
+              required:
+              - answers
+  /v1/forms/{form_key}/ack:
+    get:
+      tags:
+      - ACK/PDF
+      summary: ACK 表示
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      ack:
+                        type: object
+                        description: ACK 表示データ（テンプレ/変数はA-04に委譲）
+                      pdf_url:
+                        type:
+                        - string
+                        - 'null'
+                        description: PDFダウンロードURL（許可される場合）
+                    required:
+                    - ack
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+      parameters:
+      - name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: token
+        in: query
+        schema:
+          type: string
+          description: confirm_url token
+        required: false
+      - name: submission_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+  /v1/responses/{id}/pdf:
+    get:
+      tags:
+      - ACK/PDF
+      summary: PDF 取得（管理側）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - name: pdf_type
+        in: query
+        schema:
+          type: string
+          enum:
+          - submission
+          - ack
+        required: false
+  /v1/dashboard/summary:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード集計
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        properties:
+                          forms_count:
+                            type: integer
+                            format: int32
+                          responses_today:
+                            type: integer
+                            format: int32
+                          responses_total:
+                            type: integer
+                            format: int32
+                        required:
+                        - forms_count
+                        - responses_today
+                        - responses_total
+                    required:
+                    - summary
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/dashboard/errors:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード（エラー/失敗一覧）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                kind:
+                                  type: string
+                                  enum:
+                                  - mail_failed
+                                  - slack_failed
+                                  - pdf_failed
+                                  - eval_error
+                                  - other
+                                message:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - kind
+                              - message
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - errors
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+  /v1/system/admin-users:
+    get:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/User'
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - users
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: role
+        in: query
+        schema:
+          type: string
+          enum:
+          - SYSTEM_ADMIN
+          - FORM_ADMIN
+          - LOG_ADMIN
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - active
+          - suspended
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（email/name）
+        required: false
+      description: '- 返却の正本ロールは `roles[]`。
+
+        - `role` は互換のための deprecated フィールド（将来削除予定）。'
+    post:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ作成（招待）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - SYSTEM_ADMIN
+                    - FORM_ADMIN
+                    - LOG_ADMIN
+              required:
+              - name
+              - email
+              - roles
+  /v1/system/admin-users/{id}:
+    put:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+              examples:
+                ROOT_ONLY:
+                  $ref: '#/components/examples/ForbiddenRootOnly'
+                SYSTEM_ADMIN_REQUIRED:
+                  $ref: '#/components/examples/ForbiddenSystemAdminRequired'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserUpdateRequest'
+      description: '### RBAC
+
+        - 必須: system_admin
+
+        - **system_admin 付与（昇格）**は root-only（is_root=true 必須）
+
+        - system_admin 剥奪（降格）は system_admin で可（ただし自己降格禁止・最後の system_admin 禁止）
+
+
+        - `roles` は現状単一ロール運用（要素数1）
+
+        - `is_root` 変更は root 権限が必要'
+    get:
+      tags:
+      - system-admin-users
+      summary: 管理者アカウント詳細取得
+      description: S-03 アカウント詳細/編集用。返却ロールは roles[] が正本。role は返さない。
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/EnvelopeSuccess'
+                - type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        user:
+                          $ref: '#/components/schemas/User'
+                      required:
+                      - user
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/system/admin-users/invites/resend:
+    post:
+      tags:
+      - System Admin
+      summary: 招待再送
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      sent:
+                        type: boolean
+                    required:
+                    - sent
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  format: int64
+              required:
+              - user_id
+  /v1/system/admin-audit-logs:
+    get:
+      tags:
+      - System Admin
+      summary: 監査ログ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logs:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                actor_user_id:
+                                  type: integer
+                                  format: int64
+                                action:
+                                  type: string
+                                target_type:
+                                  type: string
+                                target_id:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - actor_user_id
+                              - action
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - logs
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: user_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: action
+        in: query
+        schema:
+          type: string
+        required: false
+  /v1/system/roles/permissions:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            role:
+                              type: string
+                            permissions:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - role
+                          - permissions
+                    required:
+                    - roles
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      updated:
+                        type: boolean
+                    required:
+                    - updated
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - role
+                    - permissions
+              required:
+              - roles
+  /v1/system/settings:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: システム設定取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: システム設定更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settings:
+                  type: object
+              required:
+              - settings
+  /v1/system/root-only/ping:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: root-only 動作確認（ping）
+      description: root-only ミドルウェア動作確認用。system_admin を満たした上で is_root=true の場合のみ成功。
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      pong:
+                        type: boolean
+                    required:
+                    - pong
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                  code:
+                    type: string
+                    example: OK
+                  request_id:
+                    type: string
+                required:
+                - success
+                - data
+                - code
+                - request_id
+              examples:
+                OK:
+                  summary: 成功
+                  value:
+                    success: true
+                    data:
+                      pong: true
+                    message: null
+                    errors: null
+                    code: OK
+                    request_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+              examples:
+                ROOT_ONLY:
+                  $ref: '#/components/examples/ForbiddenRootOnly'
+                SYSTEM_ADMIN_REQUIRED:
+                  $ref: '#/components/examples/ForbiddenSystemAdminRequired'
+  /v1/progress/{job_id}:
+    get:
+      tags:
+      - progress
+      summary: 進捗取得
+      description: CSV/PDF/ファイル操作等の進捗を取得する。
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeProgress'
+        '404':
+          description: Not Found / expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/search:
+    get:
+      tags:
+      - search
+      summary: 横断検索
+      description: フォーム/回答/監査ログ/アカウント等を横断検索する（S-06）。
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: types
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - form
+            - response
+            - audit_log
+            - admin_user
+            - log
+      - name: page
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      - name: per_page
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSearch'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/logs:
+    get:
+      tags:
+      - logs
+      summary: ログ一覧
+      description: L-01 ログ一覧。
+      parameters:
+      - name: page
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      - name: per_page
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      - name: level
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - info
+          - warn
+          - error
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeLogsList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/logs/{id}:
+    get:
+      tags:
+      - logs
+      summary: ログ詳細
+      description: L-02 ログ詳細。
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeLogDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/public/forms/{form_key}:
+    get:
+      tags:
+      - public-forms
+      summary: 公開フォーム表示取得
+      description: Respondent 用フォーム表示（/f/{form_key}）。条件分岐がある場合は condition_state を返す。
+      parameters:
+      - name: form_key
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopePublicFormView'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+  /v1/responses/export/csv:
+    post:
+      tags:
+      - responses
+      summary: 回答CSVエクスポート（ジョブ開始）
+      description: 回答一覧のCSVエクスポートを非同期ジョブとして開始し、job_id を返す。
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResponsesCsvExportRequest'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeJobAccepted'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/exports/{job_id}/download:
+    get:
+      tags:
+      - exports
+      summary: 成果物ダウンロード
+      description: エクスポート成果物のダウンロード。URL期限切れ時は再署名（settings に依存）。
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '302':
+          description: Redirect to signed download URL
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found / expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+x-generated-at: '2026-01-14T10:29:08Z'
+```

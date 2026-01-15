@@ -1,0 +1,10 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# PDF build artifacts (if generated)
+*.pdf
+
+# Node/Python tools (if added later)
+node_modules/
+.venv/

@@ -1,0 +1,310 @@
+{
+  "metadata": {
+    "project": "ReForma",
+    "category": "common",
+    "version": "v1.5.0",
+    "generated_at": "2026-01-14T11:37:59.905852+00:00",
+    "sources": [
+      {
+        "file": "latest/common/reforma-common-spec-v1.2.0.json",
+        "version": "1.2.0"
+      },
+      {
+        "file": "latest/common/reforma-common-spec-v1.3.0.json",
+        "version": "1.3.0"
+      },
+      {
+        "file": "latest/common/reforma-common-spec-v1.3.0.md",
+        "version": "1.3.0"
+      },
+      {
+        "file": "latest/common/reforma-common-spec-v1.5.0.json",
+        "version": "1.5.0"
+      },
+      {
+        "file": "latest/common/reforma-common-spec-v1.5.0.md",
+        "version": "1.5.0"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "COMMON-0001",
+      "title": "reforma-common-spec-v1.2.0",
+      "kind": "json",
+      "content": {
+        "handoff_type": "frontend_to_backend",
+        "project": "ReForma",
+        "scope": "common_ui_and_behavior",
+        "frontend_common_spec_version": "1.2",
+        "mandatory_read": [
+          "reforma-frontend-common-ui-spec-v1.2.json"
+        ],
+        "priority_rules": {
+          "screen_common_spec": "highest",
+          "screen_spec": "second",
+          "api_spec": "third"
+        },
+        "key_frontend_expectations": {
+          "auth_source": "/auth/me",
+          "rbac": "roles[]",
+          "root_only": "is_root",
+          "root_only_error": {
+            "status": 403,
+            "errors.reason": "ROOT_ONLY"
+          }
+        },
+        "error_handling_contract": {
+          "base_error_page": "/reforma/error",
+          "toast_errors": [
+            400,
+            403,
+            409
+          ],
+          "page_errors": [
+            500,
+            503
+          ],
+          "debug_raw_error": "only_when_VITE_DEBUG_true"
+        },
+        "destructive_action_policy": {
+          "confirmation_required": true,
+          "root_only_additional_rule": {
+            "id_input_required": true,
+            "exact_match": true
+          }
+        },
+        "file_and_async_operations": {
+          "progress_required": true,
+          "preferred": "progress_endpoint",
+          "fallback": "indeterminate_progress"
+        },
+        "date_number_format_policy": {
+          "api": "raw_value",
+          "frontend": "format_by_locale"
+        },
+        "notes": [
+          "Do not introduce UI-side assumptions not described in common spec.",
+          "Any deviation must be discussed and reflected back into the common spec."
+        ]
+      },
+      "source_files": [
+        "latest/common/reforma-common-spec-v1.2.0.json"
+      ]
+    },
+    {
+      "id": "COMMON-0002",
+      "title": "reforma-common-spec-v1.3.0",
+      "kind": "text",
+      "content": "{\r\n  \"meta\": {\r\n    \"name\": \"ReForma Frontend Common UI Specification\",\r\n    \"version\": \"1.3\",\r\n    \"status\": \"final\",\r\n    \"scope\": \"all_screens\",\r\n    \"purpose\": \"machine_share_single_source_of_truth\",\r\n    \"notes\": \"This file consolidates v1.1, v1.2 and v1.3 into a single definitive common UI spec.\"\r\n  },\r\n\r\n  \"priority_rules\": {\r\n    \"order\": [\r\n      \"frontend_common_ui_spec\",\r\n      \"screen_spec\",\r\n      \"api_spec\"\r\n    ],\r\n    \"note\": \"If inconsistencies occur, frontend common UI spec has highest priority.\"\r\n  },\r\n\r\n  \"i18n\": {\r\n    \"policy\": \"All user-facing texts must be multilingual (ja/en).\",\r\n    \"exception\": {\r\n      \"debug_ui\": \"Japanese only\"\r\n    },\r\n    \"resource_path\": \"src/i18n/\"\r\n  },\r\n\r\n  \"display_format_rules\": {\r\n    \"datetime\": {\r\n      \"api\": \"ISO8601\",\r\n      \"timezone\": \"explicit_or_utc\",\r\n      \"frontend_display\": \"format_by_locale\"\r\n    },\r\n    \"number\": {\r\n      \"api\": \"raw_value\",\r\n      \"frontend_display\": \"locale_format_with_separators\"\r\n    },\r\n    \"id\": {\r\n      \"display\": \"raw_value\",\r\n      \"comparison\": \"strict_match\",\r\n      \"use_case\": \"root_destructive_confirmation\"\r\n    }\r\n  },\r\n\r\n  \"breadcrumbs\": {\r\n    \"enabled\": true,\r\n    \"label_source\": \"screen_name\",\r\n    \"use_screen_id\": false,\r\n    \"i18n\": true,\r\n    \"rule\": \"Breadcrumb label must be identical to screen title\"\r\n  },\r\n\r\n  \"screen_title\": {\r\n    \"enabled\": true,\r\n    \"label_source\": \"screen_name\",\r\n    \"i18n\": true,\r\n    \"display_name_override\": {\r\n      \"allowed\": true,\r\n      \"key\": \"display_screen_name\"\r\n    },\r\n    \"layout\": {\r\n      \"separator_line_required\": true,\r\n      \"description_area_optional\": true\r\n    }\r\n  },\r\n\r\n  \"layout_common\": {\r\n    \"sidebar\": {\r\n      \"state_persistence\": \"localStorage\",\r\n      \"storage_key\": \"reforma_sidebar_collapsed\",\r\n      \"collapsed_style\": \"icon_only\",\r\n      \"motif_icon_used\": true,\r\n      \"file\": \"src/layout/AppLayout.tsx\"\r\n    },\r\n    \"top_controls\": {\r\n      \"items\": [\"language\", \"theme\"],\r\n      \"collapsible\": true,\r\n      \"state_persistence\": \"localStorage\",\r\n      \"mobile_behavior\": \"always_collapsed\",\r\n      \"file\": \"src/components/TopControls.tsx\"\r\n    }\r\n  },\r\n\r\n  \"theme\": {\r\n    \"modes\": [\"system\", \"light\", \"dark\", \"reforma\"],\r\n    \"reforma_icon\": \"motif_icon\",\r\n    \"tooltip_policy\": \"operation_based\",\r\n    \"persistence\": \"localStorage\"\r\n  },\r\n\r\n  \"language_switch\": {\r\n    \"supported_locales\": [\"ja\", \"en\"],\r\n    \"display_rule\": {\r\n      \"ja\": \"日本語 / 英語\",\r\n      \"en\": \"JA / EN\"\r\n    },\r\n    \"icon\": {\r\n      \"type\": \"svg_tile\",\r\n      \"path\": \"src/assets/lang-*-tile.svg\"\r\n    }\r\n  },\r\n\r\n  \"list_screen_common\": {\r\n    \"features\": [\r\n      \"search(q)\",\r\n      \"pagination(page, per_page)\",\r\n      \"sort(enum, default_fixed)\",\r\n      \"per_page_selector\"\r\n    ],\r\n    \"url_state_sync\": true,\r\n    \"api_policy\": \"OpenAPI v1.1 list_policy\"\r\n  },\r\n\r\n  \"empty_state\": {\r\n    \"enabled\": true,\r\n    \"use_case\": [\"initial_empty\", \"search_no_result\"],\r\n    \"ui_policy\": {\r\n      \"icon\": \"common\",\r\n      \"message\": \"i18n_required\",\r\n      \"action_button\": \"optional\"\r\n    },\r\n    \"shared_component\": {\r\n      \"name\": \"EmptyState\",\r\n      \"file\": \"src/components/EmptyState.tsx\"\r\n    }\r\n  },\r\n\r\n  \"loading_indicator\": {\r\n    \"enabled\": true,\r\n    \"policy\": {\r\n      \"initial_load\": \"full_screen\",\r\n      \"partial_load\": \"inline_or_overlay\"\r\n    },\r\n    \"shared_component\": {\r\n      \"name\": \"LoadingOverlay\",\r\n      \"file\": \"src/components/LoadingOverlay.tsx\"\r\n    }\r\n  },\r\n\r\n  \"screen_guard\": {\r\n    \"enabled\": true,\r\n    \"auth_source\": \"/auth/me\",\r\n    \"rbac_key\": \"roles[]\",\r\n    \"root_only_key\": \"is_root\",\r\n    \"guards\": {\r\n      \"role\": {\r\n        \"component\": \"RequireRole\",\r\n        \"file\": \"src/guards/RequireRole.tsx\"\r\n      },\r\n      \"root_only\": {\r\n        \"component\": \"RequireRoot\",\r\n        \"file\": \"src/guards/RequireRoot.tsx\"\r\n      }\r\n    },\r\n    \"policy\": \"Guard must be evaluated before API call and rendering\"\r\n  },\r\n\r\n  \"form_validation_error\": {\r\n    \"enabled\": true,\r\n    \"policy\": {\r\n      \"display_position\": \"field_bottom\",\r\n      \"one_message_per_field\": true,\r\n      \"i18n_required\": true,\r\n      \"api_422_mapping\": true\r\n    },\r\n    \"shared_component\": {\r\n      \"name\": \"FormError\",\r\n      \"file\": \"src/components/FormError.tsx\"\r\n    }\r\n  },\r\n\r\n  \"api_error_handling\": {\r\n    \"enabled\": true,\r\n    \"base_error_page\": \"/reforma/error\",\r\n    \"display_policy\": {\r\n      \"toast\": [\"400\", \"403\", \"409\"],\r\n      \"error_page\": [\"500\", \"503\"],\r\n      \"root_only\": {\r\n        \"condition\": \"errors.reason=ROOT_ONLY\",\r\n        \"message_type\": \"dedicated\"\r\n      }\r\n    },\r\n    \"debug_policy\": {\r\n      \"when_debug\": \"show_raw_error_in_debug_ui\",\r\n      \"otherwise\": \"hide_raw_error\"\r\n    },\r\n    \"shared_handler\": {\r\n      \"name\": \"apiErrorHandler\",\r\n      \"file\": \"src/utils/apiErrorHandler.ts\"\r\n    }\r\n  },\r\n\r\n  \"success_notification\": {\r\n    \"enabled\": true,\r\n    \"policy\": {\r\n      \"display_type\": \"toast\",\r\n      \"frequency\": \"once_per_action\",\r\n      \"message_style\": \"short_operation_form\",\r\n      \"i18n_required\": true\r\n    },\r\n    \"shared_component\": {\r\n      \"name\": \"ToastProvider\",\r\n      \"file\": \"src/components/ToastProvider.tsx\"\r\n    }\r\n  },\r\n\r\n  \"destructive_action_confirmation\": {\r\n    \"enabled\": true,\r\n    \"base_policy\": {\r\n      \"dialog_required\": true,\r\n      \"danger_style\": true,\r\n      \"default_text\": {\r\n        \"title\": \"confirm_delete\",\r\n        \"description\": \"irreversible_operation\"\r\n      }\r\n    },\r\n    \"root_only_additional_policy\": {\r\n      \"id_input_required\": true,\r\n      \"input_match_rule\": \"target_id_exact_match\"\r\n    },\r\n    \"shared_component\": {\r\n      \"name\": \"ConfirmDialog\",\r\n      \"file\": \"src/components/ConfirmDialog.tsx\"\r\n    }\r\n  },\r\n\r\n  \"file_operation_progress\": {\r\n    \"enabled\": true,\r\n    \"target_operations\": [\"csv_export\", \"csv_import\", \"pdf_generate\", \"file_upload\"],\r\n    \"display_policy\": {\r\n      \"on_start\": \"loading_overlay\",\r\n      \"progress_type\": \"progress_bar\",\r\n      \"completion\": {\r\n        \"success\": \"toast\",\r\n        \"failure\": \"api_error_handling\"\r\n      }\r\n    },\r\n    \"progress_source\": {\r\n      \"preferred\": \"api_progress_endpoint\",\r\n      \"fallback\": \"indeterminate_progress\"\r\n    },\r\n    \"shared_component\": {\r\n      \"name\": \"ProgressOverlay\",\r\n      \"file\": \"src/components/ProgressOverlay.tsx\"\r\n    }\r\n  },\r\n\r\n  \"inline_help_text\": {\r\n    \"enabled\": true,\r\n    \"display_position\": \"below_screen_title\",\r\n    \"style_policy\": {\r\n      \"font_size\": \"small\",\r\n      \"color\": \"muted\",\r\n      \"icon_optional\": true\r\n    },\r\n    \"i18n_required\": true\r\n  },\r\n\r\n  \"tooltip_policy\": {\r\n    \"style\": \"operation_based\",\r\n    \"i18n_required\": true\r\n  },\r\n",
+      "source_files": [
+        "latest/common/reforma-common-spec-v1.3.0.json"
+      ]
+    },
+    {
+      "id": "COMMON-0003",
+      "title": "reforma-common-spec-v1.3.0",
+      "kind": "text",
+      "content": "# ReForma フロントエンド 共通画面仕様 v1.3（確定版）\n\n本書は ReForma フロントエンドにおける **全画面共通仕様の最終確定版** である。\nv1.1 / v1.2 の内容をすべて統合している。\n\n---\n\n## 優先順位\n画面挙動の優先順位は以下とする。\n\n1. 共通画面仕様（本書 v1.3）\n2. 画面仕様書\n3. API仕様書\n\n---\n\n## 表示フォーマットの前提（宣言）\n\n### 日時\n- API：ISO8601（UTC または明示TZ）\n- 表示：フロントエンドで locale に応じて整形\n\n### 数値\n- API：生値\n- 表示：桁区切り等はフロントエンドで付与\n\n### ID\n- 表示：そのまま表示\n- 比較：完全一致\n- root 削除確認時の入力比較に使用\n\n---\n\n## 多言語化\n- 全文言は多言語対応（ja/en）\n- デバッグUIのみ日本語固定\n\n---\n\n## パンくず・画面タイトル\n- 画面名を表示（画面IDは使用しない）\n- パンくずと画面タイトルは同一文言\n- 多言語対応\n- タイトル下に区切り線、補足情報を表示可能\n\n---\n\n## レイアウト共通\n### 左サイドバー\n- 開閉状態は localStorage に保存\n- 折りたたみ時はアイコン中心\n- ReForma モチーフアイコンを使用\n\n### 右上パネル（言語 / テーマ）\n- 折りたたみ可能\n- モバイルでは常時折りたたみ\n- 言語表示：\n  - 日本語UI：日本語 / 英語\n  - 英語UI：JA / EN\n\n---\n\n## 一覧画面\n- 検索 / ページング / 並び順 / 表示件数\n- URL と状態同期\n- OpenAPI v1.1 list_policy 準拠\n\n---\n\n## 空状態（Empty State）\n- データ0件時は必ず表示\n- 初期状態と検索結果なしを区別\n\n---\n\n## ローディング・進捗\n- 初回ロード：全体ローディング\n- 再取得：部分ローディング\n- CSV / PDF 等はプログレスバーで進捗表示\n\n---\n\n## フォームエラー\n- フィールド直下に表示\n- API 422 と統合\n\n---\n\n## APIエラー（非422）\n- 基本エラーページ：`/reforma/error`\n- 400/403/409：トースト\n- 500/503：エラーページ\n- ROOT_ONLY：専用文言\n\n---\n\n## 成功通知\n- トースト1回\n- 短い操作形文言\n\n---\n\n## 破壊的操作（削除等）\n- 確認ダイアログ必須\n- root 権限操作では **対象IDの入力必須**\n\n---\n\n## 画面ガード\n- 描画・API前に権限制御\n- `/auth/me` を正本とする\n\n---\n\n## デバッグUI\n- `VITE_DEBUG=true` のとき表示\n- 画面下部に集約\n- 文言は日本語のみ\n\n---\n\n以上。\n",
+      "source_files": [
+        "latest/common/reforma-common-spec-v1.3.0.md"
+      ]
+    },
+    {
+      "id": "COMMON-0004",
+      "title": "reforma-common-spec-v1.5.0",
+      "kind": "json",
+      "content": {
+        "meta": {
+          "name": "ReForma Frontend Common UI Specification",
+          "version": "1.5-updated",
+          "status": "final",
+          "generated_at": "2026-01-14T07:02:22Z",
+          "supersedes": "1.5",
+          "single_source_of_truth": true,
+          "precedence": [
+            "common_ui_spec_v1.5",
+            "screen_spec",
+            "api_spec"
+          ],
+          "policy": {
+            "no_unwritten_assumptions": true,
+            "api_adjustment_allowed_for_ui": true
+          }
+        },
+        "auth_and_authorization": {
+          "source_of_truth_endpoint": "/v1/auth/me",
+          "fields": {
+            "rbac_roles": "roles[]",
+            "root_only_flag": "is_root"
+          },
+          "ui_decision_rules": [
+            "UIは roles[] を正本として機能の表示/活性/操作可否を決定する",
+            "UIは is_root を正本として root-only 操作の表示/活性/操作可否を決定する（最終防御はAPI）"
+          ]
+        },
+        "api_base_configuration": {
+          "env": {
+            "VITE_API_BASE": "/reforma/api/",
+            "VITE_API_VERSION": "v1"
+          },
+          "rule": "API URL は VITE_API_BASE + VITE_API_VERSION を結合したものを正とする"
+        },
+        "error_handling": {
+          "normalized_envelope": {
+            "authoritative_keys": {
+              "classification": "code",
+              "machine_reason": "errors.reason",
+              "display_message": "message",
+              "deprecated": [
+                "errors.code"
+              ]
+            },
+            "root_only_contract": {
+              "http_status": 403,
+              "errors_reason": "ROOT_ONLY",
+              "must_distinguish_from_generic_403": true
+            }
+          },
+          "navigation_policy": {
+            "by_http_status": {
+              "401": "redirect:/login",
+              "404": "page:/reforma/not-found",
+              "422": "inline-validation",
+              "400": "toast",
+              "403": "toast",
+              "409": "toast",
+              "429": "toast",
+              "500": "page:/reforma/error",
+              "503": "page:/reforma/error"
+            },
+            "rule": "画面遷移の正本は HTTP ステータス。code / errors.reason は補助判断に用いる"
+          },
+          "debug_ui": {
+            "enabled_when": "VITE_DEBUG=true",
+            "visible_fields_minimum": [
+              "request_id",
+              "endpoint",
+              "errors.reason"
+            ],
+            "optional_fields": [
+              "http_status",
+              "code",
+              "method",
+              "timestamp"
+            ],
+            "raw_error_hidden_in_normal_ui": true
+          }
+        },
+        "destructive_actions": {
+          "confirm_dialog_required": true,
+          "root_only_delete": {
+            "frontend_id_confirmation": {
+              "required": true,
+              "match_rule": "完全一致（ID生値同士で比較）"
+            },
+            "backend_requirement": {
+              "authorization": "root-only を必須（policyで担保）",
+              "id_confirmation": "必須ではない（UI安全装置として扱う）"
+            }
+          }
+        },
+        "progress_and_exports": {
+          "progress": {
+            "endpoint": "/v1/progress/{job_id}",
+            "expired_behavior": {
+              "http_status": 404,
+              "ui": "期限切れ表示（Not Found 画面内で説明）",
+              "retry": "再実行導線を表示してよい"
+            }
+          },
+          "exports": {
+            "allow_resign_after_url_expired": true,
+            "pdf_regeneration_policy": {
+              "separate_regenerate_api": false,
+              "regenerate_method": "元の生成開始APIを再実行（新job）",
+              "note": "再署名(resign)と再生成(regenerate)を区別する"
+            }
+          }
+        },
+        "data_format_rules": {
+          "datetime": {
+            "api": "ISO8601（UTCまたはTZ明示）",
+            "ui": "表示整形はフロント"
+          },
+          "number": {
+            "api": "生値",
+            "ui": "表示整形はフロント"
+          },
+          "id": {
+            "display": "生値",
+            "comparison": "完全一致"
+          }
+        },
+        "user_attributes": {
+          "exposed_in": [
+            "/v1/auth/me",
+            "/v1/system/admin-users (list)",
+            "/v1/system/admin-users/{id} (detail)"
+          ],
+          "fields": {
+            "is_root": "boolean",
+            "form_create_limit_enabled": "boolean",
+            "form_create_limit": {
+              "type": "integer|null",
+              "constraint": "enabled=true の場合 min=1（0は禁止）"
+            }
+          },
+          "edit_location": "S-02 アカウント編集UI"
+        },
+        "change_log": [
+          {
+            "version": "1.5",
+            "date": "2026-01-14",
+            "changes": [
+              "progress job TTL 超過時の UI 挙動（期限切れ表示）を明記",
+              "PDF 再生成は当面別APIを作らない方針を明記",
+              "画面遷移の正本を HTTP ステータスに統一",
+              "Debug UI の最小表示項目を確定",
+              "root-only 削除の ID 入力はフロント強制・認可は backend に限定"
+            ]
+          },
+          {
+            "version": "1.5-updated",
+            "date": "2026-01-14",
+            "changes": [
+              "toast 表示文言の優先順位（message > errors.reason > code）を明記"
+            ]
+          }
+        ],
+        "ui_requirements": {
+          "toast_message_priority": {
+            "priority": [
+              "message",
+              "errors.reason",
+              "code"
+            ],
+            "rule": "Toast 表示は message を最優先。message が無い場合に errors.reason を補助表示し、それも無い場合は code をフォールバックとして使用する。",
+            "notes": [
+              "errors.reason は機械判定が主用途。表示は ROOT_ONLY 等の限定ケースに留める。",
+              "raw error（stack 等）は toast に表示しない。Debug UI のみで表示する。"
+            ]
+          }
+        }
+      },
+      "source_files": [
+        "latest/common/reforma-common-spec-v1.5.0.json"
+      ]
+    },
+    {
+      "id": "COMMON-0005",
+      "title": "reforma-common-spec-v1.5.0",
+      "kind": "text",
+      "content": "# ReForma 画面共通仕様 v1.5-updated\n\n本書は **画面共通仕様 v1.5** に、toast 表示文言の優先順位を明記した更新版です。\n\n## Toast 表示文言の優先順位（確定）\n\nToast 表示は以下の優先順位で文言を決定する。\n\n1. **`message`（最優先）**\n2. **`errors.reason`（補助表示）**\n3. **`code`（最終フォールバック）**\n\n### 運用ルール\n- `errors.reason` は機械判定が主用途。表示は ROOT_ONLY 等の限定ケースに留める。\n- raw error（stack trace 等）は toast に表示しない。\n- raw error の表示は Debug UI（`VITE_DEBUG=true`）に限定する。\n\n### 擬似コード例\n\n```ts\nconst toastText =\n  error.message\n  ?? mapReason(error.errors?.reason)\n  ?? mapCode(error.code)\n  ?? \"処理に失敗しました\";\n```\n\n## 変更履歴\n- v1.5-updated (2026-01-14): toast 表示文言の優先順位を明記\n",
+      "source_files": [
+        "latest/common/reforma-common-spec-v1.5.0.md"
+      ]
+    }
+  ],
+  "attachments": []
+}

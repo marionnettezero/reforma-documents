@@ -1,0 +1,3544 @@
+{
+  "meta": {
+    "version": "v1.3.1",
+    "generated_at": "2026-01-15T02:36:47.355902Z",
+    "openapi_version": "3.0.3"
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/login",
+      "summary": "ログイン",
+      "description": "",
+      "parameters": [],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "remember": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "email",
+                "password"
+              ]
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "token方式の場合に返却（Sanctum SPAの場合null）"
+                      },
+                      "user": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "required": [
+                      "user"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/logout",
+      "summary": "ログアウト",
+      "description": "",
+      "parameters": [],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "logged_out": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "logged_out"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/me",
+      "summary": "自分自身の情報",
+      "description": "",
+      "parameters": [],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "user": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "required": [
+                      "user"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms",
+      "summary": "フォーム一覧",
+      "description": "",
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "per_page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": null
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "forms": {
+                        "$ref": "#/components/schemas/PaginatedForms"
+                      }
+                    },
+                    "required": [
+                      "forms"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/forms",
+      "summary": "フォーム作成",
+      "description": "",
+      "parameters": [],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "フォーム識別子",
+                  "example": "CONTACT_2026"
+                },
+                "is_public": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "translations": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormTranslation"
+                  },
+                  "description": "多言語（初期）"
+                }
+              },
+              "required": [
+                "code"
+              ]
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "form": {
+                        "$ref": "#/components/schemas/Form"
+                      }
+                    },
+                    "required": [
+                      "form"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "201": {
+          "description": "Created",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "form": {
+                        "$ref": "#/components/schemas/Form"
+                      }
+                    },
+                    "required": [
+                      "form"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms/{id}",
+      "summary": "フォーム取得",
+      "description": "",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "form": {
+                        "$ref": "#/components/schemas/Form"
+                      },
+                      "translations": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/FormTranslation"
+                        }
+                      }
+                    },
+                    "required": [
+                      "form"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/forms/{id}",
+      "summary": "フォーム更新",
+      "description": "",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "draft",
+                    "published",
+                    "closed"
+                  ]
+                },
+                "is_public": {
+                  "type": "boolean"
+                },
+                "translations": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormTranslation"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "form": {
+                        "$ref": "#/components/schemas/Form"
+                      }
+                    },
+                    "required": [
+                      "form"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/forms/{id}",
+      "summary": "フォーム削除（論理）",
+      "description": "",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "deleted": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "deleted"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms/{id}/fields",
+      "summary": "フォーム項目一覧",
+      "description": "",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "include_rules",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "boolean"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "fields": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/FormField"
+                        }
+                      }
+                    },
+                    "required": [
+                      "fields"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/forms/{id}/fields",
+      "summary": "フォーム項目一括更新",
+      "description": "",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormField"
+                  }
+                }
+              },
+              "required": [
+                "fields"
+              ]
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "fields": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/FormField"
+                        }
+                      }
+                    },
+                    "required": [
+                      "fields"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/responses",
+      "summary": "送信一覧（Responses）",
+      "description": "",
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "per_page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": null
+        },
+        {
+          "name": "form_id",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "responses": {
+                        "$ref": "#/components/schemas/PaginatedResponses"
+                      }
+                    },
+                    "required": [
+                      "responses"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/responses/{id}",
+      "summary": "送信詳細",
+      "description": "",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "response": {
+                        "$ref": "#/components/schemas/Submission"
+                      },
+                      "values": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/SubmissionValue"
+                        }
+                      },
+                      "notifications": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Notification"
+                        }
+                      },
+                      "pdfs": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/SubmissionPdf"
+                        }
+                      }
+                    },
+                    "required": [
+                      "response",
+                      "values"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/forms/{form_key}/submit",
+      "summary": "公開 submit",
+      "description": "",
+      "parameters": [
+        {
+          "name": "form_key",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "answers": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "object"
+                      },
+                      {
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "locale": {
+                  "type": "string",
+                  "enum": [
+                    "ja",
+                    "en"
+                  ]
+                },
+                "mode": {
+                  "type": "string",
+                  "description": "both/value/label (CSV等の表現に委譲)",
+                  "enum": [
+                    "both",
+                    "value",
+                    "label"
+                  ]
+                }
+              },
+              "required": [
+                "answers"
+              ]
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "submission_id": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "ack_url": {
+                        "type": "string",
+                        "description": "ACK URL（UI遷移用）"
+                      },
+                      "condition_state": {
+                        "$ref": "#/components/schemas/ConditionState"
+                      }
+                    },
+                    "required": [
+                      "submission_id",
+                      "ack_url"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms/{form_key}/ack",
+      "summary": "ACK 表示",
+      "description": "",
+      "parameters": [
+        {
+          "name": "form_key",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "token",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "submission_id",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "ack": {
+                        "type": "object",
+                        "description": "ACK 表示データ（テンプレ/変数はA-04に委譲）"
+                      },
+                      "pdf_url": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "description": "PDFダウンロードURL（許可される場合）"
+                      }
+                    },
+                    "required": [
+                      "ack"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/responses/{id}/pdf",
+      "summary": "PDF 取得（管理側）",
+      "description": "",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "pdf_type",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/pdf",
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dashboard/summary",
+      "summary": "ダッシュボード集計",
+      "description": "",
+      "parameters": [],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "summary": {
+                        "type": "object",
+                        "properties": {
+                          "forms_count": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "responses_today": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "responses_total": {
+                            "type": "integer",
+                            "format": "int32"
+                          }
+                        },
+                        "required": [
+                          "forms_count",
+                          "responses_today",
+                          "responses_total"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "summary"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dashboard/errors",
+      "summary": "ダッシュボード（エラー/失敗一覧）",
+      "description": "",
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "per_page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": null
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "errors": {
+                        "type": "object",
+                        "properties": {
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "mail_failed",
+                                    "slack_failed",
+                                    "pdf_failed",
+                                    "eval_error",
+                                    "other"
+                                  ]
+                                },
+                                "message": {
+                                  "type": "string"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "kind",
+                                "message",
+                                "created_at"
+                              ]
+                            }
+                          },
+                          "total": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "page": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "per_page": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "sort": {
+                            "type": "string",
+                            "enum": [
+                              "created_at_desc",
+                              "created_at_asc"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "items",
+                          "total",
+                          "page",
+                          "per_page",
+                          "sort"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "errors"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/admin-users",
+      "summary": "管理者ユーザ一覧",
+      "description": "- 返却の正本ロールは `roles[]`。\n- `role` は互換のための deprecated フィールド（将来削除予定）。",
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "per_page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": null
+        },
+        {
+          "name": "role",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "users": {
+                        "type": "object",
+                        "properties": {
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/User"
+                            }
+                          },
+                          "total": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "page": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "per_page": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "sort": {
+                            "type": "string",
+                            "enum": [
+                              "created_at_desc",
+                              "created_at_asc"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "items",
+                          "total",
+                          "page",
+                          "per_page",
+                          "sort"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "users"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/system/admin-users",
+      "summary": "管理者ユーザ作成（招待）",
+      "description": "",
+      "parameters": [],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "roles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "SYSTEM_ADMIN",
+                      "FORM_ADMIN",
+                      "LOG_ADMIN"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "email",
+                "roles"
+              ]
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "user": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "required": [
+                      "user"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "201": {
+          "description": "Created",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "user": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "required": [
+                      "user"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/system/admin-users/{id}",
+      "summary": "管理者ユーザ更新",
+      "description": "### RBAC\n- 必須: system_admin\n- **system_admin 付与（昇格）**は root-only（is_root=true 必須）\n- system_admin 剥奪（降格）は system_admin で可（ただし自己降格禁止・最後の system_admin 禁止）\n\n- `roles` は現状単一ロール運用（要素数1）\n- `is_root` 変更は root 権限が必要",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "$ref": "#/components/schemas/AdminUserUpdateRequest"
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "user": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "required": [
+                      "user"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/admin-users/{id}",
+      "summary": "管理者アカウント詳細取得",
+      "description": "S-03 アカウント詳細/編集用。返却ロールは roles[] が正本。role は返さない。",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/EnvelopeSuccess"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "user": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        },
+                        "required": [
+                          "user"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "404": {
+          "description": "Not Found",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/system/admin-users/invites/resend",
+      "summary": "招待再送",
+      "description": "",
+      "parameters": [],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              "required": [
+                "user_id"
+              ]
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "sent": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "sent"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/admin-audit-logs",
+      "summary": "監査ログ一覧",
+      "description": "",
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "per_page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": null
+        },
+        {
+          "name": "user_id",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "action",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "logs": {
+                        "type": "object",
+                        "properties": {
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "actor_user_id": {
+                                  "type": "integer",
+                                  "format": "int64"
+                                },
+                                "action": {
+                                  "type": "string"
+                                },
+                                "target_type": {
+                                  "type": "string"
+                                },
+                                "target_id": {
+                                  "type": "string"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "actor_user_id",
+                                "action",
+                                "created_at"
+                              ]
+                            }
+                          },
+                          "total": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "page": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "per_page": {
+                            "type": "integer",
+                            "format": "int32"
+                          },
+                          "sort": {
+                            "type": "string",
+                            "enum": [
+                              "created_at_desc",
+                              "created_at_asc"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "items",
+                          "total",
+                          "page",
+                          "per_page",
+                          "sort"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "logs"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/roles/permissions",
+      "summary": "ロール権限定義取得",
+      "description": "",
+      "parameters": [],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "roles": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "role": {
+                              "type": "string"
+                            },
+                            "permissions": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "role",
+                            "permissions"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "roles"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/system/roles/permissions",
+      "summary": "ロール権限定義更新",
+      "description": "",
+      "parameters": [],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "roles": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "permissions": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "permissions"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "roles"
+              ]
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "updated": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "updated"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/settings",
+      "summary": "システム設定取得",
+      "description": "",
+      "parameters": [],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "settings": {
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "settings"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/system/settings",
+      "summary": "システム設定更新",
+      "description": "",
+      "parameters": [],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "settings": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "settings"
+              ]
+            }
+          }
+        ]
+      },
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "settings": {
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "settings"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "message",
+                  "errors"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "401 Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "422 Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/root-only/ping",
+      "summary": "root-only 動作確認（ping）",
+      "description": "root-only ミドルウェア動作確認用。system_admin を満たした上で is_root=true の場合のみ成功。",
+      "parameters": [],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "success": {
+                    "type": "boolean"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "pong": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "pong"
+                    ]
+                  },
+                  "message": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "errors": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  },
+                  "code": {
+                    "type": "string",
+                    "example": "OK"
+                  },
+                  "request_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "success",
+                  "data",
+                  "code",
+                  "request_id"
+                ]
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "",
+          "content": []
+        },
+        "403": {
+          "description": "403 Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/progress/{job_id}",
+      "summary": "進捗取得",
+      "description": "CSV/PDF/ファイル操作等の進捗を取得する。",
+      "parameters": [
+        {
+          "name": "job_id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeProgress"
+              }
+            }
+          ]
+        },
+        "404": {
+          "description": "Not Found / expired",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "500": {
+          "description": "Server Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/search",
+      "summary": "横断検索",
+      "description": "フォーム/回答/監査ログ/アカウント等を横断検索する（S-06）。",
+      "parameters": [
+        {
+          "name": "q",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "types",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "array"
+        },
+        {
+          "name": "page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "per_page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeSearch"
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/logs",
+      "summary": "ログ一覧",
+      "description": "L-01 ログ一覧。",
+      "parameters": [
+        {
+          "name": "page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "per_page",
+          "in": "query",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        },
+        {
+          "name": "level",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "q",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "date_from",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "date_to",
+          "in": "query",
+          "required": false,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeLogsList"
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/logs/{id}",
+      "summary": "ログ詳細",
+      "description": "L-02 ログ詳細。",
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "integer"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeLogDetail"
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "404": {
+          "description": "Not Found",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/public/forms/{form_key}",
+      "summary": "公開フォーム表示取得",
+      "description": "Respondent 用フォーム表示（/f/{form_key}）。条件分岐がある場合は condition_state を返す。",
+      "parameters": [
+        {
+          "name": "form_key",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "200": {
+          "description": "OK",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopePublicFormView"
+              }
+            }
+          ]
+        },
+        "404": {
+          "description": "Not Found",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/responses/export/csv",
+      "summary": "回答CSVエクスポート（ジョブ開始）",
+      "description": "回答一覧のCSVエクスポートを非同期ジョブとして開始し、job_id を返す。",
+      "parameters": [],
+      "requestBody": {
+        "description": "",
+        "content": [
+          {
+            "content_type": "application/json",
+            "schema": {
+              "$ref": "#/components/schemas/ResponsesCsvExportRequest"
+            }
+          }
+        ]
+      },
+      "responses": {
+        "202": {
+          "description": "Accepted",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeJobAccepted"
+              }
+            }
+          ]
+        },
+        "401": {
+          "description": "Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "422": {
+          "description": "Validation Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "500": {
+          "description": "Server Error",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/v1/exports/{job_id}/download",
+      "summary": "成果物ダウンロード",
+      "description": "エクスポート成果物のダウンロード。URL期限切れ時は再署名（settings に依存）。",
+      "parameters": [
+        {
+          "name": "job_id",
+          "in": "path",
+          "required": true,
+          "description": "",
+          "type": "string"
+        }
+      ],
+      "requestBody": null,
+      "responses": {
+        "302": {
+          "description": "Redirect to signed download URL",
+          "content": []
+        },
+        "401": {
+          "description": "Unauthorized",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "403": {
+          "description": "Forbidden",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        },
+        "404": {
+          "description": "Not Found / expired",
+          "content": [
+            {
+              "content_type": "application/json",
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeError"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

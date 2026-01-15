@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "project": "ReForma",
+    "category": "db",
+    "version": "v1.0.0",
+    "generated_at": "2026-01-14T11:37:59.882283+00:00",
+    "sources": [
+      {
+        "file": "latest/db/reforma-db-spec-v1.0.0.json",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "DB-0001",
+      "title": "reforma-db-spec-v1.0.0",
+      "kind": "text",
+      "content": "<FULL_JSON_REPLACED_IN_RUNTIME>",
+      "source_files": [
+        "latest/db/reforma-db-spec-v1.0.0.json"
+      ]
+    }
+  ],
+  "attachments": []
+}

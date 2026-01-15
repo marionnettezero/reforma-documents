@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "project": "ReForma",
+    "category": "common",
+    "version": "v1.5.1",
+    "generated_at": "2026-01-14",
+    "sources": [
+      {
+        "file": "classified/common/reforma-common-spec-v1.5.0.json",
+        "version": "1.5.0"
+      }
+    ]
+  },
+  "notes": "This JSON file serves as a placeholder for v1.5.1. The clarifications and implementation notes are provided in the accompanying markdown file (reforma-common-spec-v1.5.1.md).",
+  "change_log": [
+    {
+      "version": "1.5.1",
+      "date": "2026-01-14",
+      "changes": [
+        "Clarified default timezone (Asia/Tokyo) and explicit vs. UTC usage in datetime format rules",
+        "Documented progress endpoint and fallback behavior",
+        "Added implementation notes for toast message priority"
+      ]
+    }
+  ]
+}
