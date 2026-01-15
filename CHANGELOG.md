@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.5.4 - 2026-01-16
+
+分類別仕様書 **api v1.3.3** のリリースに伴い、v1.3.0 で定義されていた条件分岐（ConditionState）関連のスキーマ定義とエラーコードを v1.3.2 に統合しました。これにより、条件分岐機能の完全な仕様が最新版に含まれるようになりました。
+
+- classified/api v1.3.3  – 条件分岐スキーマ（ConditionState, FieldConditionState, StepTransitionState, Reason）とエラーコード（STEP_TRANSITION_DENIED 等）を追加
+- classified/common v1.5.1
+- classified/backend v1.1.0
+- classified/frontend v1.1.0
+- classified/db v1.0.0
+- classified/notes v1.1.0
+
 ## v1.5.3 - 2026-01-15
 
 分類別仕様書 **api v1.3.2** のリリースに伴い、旧 API 仕様 v1.3.0 で定義されていたが v1.3.1 で漏れていたエンドポイントやパラメータを統合しました。これにより、v1.3.0 と v1.3.1 の内容をすべて含む統合版となっています。機械共有用 JSON ファイルも v1.3.2 に更新しました。他の分類（common, backend, frontend, db, notes）のバージョンは変更ありません。

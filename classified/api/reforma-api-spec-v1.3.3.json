@@ -1,0 +1,654 @@
+{
+  "meta": {
+    "version": "v1.3.3",
+    "generated_at": "2026-01-16T10:00:00Z",
+    "openapi_version": "3.0.3",
+    "description": "v1.3.2 をベースに、v1.3.0 で定義されていた条件分岐（ConditionState）関連のスキーマ定義とエラーコードを統合した API 仕様書です。"
+  },
+  "condition_schemas": {
+    "Reason": {
+      "type": "object",
+      "description": "評価エラーや警告の理由",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["rule", "type", "missing_field", "unknown_operator"]
+        },
+        "path": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": ["kind"]
+    },
+    "FieldConditionState": {
+      "type": "object",
+      "description": "各フィールドの条件分岐評価結果",
+      "properties": {
+        "visible": {
+          "type": "boolean",
+          "description": "フィールドを表示するか"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "フィールドが必須か"
+        },
+        "store": {
+          "type": "string",
+          "enum": ["store", "do_not_store"],
+          "description": "値を保存するか"
+        },
+        "eval": {
+          "type": "string",
+          "enum": ["ok", "fallback", "error"],
+          "description": "評価結果ステータス"
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "$ref": "#/components/schemas/Reason" },
+          "description": "評価エラー/警告の理由（eval が fallback/error の場合）"
+        }
+      },
+      "required": ["visible", "required", "store", "eval"]
+    },
+    "StepTransitionState": {
+      "type": "object",
+      "description": "STEP 遷移の評価結果",
+      "properties": {
+        "can_transition": {
+          "type": "boolean",
+          "description": "次の STEP に遷移可能か"
+        },
+        "eval": {
+          "type": "string",
+          "enum": ["ok", "fallback", "error"],
+          "description": "評価結果ステータス"
+        },
+        "message": {
+          "type": "string",
+          "description": "遷移不可時のメッセージ"
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "$ref": "#/components/schemas/Reason" },
+          "description": "評価エラー/警告の理由"
+        }
+      },
+      "required": ["can_transition", "eval"]
+    },
+    "ConditionState": {
+      "type": "object",
+      "description": "条件分岐の全体評価結果",
+      "properties": {
+        "version": {
+          "type": "string",
+          "enum": ["1"],
+          "description": "ConditionState のスキーマバージョン"
+        },
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "評価日時（ISO8601）"
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/components/schemas/FieldConditionState" },
+          "description": "field_key をキーとした各フィールドの評価結果"
+        },
+        "step": {
+          "$ref": "#/components/schemas/StepTransitionState",
+          "description": "STEP 遷移の評価結果（STEP 遷移時のみ）"
+        }
+      },
+      "required": ["version", "evaluated_at", "fields"]
+    }
+  },
+  "condition_error_codes": [
+    {
+      "code": "STEP_TRANSITION_DENIED",
+      "http": 422,
+      "when": "STEP 遷移条件が false と評価された場合"
+    },
+    {
+      "code": "CONDITION_EVAL_ERROR",
+      "http": [200, 422],
+      "when": "条件評価時にランタイムエラーが発生（安全側フォールバック適用）"
+    },
+    {
+      "code": "CONDITION_RULE_INVALID",
+      "http": 422,
+      "when": "管理画面でルール保存/公開時にルールが不正な場合"
+    }
+  ],
+  "condition_application": [
+    {
+      "endpoint": "GET /v1/public/forms/{form_key}",
+      "purpose": "公開フォーム初期描画",
+      "condition_state_path": "data.condition_state"
+    },
+    {
+      "endpoint": "POST /v1/forms/{form_key}/submit",
+      "purpose": "フォーム送信",
+      "condition_state_path": "data.condition_state（成功時）",
+      "error_path": "errors.step（422 STEP_TRANSITION_DENIED 時）"
+    }
+  ],
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/v1/auth/login",
+      "summary": "ログイン",
+      "parameters": [],
+      "request_body": {
+        "content_type": "application/json",
+        "schema_type": "object"
+      },
+      "responses": [
+        {
+          "status_code": "200",
+          "description": "OK",
+          "content_type": "application/json",
+          "schema_type": "object"
+        },
+        {
+          "status_code": "422",
+          "description": "422 Validation Error",
+          "content_type": "application/json",
+          "schema_type": "#/components/schemas/EnvelopeError"
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/logout",
+      "summary": "ログアウト",
+      "parameters": [],
+      "request_body": null,
+      "responses": [
+        {
+          "status_code": "200",
+          "description": "OK",
+          "content_type": "application/json",
+          "schema_type": "object"
+        },
+        {
+          "status_code": "401",
+          "description": "401 Unauthorized",
+          "content_type": "application/json",
+          "schema_type": "#/components/schemas/EnvelopeError"
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/me",
+      "summary": "自分自身の情報",
+      "parameters": [],
+      "request_body": null,
+      "responses": [
+        {
+          "status_code": "200",
+          "description": "OK",
+          "content_type": "application/json",
+          "schema_type": "object"
+        },
+        {
+          "status_code": "401",
+          "description": "401 Unauthorized",
+          "content_type": "application/json",
+          "schema_type": "#/components/schemas/EnvelopeError"
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms",
+      "summary": "フォーム一覧",
+      "parameters": [
+        { "name": "page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "per_page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "sort", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "status", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "q", "in": "クエリ", "required": false, "type": "string" }
+      ],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/forms",
+      "summary": "フォーム作成",
+      "parameters": [],
+      "request_body": { "content_type": "application/json", "schema_type": "object" },
+      "responses": [
+        { "status_code": "201", "description": "Created", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "422 Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms/{id}",
+      "summary": "フォーム取得",
+      "parameters": [{ "name": "id", "in": "パス", "required": true, "type": "integer" }],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/forms/{id}",
+      "summary": "フォーム更新",
+      "parameters": [{ "name": "id", "in": "パス", "required": true, "type": "integer" }],
+      "request_body": { "content_type": "application/json", "schema_type": "object" },
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "422 Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/forms/{id}",
+      "summary": "フォーム削除（論理）",
+      "parameters": [{ "name": "id", "in": "パス", "required": true, "type": "integer" }],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms/{id}/fields",
+      "summary": "フォーム項目一覧",
+      "parameters": [
+        { "name": "id", "in": "パス", "required": true, "type": "integer" },
+        { "name": "include_rules", "in": "クエリ", "required": false, "type": "boolean" }
+      ],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/forms/{id}/fields",
+      "summary": "フォーム項目一括更新",
+      "parameters": [{ "name": "id", "in": "パス", "required": true, "type": "integer" }],
+      "request_body": { "content_type": "application/json", "schema_type": "object" },
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "422 Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/responses",
+      "summary": "送信一覧（Responses）",
+      "parameters": [
+        { "name": "page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "per_page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "sort", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "form_id", "in": "クエリ", "required": false, "type": "integer" },
+        { "name": "status", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "q", "in": "クエリ", "required": false, "type": "string" }
+      ],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/responses/{id}",
+      "summary": "送信詳細",
+      "parameters": [{ "name": "id", "in": "パス", "required": true, "type": "integer" }],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/forms/{form_key}/submit",
+      "summary": "公開 submit",
+      "description": "フォーム送信。条件分岐がある場合、成功時は data.condition_state を返す。STEP 遷移が拒否された場合は 422 で errors.step を返す。",
+      "parameters": [{ "name": "form_key", "in": "パス", "required": true, "type": "string" }],
+      "request_body": { "content_type": "application/json", "schema_type": "object" },
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object", "additional_fields": ["data.condition_state"] },
+        { "status_code": "422", "description": "422 Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError", "additional_fields": ["errors.step (STEP_TRANSITION_DENIED)"] }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/forms/{form_key}/ack",
+      "summary": "ACK 表示",
+      "parameters": [
+        { "name": "form_key", "in": "パス", "required": true, "type": "string" },
+        { "name": "token", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "submission_id", "in": "クエリ", "required": false, "type": "integer" }
+      ],
+      "request_body": null,
+      "responses": [{ "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" }]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/responses/{id}/pdf",
+      "summary": "PDF 取得（管理側）",
+      "parameters": [
+        { "name": "id", "in": "パス", "required": true, "type": "integer" },
+        { "name": "pdf_type", "in": "クエリ", "required": false, "type": "string" }
+      ],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/pdf", "schema_type": "string" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dashboard/summary",
+      "summary": "ダッシュボード集計",
+      "parameters": [],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dashboard/errors",
+      "summary": "ダッシュボード（エラー/失敗一覧）",
+      "parameters": [
+        { "name": "page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "per_page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "sort", "in": "クエリ", "required": false, "type": "string" }
+      ],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/admin-users",
+      "summary": "管理者ユーザ一覧",
+      "parameters": [
+        { "name": "page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "per_page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "sort", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "role", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "status", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "q", "in": "クエリ", "required": false, "type": "string" }
+      ],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/system/admin-users",
+      "summary": "管理者ユーザ作成（招待）",
+      "parameters": [],
+      "request_body": { "content_type": "application/json", "schema_type": "object" },
+      "responses": [
+        { "status_code": "201", "description": "Created", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "422 Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/system/admin-users/{id}",
+      "summary": "管理者ユーザ更新",
+      "parameters": [{ "name": "id", "in": "パス", "required": true, "type": "integer" }],
+      "request_body": { "content_type": "application/json", "schema_type": "#/components/schemas/AdminUserUpdateRequest" },
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "422 Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/admin-users/{id}",
+      "summary": "管理者アカウント詳細取得",
+      "parameters": [{ "name": "id", "in": "パス", "required": true, "type": "integer" }],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "404", "description": "Not Found", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/system/admin-users/invites/resend",
+      "summary": "招待再送",
+      "parameters": [],
+      "request_body": { "content_type": "application/json", "schema_type": "object" },
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "422 Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/admin-audit-logs",
+      "summary": "監査ログ一覧",
+      "parameters": [
+        { "name": "page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "per_page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "sort", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "user_id", "in": "クエリ", "required": false, "type": "integer" },
+        { "name": "action", "in": "クエリ", "required": false, "type": "string" }
+      ],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/roles/permissions",
+      "summary": "ロール権限定義取得",
+      "parameters": [],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/system/roles/permissions",
+      "summary": "ロール権限定義更新",
+      "parameters": [],
+      "request_body": { "content_type": "application/json", "schema_type": "object" },
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "422 Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/settings",
+      "summary": "システム設定取得",
+      "parameters": [],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/system/settings",
+      "summary": "システム設定更新",
+      "parameters": [],
+      "request_body": { "content_type": "application/json", "schema_type": "object" },
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "401 Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "422 Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/system/root-only/ping",
+      "summary": "root-only 動作確認（ping）",
+      "parameters": [],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "object" },
+        { "status_code": "401", "description": "Unauthorized", "content_type": null, "schema_type": null },
+        { "status_code": "403", "description": "403 Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/progress/{job_id}",
+      "summary": "進捗取得",
+      "parameters": [{ "name": "job_id", "in": "パス", "required": true, "type": "string" }],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeProgress" },
+        { "status_code": "404", "description": "Not Found / expired", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "500", "description": "Server Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/search",
+      "summary": "横断検索",
+      "parameters": [
+        { "name": "q", "in": "クエリ", "required": true, "type": "string" },
+        { "name": "types", "in": "クエリ", "required": false, "type": "array" },
+        { "name": "page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "per_page", "in": "クエリ", "required": true, "type": "integer" }
+      ],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeSearch" },
+        { "status_code": "401", "description": "Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/logs",
+      "summary": "ログ一覧",
+      "parameters": [
+        { "name": "page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "per_page", "in": "クエリ", "required": true, "type": "integer" },
+        { "name": "level", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "q", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "date_from", "in": "クエリ", "required": false, "type": "string" },
+        { "name": "date_to", "in": "クエリ", "required": false, "type": "string" }
+      ],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeLogsList" },
+        { "status_code": "401", "description": "Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/logs/{id}",
+      "summary": "ログ詳細",
+      "parameters": [{ "name": "id", "in": "パス", "required": true, "type": "integer" }],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeLogDetail" },
+        { "status_code": "401", "description": "Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "404", "description": "Not Found", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/public/forms/{form_key}",
+      "summary": "公開フォーム表示取得",
+      "description": "Respondent 用フォーム表示。条件分岐がある場合は data.condition_state を返す。",
+      "parameters": [{ "name": "form_key", "in": "パス", "required": true, "type": "string" }],
+      "request_body": null,
+      "responses": [
+        { "status_code": "200", "description": "OK", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopePublicFormView", "additional_fields": ["data.condition_state"] },
+        { "status_code": "404", "description": "Not Found", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/responses/export/csv",
+      "summary": "回答CSVエクスポート（ジョブ開始）",
+      "parameters": [],
+      "request_body": { "content_type": "application/json", "schema_type": "#/components/schemas/ResponsesCsvExportRequest" },
+      "responses": [
+        { "status_code": "202", "description": "Accepted", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeJobAccepted" },
+        { "status_code": "401", "description": "Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "422", "description": "Validation Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "500", "description": "Server Error", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/exports/{job_id}/download",
+      "summary": "成果物ダウンロード",
+      "parameters": [{ "name": "job_id", "in": "パス", "required": true, "type": "string" }],
+      "request_body": null,
+      "responses": [
+        { "status_code": "302", "description": "Redirect to signed download URL", "content_type": null, "schema_type": null },
+        { "status_code": "401", "description": "Unauthorized", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "403", "description": "Forbidden", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" },
+        { "status_code": "404", "description": "Not Found / expired", "content_type": "application/json", "schema_type": "#/components/schemas/EnvelopeError" }
+      ]
+    }
+  ]
+}
