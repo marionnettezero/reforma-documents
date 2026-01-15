@@ -6,7 +6,7 @@
 
 | 分類 | バージョン | ファイル |
 | --- | --- | --- |
-| api | v1.3.2 | classified/api/reforma-api-spec-v1.3.2.json |
+| api | v1.3.3 | classified/api/reforma-api-spec-v1.3.3.json |
 | backend | v1.1.0 | classified/backend/reforma-backend-spec-v1.1.0.json |
 | common | v1.5.1 | classified/common/reforma-common-spec-v1.5.1.json |
 | db | v1.0.0 | classified/db/reforma-db-spec-v1.0.0.json |
