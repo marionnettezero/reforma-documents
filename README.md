@@ -20,8 +20,8 @@ ReForma の仕様ドキュメント管理リポジトリ。
 
 分類別仕様書の更新（v1.5.3）に合わせて、正本の最新版を **v1.5.3** に更新しました。以下のファイルが現在の正本です。
 
-- `canonical/reforma-spec-v1.5.3.md`
-- `canonical/reforma-spec-v1.5.3.json`
+- `canonical/reforma-spec-v1.5.4.md`
+- `canonical/reforma-spec-v1.5.4.json`
 
 ## いまの OpenAPI 定義
 
