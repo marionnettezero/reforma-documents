@@ -1937,7 +1937,7 @@
           },
           {
             "id": "BACKEND-0008",
-            "title": "reforma-backend-spec-v1.1.0",
+            "title": "reforma-backend-spec-v0.1.1",
             "kind": "json",
             "content": {
               "meta": {
@@ -2143,7 +2143,7 @@
               "version": "1.0.0"
             },
             {
-              "file": "latest/frontend/reforma-frontend-spec-v1.1.0.json",
+              "file": "latest/frontend/reforma-frontend-spec-v0.1.1.json",
               "version": "1.1.0"
             }
           ]
@@ -5391,7 +5391,7 @@
           },
           {
             "id": "FRONTEND-0042",
-            "title": "reforma-frontend-spec-v1.1.0",
+            "title": "reforma-frontend-spec-v0.1.1",
             "kind": "json",
             "content": {
               "meta": {

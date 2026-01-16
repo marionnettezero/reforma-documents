@@ -962,7 +962,7 @@ STEP 遷移の評価結果。
 - latest/backend/reforma-backend-spec-v1.0.0-Backend-共有テンプレ-.json.json (v1.0.0)
 - latest/backend/reforma-backend-spec-v1.0.0-backend-chat-init.json.json (v1.0.0)
 - latest/backend/reforma-backend-spec-v1.0.0.json (v1.0.0)
-- latest/backend/reforma-backend-spec-v1.1.0.json (v1.1.0)
+- latest/backend/reforma-backend-spec-v0.1.1.json (v0.1.1)
 
 ---
 
@@ -1259,9 +1259,9 @@ _Source files:_ latest/backend/reforma-backend-spec-v1.0.0.json
 }
 ```
 
-## reforma-backend-spec-v1.1.0
+## reforma-backend-spec-v0.1.1
 
-_Source files:_ latest/backend/reforma-backend-spec-v1.1.0.json
+_Source files:_ latest/backend/reforma-backend-spec-v0.1.1.json
 
 ```json
 {
@@ -1368,7 +1368,7 @@ _Source files:_ latest/backend/reforma-backend-spec-v1.1.0.json
 - latest/frontend/reforma-frontend-spec-v1.0.0-frontend-chat-init.json.json (v1.0.0)
 - latest/frontend/reforma-frontend-spec-v1.0.0-frontend-handoff-20260112.json.json (v1.0.0)
 - latest/frontend/reforma-frontend-spec-v1.0.0.json (v1.0.0)
-- latest/frontend/reforma-frontend-spec-v1.1.0.json (v1.1.0)
+- latest/frontend/reforma-frontend-spec-v0.1.1.json (v0.1.1)
 
 ---
 
@@ -4571,9 +4571,9 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v1.0.0.json
 }
 ```
 
-## reforma-frontend-spec-v1.1.0
+## reforma-frontend-spec-v0.1.1
 
-_Source files:_ latest/frontend/reforma-frontend-spec-v1.1.0.json
+_Source files:_ latest/frontend/reforma-frontend-spec-v0.1.1.json
 
 ```json
 {
