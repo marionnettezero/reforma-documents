@@ -1,9 +1,9 @@
-{
+﻿{
   "openapi": "3.0.3",
   "info": {
-    "title": "ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8） (v0.1.3.1)",
-    "version": "0.1.3.1",
-    "description": "API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI を\"実装可能な粒度\"まで増補した草案。添付ファイル機能、通知機能、期間チェック機能を追加。"
+    "title": "ReForma API v1.1 OpenAPI・郁ｵｷ闕会ｼ・.1/7.2/7.3/7.4/7.7/7.8・・(v0.1.4)",
+    "version": "0.1.4",
+    "description": "API莉墓ｧ俶嶌縺ｮ繧ｫ繝・ざ繝ｪ荳隕ｧ・・1.1邨ｱ蜷育沿・会ｼ汽B莉墓ｧ假ｼ・1.1邨ｱ蜷育沿・会ｼ区擅莉ｶ蛻・ｲ蝕/F・・onditionState・峨ｒ逕ｨ縺・※ OpenAPI 繧箪"螳溯｣・庄閭ｽ縺ｪ邊貞ｺｦ\"縺ｾ縺ｧ蠅苓｣懊＠縺溯拷譯医よｷｻ莉倥ヵ繧｡繧､繝ｫ讖溯・縲・夂衍讖溯・縲∵悄髢薙メ繧ｧ繝・け讖溯・繧定ｿｽ蜉縲・
   },
   "servers": [
     {
@@ -34,31 +34,31 @@
     },
     {
       "name": "progress",
-      "description": "進捗取得"
+      "description": "騾ｲ謐怜叙蠕・
     },
     {
       "name": "search",
-      "description": "横断検索"
+      "description": "讓ｪ譁ｭ讀懃ｴ｢"
     },
     {
       "name": "logs",
-      "description": "ログ"
+      "description": "繝ｭ繧ｰ"
     },
     {
       "name": "public-forms",
-      "description": "公開フォーム"
+      "description": "蜈ｬ髢九ヵ繧ｩ繝ｼ繝"
     },
     {
       "name": "system-admin-users",
-      "description": "管理者ユーザ"
+      "description": "邂｡逅・・Θ繝ｼ繧ｶ"
     },
     {
       "name": "exports",
-      "description": "成果物"
+      "description": "謌先棡迚ｩ"
     },
     {
       "name": "responses",
-      "description": "回答"
+      "description": "蝗樒ｭ・
     }
   ],
   "components": {
@@ -67,7 +67,7 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "XSRF-TOKEN",
-        "description": "Sanctum SPA session（例）。実装により Bearer 併用可"
+        "description": "Sanctum SPA session・井ｾ具ｼ峨ょｮ溯｣・↓繧医ｊ Bearer 菴ｵ逕ｨ蜿ｯ"
       },
       "bearerAuth": {
         "type": "http",
@@ -99,12 +99,12 @@
           },
           "code": {
             "type": "string",
-            "description": "API共通コード（成功時はOK等）",
+            "description": "API蜈ｱ騾壹さ繝ｼ繝会ｼ域・蜉滓凾縺ｯOK遲会ｼ・,
             "example": "OK"
           },
           "request_id": {
             "type": "string",
-            "description": "リクエストID（追跡用）",
+            "description": "繝ｪ繧ｯ繧ｨ繧ｹ繝・D・郁ｿｽ霍｡逕ｨ・・,
             "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
           }
         },
@@ -142,7 +142,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "description": "エラーメッセージ配列"
+                  "description": "繧ｨ繝ｩ繝ｼ繝｡繝・そ繝ｼ繧ｸ驟榊・"
                 }
               },
               "rule": {
@@ -159,21 +159,21 @@
               },
               "reason": {
                 "type": "string",
-                "description": "失敗理由（機械判定用）。例: ROOT_ONLY / EXPIRED / URL_EXPIRED / SYSTEM_ADMIN_REQUIRED / TOKEN_EXPIRED",
+                "description": "螟ｱ謨礼炊逕ｱ・域ｩ滓｢ｰ蛻､螳夂畑・峨ゆｾ・ ROOT_ONLY / EXPIRED / URL_EXPIRED / SYSTEM_ADMIN_REQUIRED / TOKEN_EXPIRED",
                 "example": "ROOT_ONLY"
               }
             },
             "required": [],
-            "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+            "description": "errors 譛ｬ菴難ｼ育畑騾斐↓蠢懊§縺ｦ fields/rule/step 繧貞茜逕ｨ・・
           },
           "code": {
             "type": "string",
-            "description": "API共通コード（例: FORBIDDEN / CONSTRAINT_VIOLATION / VALIDATION_ERROR 等）",
+            "description": "API蜈ｱ騾壹さ繝ｼ繝会ｼ井ｾ・ FORBIDDEN / CONSTRAINT_VIOLATION / VALIDATION_ERROR 遲会ｼ・,
             "example": "FORBIDDEN"
           },
           "request_id": {
             "type": "string",
-            "description": "リクエストID（追跡用）",
+            "description": "繝ｪ繧ｯ繧ｨ繧ｹ繝・D・郁ｿｽ霍｡逕ｨ・・,
             "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
           }
         },
@@ -191,7 +191,7 @@
         "properties": {
           "code": {
             "type": "string",
-            "description": "エラーコード"
+            "description": "繧ｨ繝ｩ繝ｼ繧ｳ繝ｼ繝・
           },
           "fields": {
             "type": "object",
@@ -200,7 +200,7 @@
               "items": {
                 "type": "string"
               },
-              "description": "エラーメッセージ配列"
+              "description": "繧ｨ繝ｩ繝ｼ繝｡繝・そ繝ｼ繧ｸ驟榊・"
             }
           },
           "rule": {
@@ -217,14 +217,14 @@
           },
           "reason": {
             "type": "string",
-            "description": "失敗理由（機械判定用）",
+            "description": "螟ｱ謨礼炊逕ｱ・域ｩ滓｢ｰ蛻､螳夂畑・・,
             "example": "ROOT_ONLY"
           }
         },
         "required": [
           "code"
         ],
-        "description": "errors 本体（用途に応じて fields/rule/step を利用）"
+        "description": "errors 譛ｬ菴難ｼ育畑騾斐↓蠢懊§縺ｦ fields/rule/step 繧貞茜逕ｨ・・
       },
       "User": {
         "type": "object",
@@ -236,11 +236,11 @@
           },
           "name": {
             "type": "string",
-            "description": "表示名"
+            "description": "陦ｨ遉ｺ蜷・
           },
           "email": {
             "type": "string",
-            "description": "メールアドレス",
+            "description": "繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ",
             "format": "email"
           },
           "status": {
@@ -261,22 +261,22 @@
                 "LOG_ADMIN"
               ]
             },
-            "description": "付与ロール"
+            "description": "莉倅ｸ弱Ο繝ｼ繝ｫ"
           },
           "is_root": {
             "type": "boolean",
-            "description": "root-only 判定フラグ（/auth/me 正本）"
+            "description": "root-only 蛻､螳壹ヵ繝ｩ繧ｰ・・auth/me 豁｣譛ｬ・・
           },
           "form_create_limit_enabled": {
             "type": "boolean",
-            "description": "フォーム作成数制限を適用するか"
+            "description": "繝輔か繝ｼ繝菴懈・謨ｰ蛻ｶ髯舌ｒ驕ｩ逕ｨ縺吶ｋ縺・
           },
           "form_create_limit": {
             "type": [
               "integer",
               "null"
             ],
-            "description": "フォーム作成可能数（enabled=true の場合のみ有効。min=1）",
+            "description": "繝輔か繝ｼ繝菴懈・蜿ｯ閭ｽ謨ｰ・・nabled=true 縺ｮ蝣ｴ蜷医・縺ｿ譛牙柑縲Ｎin=1・・,
             "minimum": 1
           },
           "role": {
@@ -285,7 +285,7 @@
               "null"
             ],
             "deprecated": true,
-            "description": "(deprecated) 互換のため残置。正本は roles[]。将来削除予定。",
+            "description": "(deprecated) 莠呈鋤縺ｮ縺溘ａ谿狗ｽｮ縲よｭ｣譛ｬ縺ｯ roles[]縲ょｰ・擂蜑企勁莠亥ｮ壹・,
             "enum": [
               "SYSTEM_ADMIN",
               "FORM_ADMIN",
@@ -317,7 +317,7 @@
           },
           "code": {
             "type": "string",
-            "description": "forms.code（フォーム識別子）"
+            "description": "forms.code・医ヵ繧ｩ繝ｼ繝隴伜挨蟄撰ｼ・
           },
           "status": {
             "type": "string",
@@ -336,34 +336,34 @@
             "type": "string",
             "format": "date-time",
             "nullable": true,
-            "description": "公開期間開始日時"
+            "description": "蜈ｬ髢区悄髢馴幕蟋区律譎・
           },
           "public_period_end": {
             "type": "string",
             "format": "date-time",
             "nullable": true,
-            "description": "公開期間終了日時"
+            "description": "蜈ｬ髢区悄髢鍋ｵゆｺ・律譎・
           },
           "answer_period_start": {
             "type": "string",
             "format": "date-time",
             "nullable": true,
-            "description": "回答期間開始日時"
+            "description": "蝗樒ｭ疲悄髢馴幕蟋区律譎・
           },
           "answer_period_end": {
             "type": "string",
             "format": "date-time",
             "nullable": true,
-            "description": "回答期間終了日時"
+            "description": "蝗樒ｭ疲悄髢鍋ｵゆｺ・律譎・
           },
           "attachment_enabled": {
             "type": "boolean",
-            "description": "添付ファイル機能が有効か"
+            "description": "豺ｻ莉倥ヵ繧｡繧､繝ｫ讖溯・縺梧怏蜉ｹ縺・
           },
           "attachment_type": {
             "type": "string",
             "nullable": true,
-            "description": "添付ファイルタイプ（pdf_template: PDFテンプレート、uploaded_files: アップロードファイル）",
+            "description": "豺ｻ莉倥ヵ繧｡繧､繝ｫ繧ｿ繧､繝暦ｼ・df_template: PDF繝・Φ繝励Ξ繝ｼ繝医「ploaded_files: 繧｢繝・・繝ｭ繝ｼ繝峨ヵ繧｡繧､繝ｫ・・,
             "enum": [
               "pdf_template",
               "uploaded_files"
@@ -372,7 +372,7 @@
           "pdf_template_path": {
             "type": "string",
             "nullable": true,
-            "description": "PDFテンプレートファイルパス"
+            "description": "PDF繝・Φ繝励Ξ繝ｼ繝医ヵ繧｡繧､繝ｫ繝代せ"
           },
           "attachment_files_json": {
             "type": "array",
@@ -382,50 +382,50 @@
               "properties": {
                 "name": {
                   "type": "string",
-                  "description": "ファイル名"
+                  "description": "繝輔ぃ繧､繝ｫ蜷・
                 },
                 "path": {
                   "type": "string",
-                  "description": "ファイルパス"
+                  "description": "繝輔ぃ繧､繝ｫ繝代せ"
                 },
                 "size": {
                   "type": "integer",
                   "format": "int64",
-                  "description": "ファイルサイズ（バイト）"
+                  "description": "繝輔ぃ繧､繝ｫ繧ｵ繧､繧ｺ・医ヰ繧､繝茨ｼ・
                 },
                 "mime": {
                   "type": "string",
-                  "description": "MIMEタイプ"
+                  "description": "MIME繧ｿ繧､繝・
                 }
               }
             },
-            "description": "アップロードファイル一覧（JSON配列）"
+            "description": "繧｢繝・・繝ｭ繝ｼ繝峨ヵ繧｡繧､繝ｫ荳隕ｧ・・SON驟榊・・・
           },
           "notification_user_enabled": {
             "type": "boolean",
-            "description": "ユーザー通知が有効か"
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍縺梧怏蜉ｹ縺・
           },
           "notification_user_email_template": {
             "type": "string",
             "nullable": true,
-            "description": "ユーザー通知メールテンプレート"
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ繝・Φ繝励Ξ繝ｼ繝・
           },
           "notification_user_email_subject": {
             "type": "string",
             "nullable": true,
-            "description": "ユーザー通知メール件名"
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ莉ｶ蜷・
           },
           "notification_user_email_from": {
             "type": "string",
             "nullable": true,
             "format": "email",
-            "description": "ユーザー通知メール送信元アドレス"
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ騾∽ｿ｡蜈・い繝峨Ξ繧ｹ"
           },
           "notification_user_email_reply_to": {
             "type": "string",
             "nullable": true,
             "format": "email",
-            "description": "ユーザー通知メール返信先アドレス"
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ霑比ｿ｡蜈医い繝峨Ξ繧ｹ"
           },
           "notification_user_email_cc": {
             "type": "array",
@@ -434,7 +434,7 @@
               "type": "string",
               "format": "email"
             },
-            "description": "ユーザー通知メールCC（配列）"
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫCC・磯・蛻暦ｼ・
           },
           "notification_user_email_bcc": {
             "type": "array",
@@ -443,11 +443,11 @@
               "type": "string",
               "format": "email"
             },
-            "description": "ユーザー通知メールBCC（配列）"
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫBCC・磯・蛻暦ｼ・
           },
           "notification_admin_enabled": {
             "type": "boolean",
-            "description": "管理者通知が有効か"
+            "description": "邂｡逅・・夂衍縺梧怏蜉ｹ縺・
           },
           "notification_admin_user_ids": {
             "type": "array",
@@ -456,29 +456,29 @@
               "type": "integer",
               "format": "int64"
             },
-            "description": "管理者通知送信先ユーザーID一覧"
+            "description": "邂｡逅・・夂衍騾∽ｿ｡蜈医Θ繝ｼ繧ｶ繝ｼID荳隕ｧ"
           },
           "notification_admin_email_template": {
             "type": "string",
             "nullable": true,
-            "description": "管理者通知メールテンプレート"
+            "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ繝・Φ繝励Ξ繝ｼ繝・
           },
           "notification_admin_email_subject": {
             "type": "string",
             "nullable": true,
-            "description": "管理者通知メール件名"
+            "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ莉ｶ蜷・
           },
           "notification_admin_email_from": {
             "type": "string",
             "nullable": true,
             "format": "email",
-            "description": "管理者通知メール送信元アドレス"
+            "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ騾∽ｿ｡蜈・い繝峨Ξ繧ｹ"
           },
           "notification_admin_email_reply_to": {
             "type": "string",
             "nullable": true,
             "format": "email",
-            "description": "管理者通知メール返信先アドレス"
+            "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ霑比ｿ｡蜈医い繝峨Ξ繧ｹ"
           },
           "created_by": {
             "type": "integer",
@@ -524,11 +524,11 @@
           },
           "title": {
             "type": "string",
-            "description": "フォーム名"
+            "description": "繝輔か繝ｼ繝蜷・
           },
           "description": {
             "type": "string",
-            "description": "説明",
+            "description": "隱ｬ譏・,
             "example": ""
           }
         },
@@ -558,7 +558,7 @@
           },
           "type": {
             "type": "string",
-            "description": "form_fields.type（input種別）"
+            "description": "form_fields.type・・nput遞ｮ蛻･・・
           },
           "sort_order": {
             "type": "integer",
@@ -567,14 +567,14 @@
           },
           "is_required": {
             "type": "boolean",
-            "description": "form_fields.is_required（固定必須）"
+            "description": "form_fields.is_required・亥崋螳壼ｿ・茨ｼ・
           },
           "options_json": {
             "type": [
               "object",
               "null"
             ],
-            "description": "選択肢など（JSON）"
+            "description": "驕ｸ謚櫁い縺ｪ縺ｩ・・SON・・
           },
           "visibility_rule": {
             "type": [
@@ -600,13 +600,13 @@
           "pdf_block_key": {
             "type": "string",
             "nullable": true,
-            "description": "PDFテンプレート内のブロックキー（PDF生成時に使用）"
+            "description": "PDF繝・Φ繝励Ξ繝ｼ繝亥・縺ｮ繝悶Ο繝・け繧ｭ繝ｼ・・DF逕滓・譎ゅ↓菴ｿ逕ｨ・・
           },
           "pdf_page_number": {
             "type": "integer",
             "format": "int32",
             "nullable": true,
-            "description": "PDFテンプレート内のページ番号（1始まり、PDF生成時に使用）"
+            "description": "PDF繝・Φ繝励Ξ繝ｼ繝亥・縺ｮ繝壹・繧ｸ逡ｪ蜿ｷ・・蟋九∪繧翫￣DF逕滓・譎ゅ↓菴ｿ逕ｨ・・
           }
         },
         "required": [
@@ -679,7 +679,7 @@
                       }
                     }
                   },
-                  "description": "任意（デバッグ用途）"
+                  "description": "莉ｻ諢擾ｼ医ョ繝舌ャ繧ｰ逕ｨ騾費ｼ・
                 }
               },
               "required": [
@@ -695,7 +695,7 @@
               "object",
               "null"
             ],
-            "description": "STEP遷移状態（STEPモードで利用）"
+            "description": "STEP驕ｷ遘ｻ迥ｶ諷具ｼ・TEP繝｢繝ｼ繝峨〒蛻ｩ逕ｨ・・
           }
         },
         "required": [
@@ -703,7 +703,7 @@
           "evaluated_at",
           "fields"
         ],
-        "description": "条件分岐評価結果（API→UI I/F）"
+        "description": "譚｡莉ｶ蛻・ｲ占ｩ穂ｾ｡邨先棡・・PI竊旦I I/F・・
       },
       "Submission": {
         "type": "object",
@@ -765,7 +765,7 @@
               "string",
               "null"
             ],
-            "description": "ラベルスナップショット"
+            "description": "繝ｩ繝吶Ν繧ｹ繝翫ャ繝励す繝ｧ繝・ヨ"
           },
           "value_json": {
             "oneOf": [
@@ -788,14 +788,14 @@
                 "type": "null"
               }
             ],
-            "description": "回答 value（JSON）"
+            "description": "蝗樒ｭ・value・・SON・・
           },
           "label_json": {
             "type": [
               "object",
               "null"
             ],
-            "description": "label スナップショット（JSON）"
+            "description": "label 繧ｹ繝翫ャ繝励す繝ｧ繝・ヨ・・SON・・
           },
           "created_at": {
             "type": "string",
@@ -869,7 +869,7 @@
           },
           "storage_path": {
             "type": "string",
-            "description": "S3等の保存先パス"
+            "description": "S3遲峨・菫晏ｭ伜・繝代せ"
           },
           "is_latest": {
             "type": "boolean"
@@ -964,7 +964,7 @@
       },
       "SortEnum": {
         "type": "string",
-        "description": "一覧系 sort。既定=created_at_desc",
+        "description": "荳隕ｧ邉ｻ sort縲よ里螳・created_at_desc",
         "enum": [
           "created_at_desc",
           "created_at_asc"
@@ -975,11 +975,11 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "ジョブID"
+            "description": "繧ｸ繝ｧ繝蜂D"
           },
           "type": {
             "type": "string",
-            "description": "ジョブ種別（CSV_EXPORT/PDF_GENERATE 等）"
+            "description": "繧ｸ繝ｧ繝也ｨｮ蛻･・・SV_EXPORT/PDF_GENERATE 遲会ｼ・
           },
           "status": {
             "type": "string",
@@ -998,14 +998,14 @@
             ],
             "minimum": 0,
             "maximum": 100,
-            "description": "進捗率（不明な場合 null 可）"
+            "description": "騾ｲ謐礼紫・井ｸ肴・縺ｪ蝣ｴ蜷・null 蜿ｯ・・
           },
           "message": {
             "type": [
               "string",
               "null"
             ],
-            "description": "進捗メッセージ（任意）"
+            "description": "騾ｲ謐励Γ繝・そ繝ｼ繧ｸ・井ｻｻ諢擾ｼ・
           },
           "result": {
             "type": [
@@ -1018,7 +1018,7 @@
                   "string",
                   "null"
                 ],
-                "description": "完了時の成果物DL URL（署名URLなど）"
+                "description": "螳御ｺ・凾縺ｮ謌先棡迚ｩDL URL・育ｽｲ蜷攻RL縺ｪ縺ｩ・・
               }
             }
           },
@@ -1032,7 +1032,7 @@
               "null"
             ],
             "format": "date-time",
-            "description": "進捗参照期限（TTL）"
+            "description": "騾ｲ謐怜盾辣ｧ譛滄剞・・TL・・
           }
         },
         "required": [
@@ -1074,7 +1074,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "表示名（任意）"
+            "description": "陦ｨ遉ｺ蜷搾ｼ井ｻｻ諢擾ｼ・
           },
           "status": {
             "type": "string",
@@ -1082,7 +1082,7 @@
               "active",
               "suspended"
             ],
-            "description": "ステータス（任意）"
+            "description": "繧ｹ繝・・繧ｿ繧ｹ・井ｻｻ諢擾ｼ・
           },
           "roles": {
             "type": "array",
@@ -1096,15 +1096,15 @@
             },
             "minItems": 1,
             "maxItems": 1,
-            "description": "付与ロール（現状は単一ロール運用のため要素数1固定）"
+            "description": "莉倅ｸ弱Ο繝ｼ繝ｫ・育樟迥ｶ縺ｯ蜊倅ｸ繝ｭ繝ｼ繝ｫ驕狗畑縺ｮ縺溘ａ隕∫ｴ謨ｰ1蝗ｺ螳夲ｼ・
           },
           "is_root": {
             "type": "boolean",
-            "description": "root-only フラグ（変更には root 権限が必要）"
+            "description": "root-only 繝輔Λ繧ｰ・亥､画峩縺ｫ縺ｯ root 讓ｩ髯舌′蠢・ｦ・ｼ・
           },
           "form_create_limit_enabled": {
             "type": "boolean",
-            "description": "フォーム作成数制限を適用するか"
+            "description": "繝輔か繝ｼ繝菴懈・謨ｰ蛻ｶ髯舌ｒ驕ｩ逕ｨ縺吶ｋ縺・
           },
           "form_create_limit": {
             "type": [
@@ -1112,7 +1112,7 @@
               "null"
             ],
             "minimum": 1,
-            "description": "フォーム作成可能数（enabled=true の場合のみ有効。min=1）"
+            "description": "繝輔か繝ｼ繝菴懈・蜿ｯ閭ｽ謨ｰ・・nabled=true 縺ｮ蝣ｴ蜷医・縺ｿ譛牙柑縲Ｎin=1・・
           }
         },
         "required": [
@@ -1125,7 +1125,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "description": "検索対象種別",
+            "description": "讀懃ｴ｢蟇ｾ雎｡遞ｮ蛻･",
             "enum": [
               "form",
               "response",
@@ -1136,25 +1136,25 @@
           },
           "id": {
             "type": "string",
-            "description": "対象ID"
+            "description": "蟇ｾ雎｡ID"
           },
           "title": {
             "type": "string",
-            "description": "表示タイトル"
+            "description": "陦ｨ遉ｺ繧ｿ繧､繝医Ν"
           },
           "snippet": {
             "type": [
               "string",
               "null"
             ],
-            "description": "抜粋"
+            "description": "謚懃ｲ・
           },
           "url": {
             "type": [
               "string",
               "null"
             ],
-            "description": "遷移先（UI側で組み立てる場合はnull）"
+            "description": "驕ｷ遘ｻ蜈茨ｼ・I蛛ｴ縺ｧ邨・∩遶九※繧句ｴ蜷医・null・・
           }
         },
         "required": [
@@ -1212,7 +1212,7 @@
           },
           "category": {
             "type": "string",
-            "description": "分類（auth/audit/system/api 等）"
+            "description": "蛻・｡橸ｼ・uth/audit/system/api 遲会ｼ・
           },
           "message": {
             "type": "string"
@@ -1234,7 +1234,7 @@
               "string",
               "null"
             ],
-            "description": "errors.reason 等"
+            "description": "errors.reason 遲・
           },
           "created_at": {
             "type": "string",
@@ -1388,7 +1388,7 @@
               "string",
               "null"
             ],
-            "description": "検索キーワード（任意）"
+            "description": "讀懃ｴ｢繧ｭ繝ｼ繝ｯ繝ｼ繝会ｼ井ｻｻ諢擾ｼ・
           },
           "status": {
             "type": [
@@ -1399,7 +1399,7 @@
               "active",
               "suspended"
             ],
-            "description": "（任意）"
+            "description": "・井ｻｻ諢擾ｼ・
           },
           "date_from": {
             "type": [
@@ -1407,7 +1407,7 @@
               "null"
             ],
             "format": "date",
-            "description": "開始日（任意）"
+            "description": "髢句ｧ区律・井ｻｻ諢擾ｼ・
           },
           "date_to": {
             "type": [
@@ -1415,7 +1415,7 @@
               "null"
             ],
             "format": "date",
-            "description": "終了日（任意）"
+            "description": "邨ゆｺ・律・井ｻｻ諢擾ｼ・
           }
         },
         "additionalProperties": false
@@ -1443,7 +1443,7 @@
                       "string",
                       "null"
                     ],
-                    "description": "完了後に利用できるDL URL（必要なら）"
+                    "description": "螳御ｺ・ｾ後↓蛻ｩ逕ｨ縺ｧ縺阪ｋDL URL・亥ｿ・ｦ√↑繧会ｼ・
                   }
                 },
                 "required": [
@@ -1491,7 +1491,7 @@
     },
     "examples": {
       "ForbiddenRootOnly": {
-        "summary": "root-only により拒否",
+        "summary": "root-only 縺ｫ繧医ｊ諡貞凄",
         "value": {
           "success": false,
           "data": null,
@@ -1504,7 +1504,7 @@
         }
       },
       "ForbiddenSystemAdminRequired": {
-        "summary": "system_admin 必須により拒否",
+        "summary": "system_admin 蠢・医↓繧医ｊ諡貞凄",
         "value": {
           "success": false,
           "data": null,
@@ -1524,7 +1524,7 @@
         "tags": [
           "Auth"
         ],
-        "summary": "ログイン",
+        "summary": "繝ｭ繧ｰ繧､繝ｳ",
         "responses": {
           "200": {
             "description": "OK",
@@ -1544,7 +1544,7 @@
                             "string",
                             "null"
                           ],
-                          "description": "token方式の場合に返却（Sanctum SPAの場合null）"
+                          "description": "token譁ｹ蠑上・蝣ｴ蜷医↓霑泌唆・・anctum SPA縺ｮ蝣ｴ蜷・ull・・
                         },
                         "user": {
                           "$ref": "#/components/schemas/User"
@@ -1621,7 +1621,7 @@
         "tags": [
           "Auth"
         ],
-        "summary": "ログアウト",
+        "summary": "繝ｭ繧ｰ繧｢繧ｦ繝・,
         "responses": {
           "200": {
             "description": "OK",
@@ -1690,7 +1690,7 @@
         "tags": [
           "Auth"
         ],
-        "summary": "自分自身の情報",
+        "summary": "閾ｪ蛻・・霄ｫ縺ｮ諠・ｱ",
         "responses": {
           "200": {
             "description": "OK",
@@ -1759,7 +1759,7 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォーム一覧",
+        "summary": "繝輔か繝ｼ繝荳隕ｧ",
         "responses": {
           "200": {
             "description": "OK",
@@ -1879,7 +1879,7 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "description": "検索（部分一致）"
+              "description": "讀懃ｴ｢・磯Κ蛻・ｸ閾ｴ・・
             },
             "required": false
           }
@@ -1889,7 +1889,7 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォーム作成",
+        "summary": "繝輔か繝ｼ繝菴懈・",
         "responses": {
           "200": {
             "description": "OK",
@@ -2024,7 +2024,7 @@
                 "properties": {
                   "code": {
                     "type": "string",
-                    "description": "フォーム識別子",
+                    "description": "繝輔か繝ｼ繝隴伜挨蟄・,
                     "example": "CONTACT_2026"
                   },
                   "is_public": {
@@ -2036,7 +2036,7 @@
                     "items": {
                       "$ref": "#/components/schemas/FormTranslation"
                     },
-                    "description": "多言語（初期）"
+                    "description": "螟夊ｨ隱橸ｼ亥・譛滂ｼ・
                   }
                 },
                 "required": [
@@ -2053,7 +2053,7 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォーム取得",
+        "summary": "繝輔か繝ｼ繝蜿門ｾ・,
         "responses": {
           "200": {
             "description": "OK",
@@ -2147,7 +2147,7 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォーム更新",
+        "summary": "繝輔か繝ｼ繝譖ｴ譁ｰ",
         "responses": {
           "200": {
             "description": "OK",
@@ -2262,34 +2262,34 @@
                     "type": "string",
                     "format": "date-time",
                     "nullable": true,
-                    "description": "公開期間開始日時"
+                    "description": "蜈ｬ髢区悄髢馴幕蟋区律譎・
                   },
                   "public_period_end": {
                     "type": "string",
                     "format": "date-time",
                     "nullable": true,
-                    "description": "公開期間終了日時"
+                    "description": "蜈ｬ髢区悄髢鍋ｵゆｺ・律譎・
                   },
                   "answer_period_start": {
                     "type": "string",
                     "format": "date-time",
                     "nullable": true,
-                    "description": "回答期間開始日時"
+                    "description": "蝗樒ｭ疲悄髢馴幕蟋区律譎・
                   },
                   "answer_period_end": {
                     "type": "string",
                     "format": "date-time",
                     "nullable": true,
-                    "description": "回答期間終了日時"
+                    "description": "蝗樒ｭ疲悄髢鍋ｵゆｺ・律譎・
                   },
                   "attachment_enabled": {
                     "type": "boolean",
-                    "description": "添付ファイル機能が有効か"
+                    "description": "豺ｻ莉倥ヵ繧｡繧､繝ｫ讖溯・縺梧怏蜉ｹ縺・
                   },
                   "attachment_type": {
                     "type": "string",
                     "nullable": true,
-                    "description": "添付ファイルタイプ（pdf_template: PDFテンプレート、uploaded_files: アップロードファイル）",
+                    "description": "豺ｻ莉倥ヵ繧｡繧､繝ｫ繧ｿ繧､繝暦ｼ・df_template: PDF繝・Φ繝励Ξ繝ｼ繝医「ploaded_files: 繧｢繝・・繝ｭ繝ｼ繝峨ヵ繧｡繧､繝ｫ・・,
                     "enum": [
                       "pdf_template",
                       "uploaded_files"
@@ -2297,29 +2297,29 @@
                   },
                   "notification_user_enabled": {
                     "type": "boolean",
-                    "description": "ユーザー通知が有効か"
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍縺梧怏蜉ｹ縺・
                   },
                   "notification_user_email_template": {
                     "type": "string",
                     "nullable": true,
-                    "description": "ユーザー通知メールテンプレート"
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ繝・Φ繝励Ξ繝ｼ繝・
                   },
                   "notification_user_email_subject": {
                     "type": "string",
                     "nullable": true,
-                    "description": "ユーザー通知メール件名"
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ莉ｶ蜷・
                   },
                   "notification_user_email_from": {
                     "type": "string",
                     "nullable": true,
                     "format": "email",
-                    "description": "ユーザー通知メール送信元アドレス"
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ騾∽ｿ｡蜈・い繝峨Ξ繧ｹ"
                   },
                   "notification_user_email_reply_to": {
                     "type": "string",
                     "nullable": true,
                     "format": "email",
-                    "description": "ユーザー通知メール返信先アドレス"
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ霑比ｿ｡蜈医い繝峨Ξ繧ｹ"
                   },
                   "notification_user_email_cc": {
                     "type": "array",
@@ -2328,7 +2328,7 @@
                       "type": "string",
                       "format": "email"
                     },
-                    "description": "ユーザー通知メールCC（配列）"
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫCC・磯・蛻暦ｼ・
                   },
                   "notification_user_email_bcc": {
                     "type": "array",
@@ -2337,11 +2337,11 @@
                       "type": "string",
                       "format": "email"
                     },
-                    "description": "ユーザー通知メールBCC（配列）"
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫBCC・磯・蛻暦ｼ・
                   },
                   "notification_admin_enabled": {
                     "type": "boolean",
-                    "description": "管理者通知が有効か"
+                    "description": "邂｡逅・・夂衍縺梧怏蜉ｹ縺・
                   },
                   "notification_admin_user_ids": {
                     "type": "array",
@@ -2350,29 +2350,29 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "description": "管理者通知送信先ユーザーID一覧"
+                    "description": "邂｡逅・・夂衍騾∽ｿ｡蜈医Θ繝ｼ繧ｶ繝ｼID荳隕ｧ"
                   },
                   "notification_admin_email_template": {
                     "type": "string",
                     "nullable": true,
-                    "description": "管理者通知メールテンプレート"
+                    "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ繝・Φ繝励Ξ繝ｼ繝・
                   },
                   "notification_admin_email_subject": {
                     "type": "string",
                     "nullable": true,
-                    "description": "管理者通知メール件名"
+                    "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ莉ｶ蜷・
                   },
                   "notification_admin_email_from": {
                     "type": "string",
                     "nullable": true,
                     "format": "email",
-                    "description": "管理者通知メール送信元アドレス"
+                    "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ騾∽ｿ｡蜈・い繝峨Ξ繧ｹ"
                   },
                   "notification_admin_email_reply_to": {
                     "type": "string",
                     "nullable": true,
                     "format": "email",
-                    "description": "管理者通知メール返信先アドレス"
+                    "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ霑比ｿ｡蜈医い繝峨Ξ繧ｹ"
                   },
                   "translations": {
                     "type": "array",
@@ -2390,7 +2390,7 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォーム削除（論理）",
+        "summary": "繝輔か繝ｼ繝蜑企勁・郁ｫ也炊・・,
         "responses": {
           "200": {
             "description": "OK",
@@ -2480,7 +2480,7 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォーム項目一覧",
+        "summary": "繝輔か繝ｼ繝鬆・岼荳隕ｧ",
         "responses": {
           "200": {
             "description": "OK",
@@ -2570,7 +2570,7 @@
             "in": "query",
             "schema": {
               "type": "boolean",
-              "description": "visibility/required rules を含める"
+              "description": "visibility/required rules 繧貞性繧√ｋ"
             },
             "required": false
           }
@@ -2580,7 +2580,7 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォーム項目一括更新",
+        "summary": "繝輔か繝ｼ繝鬆・岼荳諡ｬ譖ｴ譁ｰ",
         "responses": {
           "200": {
             "description": "OK",
@@ -2704,8 +2704,8 @@
         "tags": [
           "Forms"
         ],
-        "summary": "PDFテンプレートアップロード",
-        "description": "フォームのPDFテンプレートをアップロードする",
+        "summary": "PDF繝・Φ繝励Ξ繝ｼ繝医い繝・・繝ｭ繝ｼ繝・,
+        "description": "繝輔か繝ｼ繝縺ｮPDF繝・Φ繝励Ξ繝ｼ繝医ｒ繧｢繝・・繝ｭ繝ｼ繝峨☆繧・,
         "security": [
           {
             "bearerAuth": []
@@ -2732,7 +2732,7 @@
                   "pdf_template": {
                     "type": "string",
                     "format": "binary",
-                    "description": "PDFテンプレートファイル"
+                    "description": "PDF繝・Φ繝励Ξ繝ｼ繝医ヵ繧｡繧､繝ｫ"
                   }
                 }
               }
@@ -2755,7 +2755,7 @@
                       "properties": {
                         "pdf_template_path": {
                           "type": "string",
-                          "description": "アップロードされたPDFテンプレートのパス"
+                          "description": "繧｢繝・・繝ｭ繝ｼ繝峨＆繧後◆PDF繝・Φ繝励Ξ繝ｼ繝医・繝代せ"
                         }
                       },
                       "required": [
@@ -2823,8 +2823,8 @@
         "tags": [
           "Forms"
         ],
-        "summary": "添付ファイルアップロード",
-        "description": "フォームの添付ファイルをアップロードする（複数ファイル対応）",
+        "summary": "豺ｻ莉倥ヵ繧｡繧､繝ｫ繧｢繝・・繝ｭ繝ｼ繝・,
+        "description": "繝輔か繝ｼ繝縺ｮ豺ｻ莉倥ヵ繧｡繧､繝ｫ繧偵い繝・・繝ｭ繝ｼ繝峨☆繧具ｼ郁､・焚繝輔ぃ繧､繝ｫ蟇ｾ蠢懶ｼ・,
         "security": [
           {
             "bearerAuth": []
@@ -2854,7 +2854,7 @@
                       "type": "string",
                       "format": "binary"
                     },
-                    "description": "アップロードするファイル（複数可）"
+                    "description": "繧｢繝・・繝ｭ繝ｼ繝峨☆繧九ヵ繧｡繧､繝ｫ・郁､・焚蜿ｯ・・
                   }
                 }
               }
@@ -2962,8 +2962,8 @@
         "tags": [
           "Forms"
         ],
-        "summary": "添付ファイル削除",
-        "description": "フォームの添付ファイルを削除する",
+        "summary": "豺ｻ莉倥ヵ繧｡繧､繝ｫ蜑企勁",
+        "description": "繝輔か繝ｼ繝縺ｮ豺ｻ莉倥ヵ繧｡繧､繝ｫ繧貞炎髯､縺吶ｋ",
         "security": [
           {
             "bearerAuth": []
@@ -2987,7 +2987,7 @@
               "format": "int32"
             },
             "required": true,
-            "description": "削除するファイルのインデックス（0始まり）"
+            "description": "蜑企勁縺吶ｋ繝輔ぃ繧､繝ｫ縺ｮ繧､繝ｳ繝・ャ繧ｯ繧ｹ・・蟋九∪繧奇ｼ・
           }
         ],
         "responses": {
@@ -3073,7 +3073,7 @@
         "tags": [
           "Responses"
         ],
-        "summary": "送信一覧（Responses）",
+        "summary": "騾∽ｿ｡荳隕ｧ・・esponses・・,
         "responses": {
           "200": {
             "description": "OK",
@@ -3201,7 +3201,7 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "description": "検索（メール/氏名など：A-02検索マトリクスに委譲）"
+              "description": "讀懃ｴ｢・医Γ繝ｼ繝ｫ/豌丞錐縺ｪ縺ｩ・哂-02讀懃ｴ｢繝槭ヨ繝ｪ繧ｯ繧ｹ縺ｫ蟋碑ｭｲ・・
             },
             "required": false
           }
@@ -3213,7 +3213,7 @@
         "tags": [
           "Responses"
         ],
-        "summary": "送信詳細",
+        "summary": "騾∽ｿ｡隧ｳ邏ｰ",
         "responses": {
           "200": {
             "description": "OK",
@@ -3322,8 +3322,8 @@
         "tags": [
           "ACK/PDF"
         ],
-        "summary": "公開 submit",
-        "description": "公開フォームへの回答を送信する。公開期間・回答期間のチェックが行われ、期間外の場合は403エラーを返す。送信後、通知ジョブがキューに投入される。",
+        "summary": "蜈ｬ髢・submit",
+        "description": "蜈ｬ髢九ヵ繧ｩ繝ｼ繝縺ｸ縺ｮ蝗樒ｭ斐ｒ騾∽ｿ｡縺吶ｋ縲ょ・髢区悄髢薙・蝗樒ｭ疲悄髢薙・繝√ぉ繝・け縺瑚｡後ｏ繧後∵悄髢灘､悶・蝣ｴ蜷医・403繧ｨ繝ｩ繝ｼ繧定ｿ斐☆縲る∽ｿ｡蠕後・夂衍繧ｸ繝ｧ繝悶′繧ｭ繝･繝ｼ縺ｫ謚募・縺輔ｌ繧九・,
         "responses": {
           "200": {
             "description": "OK",
@@ -3344,7 +3344,7 @@
                         },
                         "ack_url": {
                           "type": "string",
-                          "description": "ACK URL（UI遷移用）"
+                          "description": "ACK URL・・I驕ｷ遘ｻ逕ｨ・・
                         },
                         "condition_state": {
                           "$ref": "#/components/schemas/ConditionState"
@@ -3379,7 +3379,7 @@
             }
           },
           "403": {
-            "description": "403 Forbidden（公開期間外または回答期間外）",
+            "description": "403 Forbidden・亥・髢区悄髢灘､悶∪縺溘・蝗樒ｭ疲悄髢灘､厄ｼ・,
             "content": {
               "application/json": {
                 "schema": {
@@ -3450,7 +3450,7 @@
                   },
                   "mode": {
                     "type": "string",
-                    "description": "both/value/label (CSV等の表現に委譲)",
+                    "description": "both/value/label (CSV遲峨・陦ｨ迴ｾ縺ｫ蟋碑ｭｲ)",
                     "enum": [
                       "both",
                       "value",
@@ -3472,7 +3472,7 @@
         "tags": [
           "ACK/PDF"
         ],
-        "summary": "ACK 表示",
+        "summary": "ACK 陦ｨ遉ｺ",
         "responses": {
           "200": {
             "description": "OK",
@@ -3489,14 +3489,14 @@
                       "properties": {
                         "ack": {
                           "type": "object",
-                          "description": "ACK 表示データ（テンプレ/変数はA-04に委譲）"
+                          "description": "ACK 陦ｨ遉ｺ繝・・繧ｿ・医ユ繝ｳ繝励Ξ/螟画焚縺ｯA-04縺ｫ蟋碑ｭｲ・・
                         },
                         "pdf_url": {
                           "type": [
                             "string",
                             "null"
                           ],
-                          "description": "PDFダウンロードURL（許可される場合）"
+                          "description": "PDF繝繧ｦ繝ｳ繝ｭ繝ｼ繝蔚RL・郁ｨｱ蜿ｯ縺輔ｌ繧句ｴ蜷茨ｼ・
                         }
                       },
                       "required": [
@@ -3562,7 +3562,7 @@
         "tags": [
           "ACK/PDF"
         ],
-        "summary": "PDF 取得（管理側）",
+        "summary": "PDF 蜿門ｾ暦ｼ育ｮ｡逅・・・・,
         "responses": {
           "200": {
             "description": "OK",
@@ -3631,7 +3631,7 @@
         "tags": [
           "Dashboard"
         ],
-        "summary": "ダッシュボード集計",
+        "summary": "繝繝・す繝･繝懊・繝蛾寔險・,
         "responses": {
           "200": {
             "description": "OK",
@@ -3729,7 +3729,7 @@
         "tags": [
           "Dashboard"
         ],
-        "summary": "ダッシュボード（エラー/失敗一覧）",
+        "summary": "繝繝・す繝･繝懊・繝会ｼ医お繝ｩ繝ｼ/螟ｱ謨嶺ｸ隕ｧ・・,
         "responses": {
           "200": {
             "description": "OK",
@@ -3902,7 +3902,7 @@
         "tags": [
           "System Admin"
         ],
-        "summary": "管理者ユーザ一覧",
+        "summary": "邂｡逅・・Θ繝ｼ繧ｶ荳隕ｧ",
         "responses": {
           "200": {
             "description": "OK",
@@ -4068,18 +4068,18 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "description": "検索（email/name）"
+              "description": "讀懃ｴ｢・・mail/name・・
             },
             "required": false
           }
         ],
-        "description": "- 返却の正本ロールは `roles[]`。\n- `role` は互換のための deprecated フィールド（将来削除予定）。"
+        "description": "- 霑泌唆縺ｮ豁｣譛ｬ繝ｭ繝ｼ繝ｫ縺ｯ `roles[]`縲・n- `role` 縺ｯ莠呈鋤縺ｮ縺溘ａ縺ｮ deprecated 繝輔ぅ繝ｼ繝ｫ繝会ｼ亥ｰ・擂蜑企勁莠亥ｮ夲ｼ峨・
       },
       "post": {
         "tags": [
           "System Admin"
         ],
-        "summary": "管理者ユーザ作成（招待）",
+        "summary": "邂｡逅・・Θ繝ｼ繧ｶ菴懈・・域魚蠕・ｼ・,
         "responses": {
           "200": {
             "description": "OK",
@@ -4247,7 +4247,7 @@
         "tags": [
           "System Admin"
         ],
-        "summary": "管理者ユーザ更新",
+        "summary": "邂｡逅・・Θ繝ｼ繧ｶ譖ｴ譁ｰ",
         "responses": {
           "200": {
             "description": "OK",
@@ -4358,14 +4358,14 @@
             }
           }
         },
-        "description": "### RBAC\n- 必須: system_admin\n- **system_admin 付与（昇格）**は root-only（is_root=true 必須）\n- system_admin 剥奪（降格）は system_admin で可（ただし自己降格禁止・最後の system_admin 禁止）\n\n- `roles` は現状単一ロール運用（要素数1）\n- `is_root` 変更は root 権限が必要"
+        "description": "### RBAC\n- 蠢・・ system_admin\n- **system_admin 莉倅ｸ趣ｼ域・譬ｼ・・*縺ｯ root-only・・s_root=true 蠢・茨ｼ噂n- system_admin 蜑･螂ｪ・磯剄譬ｼ・峨・ system_admin 縺ｧ蜿ｯ・医◆縺縺苓・蟾ｱ髯肴ｼ遖∵ｭ｢繝ｻ譛蠕後・ system_admin 遖∵ｭ｢・噂n\n- `roles` 縺ｯ迴ｾ迥ｶ蜊倅ｸ繝ｭ繝ｼ繝ｫ驕狗畑・郁ｦ∫ｴ謨ｰ1・噂n- `is_root` 螟画峩縺ｯ root 讓ｩ髯舌′蠢・ｦ・
       },
       "get": {
         "tags": [
           "system-admin-users"
         ],
-        "summary": "管理者アカウント詳細取得",
-        "description": "S-03 アカウント詳細/編集用。返却ロールは roles[] が正本。role は返さない。",
+        "summary": "邂｡逅・・い繧ｫ繧ｦ繝ｳ繝郁ｩｳ邏ｰ蜿門ｾ・,
+        "description": "S-03 繧｢繧ｫ繧ｦ繝ｳ繝郁ｩｳ邏ｰ/邱ｨ髮・畑縲りｿ泌唆繝ｭ繝ｼ繝ｫ縺ｯ roles[] 縺梧ｭ｣譛ｬ縲Ｓole 縺ｯ霑斐＆縺ｪ縺・・,
         "parameters": [
           {
             "name": "id",
@@ -4450,7 +4450,7 @@
         "tags": [
           "System Admin"
         ],
-        "summary": "招待再送",
+        "summary": "諡帛ｾ・・騾・,
         "responses": {
           "200": {
             "description": "OK",
@@ -4558,7 +4558,7 @@
         "tags": [
           "System Admin"
         ],
-        "summary": "監査ログ一覧",
+        "summary": "逶｣譟ｻ繝ｭ繧ｰ荳隕ｧ",
         "responses": {
           "200": {
             "description": "OK",
@@ -4748,7 +4748,7 @@
         "tags": [
           "SUP (root-only)"
         ],
-        "summary": "ロール権限定義取得",
+        "summary": "繝ｭ繝ｼ繝ｫ讓ｩ髯仙ｮ夂ｾｩ蜿門ｾ・,
         "responses": {
           "200": {
             "description": "OK",
@@ -4843,7 +4843,7 @@
         "tags": [
           "SUP (root-only)"
         ],
-        "summary": "ロール権限定義更新",
+        "summary": "繝ｭ繝ｼ繝ｫ讓ｩ髯仙ｮ夂ｾｩ譖ｴ譁ｰ",
         "responses": {
           "200": {
             "description": "OK",
@@ -4968,7 +4968,7 @@
         "tags": [
           "SUP (root-only)"
         ],
-        "summary": "システム設定取得",
+        "summary": "繧ｷ繧ｹ繝・Β險ｭ螳壼叙蠕・,
         "responses": {
           "200": {
             "description": "OK",
@@ -5045,7 +5045,7 @@
         "tags": [
           "SUP (root-only)"
         ],
-        "summary": "システム設定更新",
+        "summary": "繧ｷ繧ｹ繝・Β險ｭ螳壽峩譁ｰ",
         "responses": {
           "200": {
             "description": "OK",
@@ -5152,8 +5152,8 @@
         "tags": [
           "SUP (root-only)"
         ],
-        "summary": "root-only 動作確認（ping）",
-        "description": "root-only ミドルウェア動作確認用。system_admin を満たした上で is_root=true の場合のみ成功。",
+        "summary": "root-only 蜍穂ｽ懃｢ｺ隱搾ｼ・ing・・,
+        "description": "root-only 繝溘ラ繝ｫ繧ｦ繧ｧ繧｢蜍穂ｽ懃｢ｺ隱咲畑縲Ｔystem_admin 繧呈ｺ縺溘＠縺滉ｸ翫〒 is_root=true 縺ｮ蝣ｴ蜷医・縺ｿ謌仙粥縲・,
         "security": [
           {
             "bearerAuth": []
@@ -5210,7 +5210,7 @@
                 },
                 "examples": {
                   "OK": {
-                    "summary": "成功",
+                    "summary": "謌仙粥",
                     "value": {
                       "success": true,
                       "data": {
@@ -5255,8 +5255,8 @@
         "tags": [
           "progress"
         ],
-        "summary": "進捗取得",
-        "description": "CSV/PDF/ファイル操作等の進捗を取得する。",
+        "summary": "騾ｲ謐怜叙蠕・,
+        "description": "CSV/PDF/繝輔ぃ繧､繝ｫ謫堺ｽ懃ｭ峨・騾ｲ謐励ｒ蜿門ｾ励☆繧九・,
         "parameters": [
           {
             "name": "job_id",
@@ -5321,8 +5321,8 @@
         "tags": [
           "search"
         ],
-        "summary": "横断検索",
-        "description": "フォーム/回答/監査ログ/アカウント等を横断検索する（S-06）。",
+        "summary": "讓ｪ譁ｭ讀懃ｴ｢",
+        "description": "繝輔か繝ｼ繝/蝗樒ｭ・逶｣譟ｻ繝ｭ繧ｰ/繧｢繧ｫ繧ｦ繝ｳ繝育ｭ峨ｒ讓ｪ譁ｭ讀懃ｴ｢縺吶ｋ・・-06・峨・,
         "parameters": [
           {
             "name": "q",
@@ -5425,8 +5425,8 @@
         "tags": [
           "logs"
         ],
-        "summary": "ログ一覧",
-        "description": "L-01 ログ一覧。",
+        "summary": "繝ｭ繧ｰ荳隕ｧ",
+        "description": "L-01 繝ｭ繧ｰ荳隕ｧ縲・,
         "parameters": [
           {
             "name": "page",
@@ -5541,8 +5541,8 @@
         "tags": [
           "logs"
         ],
-        "summary": "ログ詳細",
-        "description": "L-02 ログ詳細。",
+        "summary": "繝ｭ繧ｰ隧ｳ邏ｰ",
+        "description": "L-02 繝ｭ繧ｰ隧ｳ邏ｰ縲・,
         "parameters": [
           {
             "name": "id",
@@ -5608,8 +5608,8 @@
         "tags": [
           "public-forms"
         ],
-        "summary": "公開フォーム表示取得",
-        "description": "Respondent 用フォーム表示（/f/{form_key}）。条件分岐がある場合は condition_state を返す。公開期間のチェックが行われ、期間外の場合は403エラーを返す。",
+        "summary": "蜈ｬ髢九ヵ繧ｩ繝ｼ繝陦ｨ遉ｺ蜿門ｾ・,
+        "description": "Respondent 逕ｨ繝輔か繝ｼ繝陦ｨ遉ｺ・・f/{form_key}・峨よ擅莉ｶ蛻・ｲ舌′縺ゅｋ蝣ｴ蜷医・ condition_state 繧定ｿ斐☆縲ょ・髢区悄髢薙・繝√ぉ繝・け縺瑚｡後ｏ繧後∵悄髢灘､悶・蝣ｴ蜷医・403繧ｨ繝ｩ繝ｼ繧定ｿ斐☆縲・,
         "parameters": [
           {
             "name": "form_key",
@@ -5632,7 +5632,7 @@
             }
           },
           "403": {
-            "description": "403 Forbidden（公開期間外）",
+            "description": "403 Forbidden・亥・髢区悄髢灘､厄ｼ・,
             "content": {
               "application/json": {
                 "schema": {
@@ -5659,8 +5659,8 @@
         "tags": [
           "responses"
         ],
-        "summary": "回答CSVエクスポート（ジョブ開始）",
-        "description": "回答一覧のCSVエクスポートを非同期ジョブとして開始し、job_id を返す。",
+        "summary": "蝗樒ｭ任SV繧ｨ繧ｯ繧ｹ繝昴・繝茨ｼ医ず繝ｧ繝夜幕蟋具ｼ・,
+        "description": "蝗樒ｭ比ｸ隕ｧ縺ｮCSV繧ｨ繧ｯ繧ｹ繝昴・繝医ｒ髱槫酔譛溘ず繝ｧ繝悶→縺励※髢句ｧ九＠縲）ob_id 繧定ｿ斐☆縲・,
         "requestBody": {
           "required": false,
           "content": {
@@ -5735,8 +5735,8 @@
         "tags": [
           "exports"
         ],
-        "summary": "成果物ダウンロード",
-        "description": "エクスポート成果物のダウンロード。URL期限切れ時は再署名（settings に依存）。",
+        "summary": "謌先棡迚ｩ繝繧ｦ繝ｳ繝ｭ繝ｼ繝・,
+        "description": "繧ｨ繧ｯ繧ｹ繝昴・繝域・譫懃黄縺ｮ繝繧ｦ繝ｳ繝ｭ繝ｼ繝峨６RL譛滄剞蛻・ｌ譎ゅ・蜀咲ｽｲ蜷搾ｼ・ettings 縺ｫ萓晏ｭ假ｼ峨・,
         "parameters": [
           {
             "name": "job_id",
@@ -5794,8 +5794,8 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォーム複製",
-        "description": "指定フォームを複製して新しいフォームを作成する。",
+        "summary": "繝輔か繝ｼ繝隍・｣ｽ",
+        "description": "謖・ｮ壹ヵ繧ｩ繝ｼ繝繧定､・｣ｽ縺励※譁ｰ縺励＞繝輔か繝ｼ繝繧剃ｽ懈・縺吶ｋ縲・,
         "x-status": "planned",
         "parameters": [
           {
@@ -5815,7 +5815,7 @@
                 "properties": {
                   "name": {
                     "type": "string",
-                    "description": "複製後のフォーム名（省略時は元の名前 + \" (コピー)\"）"
+                    "description": "隍・｣ｽ蠕後・繝輔か繝ｼ繝蜷搾ｼ育怐逡･譎ゅ・蜈・・蜷榊燕 + \" (繧ｳ繝斐・)\"・・
                   }
                 }
               }
@@ -5876,8 +5876,8 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォームバージョン履歴",
-        "description": "フォームの変更履歴（バージョン一覧）を取得する。",
+        "summary": "繝輔か繝ｼ繝繝舌・繧ｸ繝ｧ繝ｳ螻･豁ｴ",
+        "description": "繝輔か繝ｼ繝縺ｮ螟画峩螻･豁ｴ・医ヰ繝ｼ繧ｸ繝ｧ繝ｳ荳隕ｧ・峨ｒ蜿門ｾ励☆繧九・,
         "x-status": "planned",
         "parameters": [
           {
@@ -5961,8 +5961,8 @@
         "tags": [
           "Forms"
         ],
-        "summary": "フォームテンプレート一覧",
-        "description": "フォーム作成に使用可能なテンプレート一覧を取得する。",
+        "summary": "繝輔か繝ｼ繝繝・Φ繝励Ξ繝ｼ繝井ｸ隕ｧ",
+        "description": "繝輔か繝ｼ繝菴懈・縺ｫ菴ｿ逕ｨ蜿ｯ閭ｽ縺ｪ繝・Φ繝励Ξ繝ｼ繝井ｸ隕ｧ繧貞叙蠕励☆繧九・,
         "x-status": "planned",
         "parameters": [
           {
@@ -6018,8 +6018,8 @@
         "tags": [
           "Responses"
         ],
-        "summary": "回答ステータス変更",
-        "description": "回答の承認/却下等のステータスを変更する。",
+        "summary": "蝗樒ｭ斐せ繝・・繧ｿ繧ｹ螟画峩",
+        "description": "蝗樒ｭ斐・謇ｿ隱・蜊ｴ荳狗ｭ峨・繧ｹ繝・・繧ｿ繧ｹ繧貞､画峩縺吶ｋ縲・,
         "x-status": "planned",
         "parameters": [
           {
@@ -6120,8 +6120,8 @@
         "tags": [
           "System Admin"
         ],
-        "summary": "通知設定取得",
-        "description": "メール/Slack等の通知設定を取得する。",
+        "summary": "騾夂衍險ｭ螳壼叙蠕・,
+        "description": "繝｡繝ｼ繝ｫ/Slack遲峨・騾夂衍險ｭ螳壹ｒ蜿門ｾ励☆繧九・,
         "x-status": "planned",
         "responses": {
           "200": {
@@ -6165,8 +6165,8 @@
         "tags": [
           "System Admin"
         ],
-        "summary": "通知設定更新",
-        "description": "メール/Slack等の通知設定を更新する。",
+        "summary": "騾夂衍險ｭ螳壽峩譁ｰ",
+        "description": "繝｡繝ｼ繝ｫ/Slack遲峨・騾夂衍險ｭ螳壹ｒ譖ｴ譁ｰ縺吶ｋ縲・,
         "x-status": "planned",
         "requestBody": {
           "content": {
@@ -6245,8 +6245,8 @@
         "tags": [
           "System Admin"
         ],
-        "summary": "Webhook一覧",
-        "description": "登録済みWebhook一覧を取得する。",
+        "summary": "Webhook荳隕ｧ",
+        "description": "逋ｻ骭ｲ貂医∩Webhook荳隕ｧ繧貞叙蠕励☆繧九・,
         "x-status": "planned",
         "responses": {
           "200": {
@@ -6290,8 +6290,8 @@
         "tags": [
           "System Admin"
         ],
-        "summary": "Webhook登録",
-        "description": "外部連携用Webhookを登録する。",
+        "summary": "Webhook逋ｻ骭ｲ",
+        "description": "螟夜Κ騾｣謳ｺ逕ｨWebhook繧堤匳骭ｲ縺吶ｋ縲・,
         "x-status": "planned",
         "requestBody": {
           "content": {
@@ -6380,8 +6380,8 @@
         "tags": [
           "System Admin"
         ],
-        "summary": "Webhook削除",
-        "description": "登録済みWebhookを削除する。",
+        "summary": "Webhook蜑企勁",
+        "description": "逋ｻ骭ｲ貂医∩Webhook繧貞炎髯､縺吶ｋ縲・,
         "x-status": "planned",
         "parameters": [
           {

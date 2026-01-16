@@ -2,7 +2,7 @@
   "metadata": {
     "project": "ReForma",
     "category": "overall",
-    "version": "v0.1.5.5",
+    "version": "v0.1.6",
     "generated_at": "2026-01-31T00:00:00.000000+00:00",
     "description": "分類別仕様書を統合した正本仕様書。添付ファイル機能、通知機能、期間チェック機能を追加。"
   },
@@ -13,9 +13,9 @@
       "md_file": "classified/db/reforma-db-spec-v1.0.0.md"
     },
     "api": {
-      "version": "v0.1.3.1",
-      "json_file": "classified/api/reforma-api-spec-v0.1.3.1.json",
-      "md_file": "classified/api/reforma-api-spec-v0.1.3.1.md"
+      "version": "v0.1.4",
+      "json_file": "classified/api/reforma-api-spec-v0.1.4.json",
+      "md_file": "classified/api/reforma-api-spec-v0.1.4.md"
     },
     "backend": {
       "version": "v1.1.0",
@@ -35,10 +35,10 @@
   },
   "specifications": {
     "api": {
-      "version": "v0.1.3.1",
+      "version": "v0.1.4",
       "content": {
         "meta": {
-          "version": "v0.1.3.1",
+          "version": "v0.1.4",
           "generated_at": "2026-01-31T00:00:00Z",
           "openapi_version": "3.0.3",
           "description": "v1.3.1 をベースに、添付ファイル機能、通知機能、期間チェック機能を追加した API 仕様書です。"
