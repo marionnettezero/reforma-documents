@@ -9,13 +9,13 @@
   "component_manifest": {
     "db": {
       "version": "v0.1.1",
-      "json_file": "classified/db/reforma-db-spec-v0.1.1.json",
-      "md_file": "classified/db/reforma-db-spec-v0.1.1.md"
+      "json_file": "latest/classified/db/reforma-db-spec-v0.1.1.json",
+      "md_file": "latest/classified/db/reforma-db-spec-v0.1.1.md"
     },
     "api": {
       "version": "v0.1.4",
-      "json_file": "classified/api/reforma-api-spec-v0.1.4.json",
-      "md_file": "classified/api/reforma-api-spec-v0.1.4.md"
+      "json_file": "latest/classified/api/reforma-api-spec-v0.1.4.json",
+      "md_file": "latest/classified/api/reforma-api-spec-v0.1.4.md"
     },
     "backend": {
       "version": "v0.1.1",
@@ -24,8 +24,8 @@
     },
     "common": {
       "version": "v1.5.1",
-      "json_file": "classified/common/reforma-common-spec-v1.5.1.json",
-      "md_file": "classified/common/reforma-common-spec-v1.5.1.md"
+      "json_file": "latest/classified/common/reforma-common-spec-v1.5.1.json",
+      "md_file": "latest/classified/common/reforma-common-spec-v1.5.1.md"
     },
     "frontend": {
       "version": "v0.1.1",

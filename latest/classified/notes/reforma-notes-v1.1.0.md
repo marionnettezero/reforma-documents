@@ -2,6 +2,8 @@
 - version: v1.1.0
 - generated_at: 2026-01-14T11:37:59.899600+00:00
 
+**注意**: このMarkdownファイルの変更は、対応するJSONファイル（reforma-notes-v1.1.0.json）にも反映してください。
+
 ## Sources
 - latest/other/reforma-notes-v1.0.0-form-feature-attachments-.with-A06.json.json (v1.0.0)
 - latest/other/reforma-notes-v1.0.0-form-feature-attachments-.with-samples.j.json (v1.0.0)
