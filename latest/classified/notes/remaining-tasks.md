@@ -1,6 +1,7 @@
 # ReForma 残タスク一覧
 
 **作成日**: 2026-01-16  
+**最終更新**: 2026-01-17  
 **ベース**: reforma-notes-v1.1.0.md の内容と実装状況の照合結果
 
 ---
@@ -40,25 +41,25 @@
 
 ---
 
-## 未実装・要対応タスク
+## 完了済みタスク
 
-### 1. A-01: CSVエクスポート機能の完全実装
-**現状**: 完全実装済み  
-**必要実装**:
+### ✅ A-01: CSVエクスポート機能の完全実装
+**完了日**: 2026-01-16  
+**実装内容**:
 - value/label/bothモード対応
 - 共通カラム定義（submission_id, submitted_at, form_code, status）
 - フィールド列命名規則（f:{field_key}, f:{field_key}__label）
 - フィールドタイプ別の値・ラベル変換ルール
-- UTF-8 BOM対応（実装済み）
+- UTF-8 BOM対応
 - RFC4180準拠のエスケープ処理
 
 **参照**: reforma-notes-v1.1.0.md A-01_csv_column_definition
 
 ---
 
-### 2. A-02: 検索機能の完全実装（Submissions検索）
-**現状**: 横断検索のみ（admin_user, log）  
-**必要実装**:
+### ✅ A-02: 検索機能の完全実装（Submissions検索）
+**完了日**: 2026-01-17  
+**実装内容**:
 - Submissions/Responsesの検索機能
 - フィールドタイプ別検索演算子:
   - text/textarea/email/tel: contains
@@ -68,15 +69,15 @@
   - checkbox: any_in (default), all_in (optional)
   - terms: eq
 - 検索条件のAND結合（デフォルト）
-- インデックス最適化（field_id, value）
+- SQLiteとMySQLの両方で動作するJSON_EXTRACTベースの検索実装
 
 **参照**: reforma-notes-v1.1.0.md A-02_search_rule_matrix
 
 ---
 
-### 3. A-05: 通知再送機能
-**現状**: 完全実装済み  
-**必要実装**:
+### ✅ A-05: 通知再送機能
+**完了日**: 2026-01-16  
+**実装内容**:
 - system_adminがトリガー可能な通知再送API
 - キュー処理による非同期送信
 - 監査ログ記録（admin_audit_logs）
@@ -85,9 +86,9 @@
 
 ---
 
-### 4. A-05: PDF再生成機能
-**現状**: 完全実装済み  
-**必要実装**:
+### ✅ A-05: PDF再生成機能
+**完了日**: 2026-01-16  
+**実装内容**:
 - デフォルトでは再生成禁止（409エラー）
 - system_adminまたはroot-onlyで明示的な操作のみ許可
 - 監査ログ記録
@@ -97,9 +98,9 @@
 
 ---
 
-### 5. A-06: 条件分岐評価機能
-**現状**: 完全実装済み  
-**必要実装**:
+### ✅ A-06: 条件分岐評価機能
+**完了日**: 2026-01-16  
+**実装内容**:
 - ConditionEvaluatorサービスの実装
 - visibility_rule, required_rule, step_transition_ruleの評価
 - ConditionStateレスポンス生成（FieldConditionState, StepTransitionState）
@@ -114,35 +115,9 @@
 
 ---
 
-### 6. SUPP-DISPLAY-MODE-001: 表示モード機能
-**現状**: 未実装  
-**必要実装**:
-- submission_valuesテーブルにlabel_json, field_label_snapshotカラム追加
-- POST /v1/forms/{form_key}/submitにlocale, modeパラメータ追加
-- label/both/valueモード対応
-- 保存の正はvalue、labelはスナップショット
-- CSVエクスポート時のmode指定対応
-
-**参照**: reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-DISPLAY-MODE-001
-
----
-
-### 7. SUPP-THEME-001: テーマ機能
-**現状**: 未実装  
-**必要実装**:
-- formsテーブルにtheme_id, theme_tokensカラム追加
-- GET /v1/forms/{id}のレスポンスにtheme_id, theme_tokens追加
-- PUT /v1/forms/{id}のリクエストにtheme_id, theme_tokens追加
-- テーマトークンスキーマ定義（color_primary, color_secondary等）
-- 外部CSS URLはv2で検討（v1.xでは提供しない）
-
-**参照**: reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-THEME-001
-
----
-
-### 8. SUPP-COMPUTED-001: 計算フィールド機能
-**現状**: 未実装  
-**必要実装**:
+### ✅ SUPP-COMPUTED-001: 計算フィールド機能
+**完了日**: 2026-01-17  
+**実装内容**:
 - form_fieldsテーブルにcomputed_ruleカラム追加（JSON）
 - computed型フィールドの定義
 - built_in_functions実装（sum, multiply, tax, round, min, max, if）
@@ -155,9 +130,9 @@
 
 ---
 
-### 9. Settings Key Catalog: 初期データ投入
-**現状**: 完全実装済み  
-**必要実装**:
+### ✅ Settings Key Catalog: 初期データ投入
+**完了日**: 2026-01-16  
+**実装内容**:
 - settings-key-catalog.jsonに定義された全キーのシーダー作成
 - 認証関連設定（PAT TTL、ローリング延長、パスワードポリシー、ロックポリシー、セッションTTL）
 - トークン関連設定（confirm_submission, ack_action, view_pdf）
@@ -169,33 +144,64 @@
 
 ---
 
-### 10. フロントエンド調整: S-02アカウント一覧の完成
-**現状**: 実装状況不明  
-**必要実装**:
-- GET /v1/system/admin-usersのパラメータ調整:
-  - page, per_page: 必須
-  - sort: enum定義（created_at_desc等）
-  - q: キーワード検索
-  - role: ロールフィルタ
-  - status: ステータスフィルタ
-- OpenAPI正本準拠
+### ✅ フロントエンド調整: S-02アカウント一覧の完成（バックエンド）
+**完了日**: 2026-01-17（確認）  
+**実装内容**:
+- GET /v1/system/admin-usersのパラメータ対応:
+  - page, per_page: 必須パラメータとして実装済み
+  - sort: enum定義（created_at_desc, created_at_asc）対応済み
+  - q: キーワード検索（名前・メール）対応済み
+  - role: ロールフィルタ対応済み
+  - status: ステータスフィルタ対応済み
 
 **参照**: reforma-notes-v1.1.0.md reforma-notes-v1.1.0.txt
 
 ---
 
-### 11. フロントエンド調整: 進捗表示機能の拡張
-**現状**: progress endpoint実装済み  
-**必要実装**:
-- CSV/PDF/ファイル操作の進捗取得方式の確定
-- 進捗バー表示に必要な情報の提供
-- 推奨: progress endpointの拡張
+### ✅ フロントエンド調整: 進捗表示機能の拡張（バックエンド）
+**完了日**: 2026-01-17（確認）  
+**実装内容**:
+- GET /v1/progress/{job_id}で進捗情報を提供:
+  - percent: 進捗率（0-100）
+  - status: ジョブステータス
+  - message: 進捗メッセージ
+  - download_url: ダウンロードURL（完了時）
+  - expires_at: 有効期限
+  - download_expires_at: ダウンロード有効期限
 
 **参照**: reforma-notes-v1.1.0.md reforma-notes-v1.1.0.txt
 
 ---
 
-### 12. フロントエンド調整: エラー構造の統一
+## 未実装・要対応タスク
+
+### 1. SUPP-DISPLAY-MODE-001: 表示モード機能
+**現状**: 未実装  
+**必要実装**:
+- submission_valuesテーブルにlabel_json, field_label_snapshotカラム追加
+- POST /v1/forms/{form_key}/submitにlocale, modeパラメータ追加
+- label/both/valueモード対応
+- 保存の正はvalue、labelはスナップショット
+- CSVエクスポート時のmode指定対応
+
+**参照**: reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-DISPLAY-MODE-001
+
+---
+
+### 2. SUPP-THEME-001: テーマ機能
+**現状**: 未実装  
+**必要実装**:
+- formsテーブルにtheme_id, theme_tokensカラム追加
+- GET /v1/forms/{id}のレスポンスにtheme_id, theme_tokens追加
+- PUT /v1/forms/{id}のリクエストにtheme_id, theme_tokens追加
+- テーマトークンスキーマ定義（color_primary, color_secondary等）
+- 外部CSS URLはv2で検討（v1.xでは提供しない）
+
+**参照**: reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-THEME-001
+
+---
+
+### 3. フロントエンド調整: エラー構造の統一
 **現状**: 実装状況不明  
 **必要実装**:
 - errors.reason / code / message等の統一
@@ -211,20 +217,13 @@
 ## 優先度の推奨
 
 ### 高優先度
-1. A-06: 条件分岐評価機能（コア機能）
-2. A-01: CSVエクスポート機能の完全実装（既存基盤の拡張）
-3. Settings Key Catalog: 初期データ投入（運用に必要）
+1. フロントエンド調整: エラー構造の統一（ユーザー体験向上）
 
 ### 中優先度
-4. A-02: 検索機能の完全実装
-5. A-05: 通知再送機能
-6. A-05: PDF再生成機能
-7. フロントエンド調整項目（3項目）
+2. SUPP-DISPLAY-MODE-001: 表示モード機能（多言語対応）
 
 ### 低優先度（v2候補）
-8. SUPP-DISPLAY-MODE-001: 表示モード機能
-9. SUPP-THEME-001: テーマ機能
-10. SUPP-COMPUTED-001: 計算フィールド機能
+3. SUPP-THEME-001: テーマ機能
 
 ---
 
