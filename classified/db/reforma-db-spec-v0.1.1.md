@@ -1,8 +1,8 @@
-# ReForma DB仕様書 (v1.0.1 統合版)
+# ReForma DB仕様書 (v0.1.1 統合版)
 この文書は、実装されているマイグレーションファイルを基に最新のDB仕様をまとめたものです。
 
 ## バージョンおよびメタ情報
-- **バージョン**: v1.0.1
+- **バージョン**: v0.1.1
 - **生成日時**: 2026-01-31T00:00:00Z
 - **更新内容**: 添付ファイル機能、通知機能、期間チェック機能の追加
 
@@ -127,11 +127,11 @@
 
 ## 変更履歴
 
-### v1.0.1 (2026-01-31)
+### v0.1.1 (2026-01-31)
 - 添付ファイル機能の追加（forms.attachment_enabled, attachment_type, pdf_template_path, attachment_files_json）
 - PDF生成機能の追加（form_fields.pdf_block_key, pdf_page_number）
 - 期間チェック機能の追加（forms.public_period_start, public_period_end, answer_period_start, answer_period_end）
 - 通知機能の追加（forms.notification_user_*, notification_admin_*）
 
-### v1.0.0 (2026-01-14)
+### v0.1.0 (2026-01-14)
 - 初版作成

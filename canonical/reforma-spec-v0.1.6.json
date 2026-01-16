@@ -8,9 +8,9 @@
   },
   "component_manifest": {
     "db": {
-      "version": "v1.0.1",
-      "json_file": "classified/db/reforma-db-spec-v1.0.1.json",
-      "md_file": "classified/db/reforma-db-spec-v1.0.1.md"
+      "version": "v0.1.1",
+      "json_file": "classified/db/reforma-db-spec-v0.1.1.json",
+      "md_file": "classified/db/reforma-db-spec-v0.1.1.md"
     },
     "api": {
       "version": "v0.1.4",
