@@ -1267,7 +1267,7 @@ _Source files:_ latest/backend/reforma-backend-spec-v0.1.1.json
 {
   "meta": {
     "title": "ReForma Backend 共有テンプレ（追補反映）",
-    "version": "1.1",
+          "version": "0.1.1",
     "generated_at": "2026-01-13T01:08:32.431777",
     "timezone": "Asia/Tokyo"
   },
@@ -2116,7 +2116,7 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v0.5.8.json
       "フルZIPがダウンロード不可になる事象が発生したため、以後は差分ZIP運用を基本とし、フルZIPはユーザー側でバックアップ生成する方針も併記。"
     ],
     "updated_at": "2026-01-14T00:47:07.802954+09:00",
-    "version": "1.1.0"
+    "version": "0.1.1"
   },
   "baseline": {
     "source_of_truth_version": "0.5.8",
@@ -4579,7 +4579,7 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v0.1.1.json
 {
   "meta": {
     "title": "ReForma Frontend 共有テンプレ（追補反映）",
-    "version": "1.1",
+          "version": "0.1.1",
     "generated_at": "2026-01-13T01:08:32.431777",
     "timezone": "Asia/Tokyo"
   },

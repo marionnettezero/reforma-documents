@@ -1942,7 +1942,7 @@
             "content": {
               "meta": {
                 "title": "ReForma Backend 共有テンプレ（追補反映）",
-                "version": "1.1",
+                "version": "0.1.1",
                 "generated_at": "2026-01-13T01:08:32.431777",
                 "timezone": "Asia/Tokyo"
               },
@@ -5396,7 +5396,7 @@
             "content": {
               "meta": {
                 "title": "ReForma Frontend 共有テンプレ（追補反映）",
-                "version": "1.1",
+                "version": "0.1.1",
                 "generated_at": "2026-01-13T01:08:32.431777",
                 "timezone": "Asia/Tokyo"
               },
