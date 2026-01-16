@@ -19,11 +19,11 @@
 
 | 分類 | バージョン | JSON | Markdown |
 | --- | --- | --- | --- |
-| api | v0.1.4 | classified/api/reforma-api-spec-v0.1.4.json | classified/api/reforma-api-spec-v0.1.4.md |
-| backend | v1.1.0 | classified/backend/reforma-backend-spec-v1.1.0.json | classified/backend/reforma-backend-spec-v1.1.0.md |
-| common | v1.5.1 | classified/common/reforma-common-spec-v1.5.1.json | classified/common/reforma-common-spec-v1.5.1.md |
-| db | v0.1.1 | classified/db/reforma-db-spec-v0.1.1.json | classified/db/reforma-db-spec-v0.1.1.md |
-| frontend | v1.1.0 | classified/frontend/reforma-frontend-spec-v1.1.0.json | classified/frontend/reforma-frontend-spec-v1.1.0.md |
+| api | v0.1.4 | latest/classified/api/reforma-api-spec-v0.1.4.json | latest/classified/api/reforma-api-spec-v0.1.4.md |
+| backend | v1.1.0 | latest/classified/backend/reforma-backend-spec-v1.1.0.json | latest/classified/backend/reforma-backend-spec-v1.1.0.md |
+| common | v1.5.1 | latest/classified/common/reforma-common-spec-v1.5.1.json | latest/classified/common/reforma-common-spec-v1.5.1.md |
+| db | v0.1.1 | latest/classified/db/reforma-db-spec-v0.1.1.json | latest/classified/db/reforma-db-spec-v0.1.1.md |
+| frontend | v1.1.0 | latest/classified/frontend/reforma-frontend-spec-v1.1.0.json | latest/classified/frontend/reforma-frontend-spec-v1.1.0.md |
 
 ---
 
@@ -82,13 +82,13 @@ const toastText =
 
 ---
 
-# API 仕様 (v1.3.3)
+# API 仕様 (v0.1.4)
 
-この文書は、OpenAPI仕様 (v1.3.0) を元に最新のAPI仕様をまとめたものです。以前のAPI仕様からの差分ではなく、**全文を日本語で記載**しており、最新版のみを参照すれば十分です。v1.3.2 をベースに、v1.3.0 で定義されていた条件分岐（ConditionState）関連のスキーマ定義とエラーコードを統合しています。
+この文書は、OpenAPI仕様を元に最新のAPI仕様をまとめたものです。以前のAPI仕様からの差分ではなく、**全文を日本語で記載**しており、最新版のみを参照すれば十分です。v1.3.3 をベースに、添付ファイル機能、通知機能、期間チェック機能を追加しています。
 
 ## バージョンおよびメタ情報
-- **バージョン**: v1.3.3
-- **生成日時**: 2026-01-16T10:00:00Z
+- **バージョン**: v0.1.4
+- **生成日時**: 2026-01-31T00:00:00Z
 - **OpenAPI バージョン**: 3.0.3
 
 ---
@@ -4656,19 +4656,155 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v1.1.0.json
 
 ---
 
-# DB 仕様 (v1.0.0)
+# DB 仕様 (v0.1.1)
+
+この文書は、実装されているマイグレーションファイルを基に最新のDB仕様をまとめたものです。
+
+## バージョンおよびメタ情報
+- **バージョン**: v0.1.1
+- **生成日時**: 2026-01-31T00:00:00Z
+- **更新内容**: 添付ファイル機能、通知機能、期間チェック機能の追加
+
+---
+
+## テーブル一覧
+
+### forms
+フォーム定義のマスタテーブル
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|-----------|------|
+| id | bigint unsigned | NO | - | 主キー |
+| code | varchar(255) | NO | - | フォーム識別子（form_key、ユニーク） |
+| status | varchar(16) | NO | 'draft' | ステータス（draft/published/closed） |
+| is_public | boolean | NO | false | 公開フラグ |
+| public_period_start | timestamp | YES | NULL | 公開開始日時 |
+| public_period_end | timestamp | YES | NULL | 公開終了日時 |
+| answer_period_start | timestamp | YES | NULL | 回答開始日時 |
+| answer_period_end | timestamp | YES | NULL | 回答終了日時 |
+| attachment_enabled | boolean | NO | false | 添付ファイルの利用有無 |
+| attachment_type | varchar(32) | YES | NULL | 添付ファイルの種類（pdf_template, uploaded_files） |
+| pdf_template_path | varchar(512) | YES | NULL | PDFテンプレートのストレージパス（pdf_templateの場合のみ） |
+| attachment_files_json | json | YES | NULL | アップロードしたファイルのパス配列（uploaded_filesの場合のみ） |
+| notification_user_enabled | boolean | NO | false | ユーザー通知の有効/無効 |
+| notification_user_email_template | text | YES | NULL | ユーザー宛メールテンプレート |
+| notification_user_email_subject | varchar(255) | YES | NULL | ユーザー宛メールタイトル |
+| notification_user_email_from | varchar(255) | YES | NULL | ユーザー宛メール送信元 |
+| notification_user_email_reply_to | varchar(255) | YES | NULL | ユーザー宛メール返信先 |
+| notification_user_email_cc | json | YES | NULL | ユーザー宛メールCC（JSON配列） |
+| notification_user_email_bcc | json | YES | NULL | ユーザー宛メールBCC（JSON配列） |
+| notification_admin_enabled | boolean | NO | false | 管理者通知の有効/無効 |
+| notification_admin_user_ids | json | YES | NULL | 通知先管理者ID配列（JSON配列） |
+| notification_admin_email_template | text | YES | NULL | 管理者宛メールテンプレート |
+| notification_admin_email_subject | varchar(255) | YES | NULL | 管理者宛メールタイトル |
+| notification_admin_email_from | varchar(255) | YES | NULL | 管理者宛メール送信元 |
+| notification_admin_email_reply_to | varchar(255) | YES | NULL | 管理者宛メール返信先 |
+| created_by | bigint unsigned | YES | NULL | 作成者ID |
+| created_at | timestamp | YES | NULL | 作成日時 |
+| updated_at | timestamp | YES | NULL | 更新日時 |
+| deleted_at | timestamp | YES | NULL | 削除日時（論理削除） |
+
+**インデックス**:
+- `idx_forms_status_is_public`: (status, is_public)
+- `idx_forms_code`: (code)
+
+**外部キー**:
+- `fk_forms_created_by`: created_by → users.id (ON DELETE SET NULL)
+
+---
+
+### form_fields
+フォームの入力項目定義テーブル
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|-----------|------|
+| id | bigint unsigned | NO | - | 主キー |
+| form_id | bigint unsigned | NO | - | フォームID |
+| field_key | varchar(255) | NO | - | フィールド識別子 |
+| type | varchar(64) | NO | - | input種別（text/email/select等） |
+| sort_order | integer | NO | 0 | 表示順序 |
+| is_required | boolean | NO | false | 固定必須フラグ |
+| options_json | json | YES | NULL | 選択肢など（JSON） |
+| visibility_rule | json | YES | NULL | 表示条件ルール（JSON） |
+| required_rule | json | YES | NULL | 必須条件ルール（JSON） |
+| step_transition_rule | json | YES | NULL | ステップ遷移ルール（JSON） |
+| pdf_block_key | varchar(255) | YES | NULL | PDFテンプレート内のblock名 |
+| pdf_page_number | integer | YES | NULL | PDFテンプレートのページ番号（1始まり、デフォルトは1） |
+| created_at | timestamp | YES | NULL | 作成日時 |
+| updated_at | timestamp | YES | NULL | 更新日時 |
+
+**インデックス**:
+- `idx_form_fields_form_id_sort_order`: (form_id, sort_order)
+- `uk_form_fields_form_id_field_key`: (form_id, field_key) UNIQUE
+
+**外部キー**:
+- `fk_form_fields_form_id`: form_id → forms.id (ON DELETE CASCADE)
+
+---
+
+### submissions
+フォーム送信データテーブル（responsesと同義）
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|-----------|------|
+| id | bigint unsigned | NO | - | 主キー |
+| form_id | bigint unsigned | NO | - | フォームID |
+| status | varchar(16) | NO | 'received' | ステータス（received/confirmed） |
+| created_at | timestamp | YES | NULL | 作成日時 |
+| updated_at | timestamp | YES | NULL | 更新日時 |
+
+**インデックス**:
+- `idx_submissions_form_id_created_at`: (form_id, created_at)
+- `idx_submissions_status`: (status)
+
+**外部キー**:
+- `fk_submissions_form_id`: form_id → forms.id (ON DELETE CASCADE)
+
+---
+
+### submission_values
+送信データの値テーブル
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|-----------|------|
+| id | bigint unsigned | NO | - | 主キー |
+| submission_id | bigint unsigned | NO | - | 送信ID |
+| field_key | varchar(255) | NO | - | フィールド識別子 |
+| value | text | YES | NULL | 値 |
+| label | text | YES | NULL | ラベル（スナップショット） |
+| created_at | timestamp | YES | NULL | 作成日時 |
+| updated_at | timestamp | YES | NULL | 更新日時 |
+
+**インデックス**:
+- `idx_submission_values_submission_id`: (submission_id)
+- `uk_submission_values_submission_id_field_key`: (submission_id, field_key) UNIQUE
+
+**外部キー**:
+- `fk_submission_values_submission_id`: submission_id → submissions.id (ON DELETE CASCADE)
+
+---
+
+## 変更履歴
+
+### v0.1.1 (2026-01-31)
+- 添付ファイル機能の追加（forms.attachment_enabled, attachment_type, pdf_template_path, attachment_files_json）
+- PDF生成機能の追加（form_fields.pdf_block_key, pdf_page_number）
+- 期間チェック機能の追加（forms.public_period_start, public_period_end, answer_period_start, answer_period_end）
+- 通知機能の追加（forms.notification_user_*, notification_admin_*）
+
+### v0.1.0 (2026-01-14)
+- 初版作成
+
+---
+
+## 旧版仕様書
+
+### DB 仕様 (v1.0.0)
 
 - version: v1.0.0
 - generated_at: 2026-01-14T11:37:59.882283+00:00
 
-## Sources
-- latest/db/reforma-db-spec-v1.0.0.json (v1.0.0)
-
----
-
-## reforma-db-spec-v1.0.0
-
-_Source files:_ latest/db/reforma-db-spec-v1.0.0.json
+_Source files:_ previous/classified/db/reforma-db-spec-v1.0.0.json
 
 <FULL_JSON_REPLACED_IN_RUNTIME>
 
