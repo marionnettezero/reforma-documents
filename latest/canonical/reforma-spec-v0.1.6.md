@@ -1,12 +1,12 @@
 # ReForma 正本仕様書 v0.1.6
 
-**生成日時**: 2026-01-31T00:00:00.000000+00:00
+**生成日時**: 2026-01-16T00:00:00.000000+00:00
 
 このドキュメントは最新の分類別仕様書から自動生成された統合版です。
 
 ## 変更履歴
 
-### v0.1.6 (2026-01-31)
+### v0.1.6 (2026-01-16)
 - バージョン体系を変更（v1.x.x → v0.x.x）
 - 添付ファイル機能を追加（PDFテンプレート、アップロードファイル）
 - 通知機能を追加（ユーザー通知、管理者通知、CC/BCC対応）
@@ -88,7 +88,7 @@ const toastText =
 
 ## バージョンおよびメタ情報
 - **バージョン**: v0.1.4
-- **生成日時**: 2026-01-31T00:00:00Z
+- **生成日時**: 2026-01-16T00:00:00Z
 - **OpenAPI バージョン**: 3.0.3
 
 ---
@@ -4662,7 +4662,7 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v1.1.0.json
 
 ## バージョンおよびメタ情報
 - **バージョン**: v0.1.1
-- **生成日時**: 2026-01-31T00:00:00Z
+- **生成日時**: 2026-01-16T00:00:00Z
 - **更新内容**: 添付ファイル機能、通知機能、期間チェック機能の追加
 
 ---
@@ -4786,7 +4786,7 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v1.1.0.json
 
 ## 変更履歴
 
-### v0.1.1 (2026-01-31)
+### v0.1.1 (2026-01-16)
 - 添付ファイル機能の追加（forms.attachment_enabled, attachment_type, pdf_template_path, attachment_files_json）
 - PDF生成機能の追加（form_fields.pdf_block_key, pdf_page_number）
 - 期間チェック機能の追加（forms.public_period_start, public_period_end, answer_period_start, answer_period_end）

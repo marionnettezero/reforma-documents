@@ -3,7 +3,7 @@
     "project": "ReForma",
     "category": "db",
     "version": "v0.1.1",
-    "generated_at": "2026-01-31T00:00:00Z",
+    "generated_at": "2026-01-16T00:00:00Z",
     "description": "実装されているマイグレーションファイルを基に最新のDB仕様をまとめたもの。添付ファイル機能、通知機能、期間チェック機能を追加。"
   },
   "tables": {
@@ -114,7 +114,7 @@
   "changelog": [
     {
       "version": "v0.1.1",
-      "date": "2026-01-31",
+      "date": "2026-01-16",
       "changes": [
         "添付ファイル機能の追加（forms.attachment_enabled, attachment_type, pdf_template_path, attachment_files_json）",
         "PDF生成機能の追加（form_fields.pdf_block_key, pdf_page_number）",

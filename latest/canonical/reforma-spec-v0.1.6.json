@@ -3,7 +3,7 @@
     "project": "ReForma",
     "category": "overall",
     "version": "v0.1.6",
-    "generated_at": "2026-01-31T00:00:00.000000+00:00",
+    "generated_at": "2026-01-16T00:00:00.000000+00:00",
     "description": "分類別仕様書を統合した正本仕様書。添付ファイル機能、通知機能、期間チェック機能を追加。"
   },
   "component_manifest": {
@@ -39,7 +39,7 @@
       "content": {
         "meta": {
           "version": "v0.1.4",
-          "generated_at": "2026-01-31T00:00:00Z",
+          "generated_at": "2026-01-16T00:00:00Z",
           "openapi_version": "3.0.3",
           "description": "v1.3.1 をベースに、添付ファイル機能、通知機能、期間チェック機能を追加した API 仕様書です。"
         },
