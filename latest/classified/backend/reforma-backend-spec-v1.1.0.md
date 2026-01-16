@@ -23,6 +23,20 @@ _Source files:_ latest/backend/reforma-backend-spec-v1.0.0-Backend-共有テン�
     "timezone": "Asia/Tokyo",
     "target": "Laravel 12 Backend"
   },
+  "versioning": {
+    "rules": [
+      "修正時はリビジョン（patch）のみインクリメント",
+      "マイナー/メジャーはユーザー指示で変更",
+      "例: v0.2.x 継続 → 次工程を v0.3.x"
+    ]
+  },
+  "delivery_policy": {
+    "method": "git add / commit / push",
+    "rules": [
+      "変更/追加ファイルのみをコミット",
+      "必要に応じてタグ付け"
+    ]
+  },
   "paste_template": {
     "sections": [
       {

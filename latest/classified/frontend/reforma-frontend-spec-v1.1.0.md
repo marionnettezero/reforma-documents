@@ -47,8 +47,9 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v0.3.0.json
       "type": "list",
       "title": "成果物提供方針",
       "items": [
-        "通常: diff zip（変更/追加ファイルのみ）",
-        "指定時: フル zip"
+        "git add / commit / push で提供",
+        "変更/追加ファイルのみをコミット",
+        "必要に応じてタグ付け"
       ]
     }
   ]
