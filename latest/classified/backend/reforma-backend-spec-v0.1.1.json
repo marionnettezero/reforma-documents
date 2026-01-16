@@ -2,7 +2,7 @@
   "metadata": {
     "project": "ReForma",
     "category": "backend",
-    "version": "v1.1.0",
+    "version": "v0.1.1",
     "generated_at": "2026-01-14T11:37:59.885164+00:00",
     "sources": [
       {
@@ -18,8 +18,8 @@
         "version": "1.0.0"
       },
       {
-        "file": "latest/backend/reforma-backend-spec-v1.1.0.json",
-        "version": "1.1.0"
+        "file": "latest/backend/reforma-backend-spec-v0.1.1.json",
+        "version": "0.1.1"
       }
     ]
   },
@@ -326,7 +326,7 @@
     },
     {
       "id": "BACKEND-0008",
-      "title": "reforma-backend-spec-v1.1.0",
+      "title": "reforma-backend-spec-v0.1.1",
       "kind": "json",
       "content": {
         "meta": {
@@ -412,7 +412,7 @@
         }
       },
       "source_files": [
-        "latest/backend/reforma-backend-spec-v1.1.0.json"
+        "latest/backend/reforma-backend-spec-v0.1.1.json"
       ]
     }
   ],

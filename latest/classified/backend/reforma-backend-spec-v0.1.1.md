@@ -1,12 +1,14 @@
 # ReForma backend specification (merged)
-- version: v1.1.0
+- version: v0.1.1
 - generated_at: 2026-01-14T11:37:59.885164+00:00
+
+**注意**: このMarkdownファイルの変更は、対応するJSONファイル（reforma-backend-spec-v0.1.1.json）にも反映してください。
 
 ## Sources
 - latest/backend/reforma-backend-spec-v1.0.0-Backend-共有テンプレ-.json.json (v1.0.0)
 - latest/backend/reforma-backend-spec-v1.0.0-backend-chat-init.json.json (v1.0.0)
 - latest/backend/reforma-backend-spec-v1.0.0.json (v1.0.0)
-- latest/backend/reforma-backend-spec-v1.1.0.json (v1.1.0)
+- latest/backend/reforma-backend-spec-v0.1.1.json (v0.1.1)
 
 ---
 
@@ -317,9 +319,9 @@ _Source files:_ latest/backend/reforma-backend-spec-v1.0.0.json
 }
 ```
 
-## reforma-backend-spec-v1.1.0
+## reforma-backend-spec-v0.1.1
 
-_Source files:_ latest/backend/reforma-backend-spec-v1.1.0.json
+_Source files:_ latest/backend/reforma-backend-spec-v0.1.1.json
 
 ```json
 {

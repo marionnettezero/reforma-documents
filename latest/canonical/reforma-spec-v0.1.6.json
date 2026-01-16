@@ -18,9 +18,9 @@
       "md_file": "classified/api/reforma-api-spec-v0.1.4.md"
     },
     "backend": {
-      "version": "v1.1.0",
-      "json_file": "classified/backend/reforma-backend-spec-v1.1.0.json",
-      "md_file": "classified/backend/reforma-backend-spec-v1.1.0.md"
+      "version": "v0.1.1",
+      "json_file": "latest/classified/backend/reforma-backend-spec-v0.1.1.json",
+      "md_file": "latest/classified/backend/reforma-backend-spec-v0.1.1.md"
     },
     "common": {
       "version": "v1.5.1",
@@ -28,9 +28,9 @@
       "md_file": "classified/common/reforma-common-spec-v1.5.1.md"
     },
     "frontend": {
-      "version": "v1.1.0",
-      "json_file": "classified/frontend/reforma-frontend-spec-v1.1.0.json",
-      "md_file": "classified/frontend/reforma-frontend-spec-v1.1.0.md"
+      "version": "v0.1.1",
+      "json_file": "latest/classified/frontend/reforma-frontend-spec-v0.1.1.json",
+      "md_file": "latest/classified/frontend/reforma-frontend-spec-v0.1.1.md"
     }
   },
   "specifications": {

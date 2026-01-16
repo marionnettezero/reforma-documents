@@ -1,6 +1,8 @@
 # ReForma frontend specification (merged)
-- version: v1.1.0
+- version: v0.1.1
 - generated_at: 2026-01-14T11:37:59.767769+00:00
+
+**注意**: このMarkdownファイルの変更は、対応するJSONファイル（reforma-frontend-spec-v0.1.1.json）にも反映してください。
 
 ## Sources
 - latest/frontend/reforma-frontend-spec-v0.3.0.json (v0.3.0)
@@ -13,7 +15,7 @@
 - latest/frontend/reforma-frontend-spec-v1.0.0-frontend-chat-init.json.json (v1.0.0)
 - latest/frontend/reforma-frontend-spec-v1.0.0-frontend-handoff-20260112.json.json (v1.0.0)
 - latest/frontend/reforma-frontend-spec-v1.0.0.json (v1.0.0)
-- latest/frontend/reforma-frontend-spec-v1.1.0.json (v1.1.0)
+- latest/frontend/reforma-frontend-spec-v0.1.1.json (v0.1.1)
 
 ---
 
@@ -762,7 +764,7 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v0.5.8.json
       "フルZIPがダウンロード不可になる事象が発生したため、以後は差分ZIP運用を基本とし、フルZIPはユーザー側でバックアップ生成する方針も併記。"
     ],
     "updated_at": "2026-01-14T00:47:07.802954+09:00",
-    "version": "1.1.0"
+    "version": "0.1.1"
   },
   "baseline": {
     "source_of_truth_version": "0.5.8",
@@ -3217,9 +3219,9 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v1.0.0.json
 }
 ```
 
-## reforma-frontend-spec-v1.1.0
+## reforma-frontend-spec-v0.1.1
 
-_Source files:_ latest/frontend/reforma-frontend-spec-v1.1.0.json
+_Source files:_ latest/frontend/reforma-frontend-spec-v0.1.1.json
 
 ```json
 {
