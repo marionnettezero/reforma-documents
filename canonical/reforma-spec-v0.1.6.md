@@ -22,7 +22,7 @@
 | api | v0.1.4 | classified/api/reforma-api-spec-v0.1.4.json | classified/api/reforma-api-spec-v0.1.4.md |
 | backend | v1.1.0 | classified/backend/reforma-backend-spec-v1.1.0.json | classified/backend/reforma-backend-spec-v1.1.0.md |
 | common | v1.5.1 | classified/common/reforma-common-spec-v1.5.1.json | classified/common/reforma-common-spec-v1.5.1.md |
-| db | v1.0.0 | classified/db/reforma-db-spec-v1.0.0.json | classified/db/reforma-db-spec-v1.0.0.md |
+| db | v1.0.1 | classified/db/reforma-db-spec-v1.0.1.json | classified/db/reforma-db-spec-v1.0.1.md |
 | frontend | v1.1.0 | classified/frontend/reforma-frontend-spec-v1.1.0.json | classified/frontend/reforma-frontend-spec-v1.1.0.md |
 
 ---

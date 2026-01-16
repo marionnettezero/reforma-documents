@@ -1,0 +1,131 @@
+{
+  "metadata": {
+    "project": "ReForma",
+    "category": "db",
+    "version": "v1.0.1",
+    "generated_at": "2026-01-31T00:00:00Z",
+    "description": "実装されているマイグレーションファイルを基に最新のDB仕様をまとめたもの。添付ファイル機能、通知機能、期間チェック機能を追加。"
+  },
+  "tables": {
+    "forms": {
+      "description": "フォーム定義のマスタテーブル",
+      "columns": {
+        "id": { "type": "bigint unsigned", "nullable": false, "primary": true },
+        "code": { "type": "varchar(255)", "nullable": false, "unique": true, "comment": "フォーム識別子（form_key）" },
+        "status": { "type": "varchar(16)", "nullable": false, "default": "draft", "comment": "ステータス（draft/published/closed）" },
+        "is_public": { "type": "boolean", "nullable": false, "default": false, "comment": "公開フラグ" },
+        "public_period_start": { "type": "timestamp", "nullable": true, "comment": "公開開始日時" },
+        "public_period_end": { "type": "timestamp", "nullable": true, "comment": "公開終了日時" },
+        "answer_period_start": { "type": "timestamp", "nullable": true, "comment": "回答開始日時" },
+        "answer_period_end": { "type": "timestamp", "nullable": true, "comment": "回答終了日時" },
+        "attachment_enabled": { "type": "boolean", "nullable": false, "default": false, "comment": "添付ファイルの利用有無" },
+        "attachment_type": { "type": "varchar(32)", "nullable": true, "comment": "添付ファイルの種類（pdf_template, uploaded_files）" },
+        "pdf_template_path": { "type": "varchar(512)", "nullable": true, "comment": "PDFテンプレートのストレージパス（pdf_templateの場合のみ）" },
+        "attachment_files_json": { "type": "json", "nullable": true, "comment": "アップロードしたファイルのパス配列（uploaded_filesの場合のみ）" },
+        "notification_user_enabled": { "type": "boolean", "nullable": false, "default": false, "comment": "ユーザー通知の有効/無効" },
+        "notification_user_email_template": { "type": "text", "nullable": true, "comment": "ユーザー宛メールテンプレート" },
+        "notification_user_email_subject": { "type": "varchar(255)", "nullable": true, "comment": "ユーザー宛メールタイトル" },
+        "notification_user_email_from": { "type": "varchar(255)", "nullable": true, "comment": "ユーザー宛メール送信元" },
+        "notification_user_email_reply_to": { "type": "varchar(255)", "nullable": true, "comment": "ユーザー宛メール返信先" },
+        "notification_user_email_cc": { "type": "json", "nullable": true, "comment": "ユーザー宛メールCC（JSON配列）" },
+        "notification_user_email_bcc": { "type": "json", "nullable": true, "comment": "ユーザー宛メールBCC（JSON配列）" },
+        "notification_admin_enabled": { "type": "boolean", "nullable": false, "default": false, "comment": "管理者通知の有効/無効" },
+        "notification_admin_user_ids": { "type": "json", "nullable": true, "comment": "通知先管理者ID配列（JSON配列）" },
+        "notification_admin_email_template": { "type": "text", "nullable": true, "comment": "管理者宛メールテンプレート" },
+        "notification_admin_email_subject": { "type": "varchar(255)", "nullable": true, "comment": "管理者宛メールタイトル" },
+        "notification_admin_email_from": { "type": "varchar(255)", "nullable": true, "comment": "管理者宛メール送信元" },
+        "notification_admin_email_reply_to": { "type": "varchar(255)", "nullable": true, "comment": "管理者宛メール返信先" },
+        "created_by": { "type": "bigint unsigned", "nullable": true, "comment": "作成者ID" },
+        "created_at": { "type": "timestamp", "nullable": true },
+        "updated_at": { "type": "timestamp", "nullable": true },
+        "deleted_at": { "type": "timestamp", "nullable": true, "comment": "論理削除" }
+      },
+      "indexes": [
+        { "name": "idx_forms_status_is_public", "columns": ["status", "is_public"] },
+        { "name": "idx_forms_code", "columns": ["code"] }
+      ],
+      "foreign_keys": [
+        { "column": "created_by", "references": "users.id", "on_delete": "SET NULL" }
+      ]
+    },
+    "form_fields": {
+      "description": "フォームの入力項目定義テーブル",
+      "columns": {
+        "id": { "type": "bigint unsigned", "nullable": false, "primary": true },
+        "form_id": { "type": "bigint unsigned", "nullable": false },
+        "field_key": { "type": "varchar(255)", "nullable": false, "comment": "フィールド識別子" },
+        "type": { "type": "varchar(64)", "nullable": false, "comment": "input種別（text/email/select等）" },
+        "sort_order": { "type": "integer", "nullable": false, "default": 0, "comment": "表示順序" },
+        "is_required": { "type": "boolean", "nullable": false, "default": false, "comment": "固定必須フラグ" },
+        "options_json": { "type": "json", "nullable": true, "comment": "選択肢など（JSON）" },
+        "visibility_rule": { "type": "json", "nullable": true, "comment": "表示条件ルール（JSON）" },
+        "required_rule": { "type": "json", "nullable": true, "comment": "必須条件ルール（JSON）" },
+        "step_transition_rule": { "type": "json", "nullable": true, "comment": "ステップ遷移ルール（JSON）" },
+        "pdf_block_key": { "type": "varchar(255)", "nullable": true, "comment": "PDFテンプレート内のblock名" },
+        "pdf_page_number": { "type": "integer", "nullable": true, "comment": "PDFテンプレートのページ番号（1始まり、デフォルトは1）" },
+        "created_at": { "type": "timestamp", "nullable": true },
+        "updated_at": { "type": "timestamp", "nullable": true }
+      },
+      "indexes": [
+        { "name": "idx_form_fields_form_id_sort_order", "columns": ["form_id", "sort_order"] },
+        { "name": "uk_form_fields_form_id_field_key", "columns": ["form_id", "field_key"], "unique": true }
+      ],
+      "foreign_keys": [
+        { "column": "form_id", "references": "forms.id", "on_delete": "CASCADE" }
+      ]
+    },
+    "submissions": {
+      "description": "フォーム送信データテーブル（responsesと同義）",
+      "columns": {
+        "id": { "type": "bigint unsigned", "nullable": false, "primary": true },
+        "form_id": { "type": "bigint unsigned", "nullable": false },
+        "status": { "type": "varchar(16)", "nullable": false, "default": "received", "comment": "ステータス（received/confirmed）" },
+        "created_at": { "type": "timestamp", "nullable": true },
+        "updated_at": { "type": "timestamp", "nullable": true }
+      },
+      "indexes": [
+        { "name": "idx_submissions_form_id_created_at", "columns": ["form_id", "created_at"] },
+        { "name": "idx_submissions_status", "columns": ["status"] }
+      ],
+      "foreign_keys": [
+        { "column": "form_id", "references": "forms.id", "on_delete": "CASCADE" }
+      ]
+    },
+    "submission_values": {
+      "description": "送信データの値テーブル",
+      "columns": {
+        "id": { "type": "bigint unsigned", "nullable": false, "primary": true },
+        "submission_id": { "type": "bigint unsigned", "nullable": false },
+        "field_key": { "type": "varchar(255)", "nullable": false },
+        "value": { "type": "text", "nullable": true, "comment": "値" },
+        "label": { "type": "text", "nullable": true, "comment": "ラベル（スナップショット）" },
+        "created_at": { "type": "timestamp", "nullable": true },
+        "updated_at": { "type": "timestamp", "nullable": true }
+      },
+      "indexes": [
+        { "name": "idx_submission_values_submission_id", "columns": ["submission_id"] },
+        { "name": "uk_submission_values_submission_id_field_key", "columns": ["submission_id", "field_key"], "unique": true }
+      ],
+      "foreign_keys": [
+        { "column": "submission_id", "references": "submissions.id", "on_delete": "CASCADE" }
+      ]
+    }
+  },
+  "changelog": [
+    {
+      "version": "v1.0.1",
+      "date": "2026-01-31",
+      "changes": [
+        "添付ファイル機能の追加（forms.attachment_enabled, attachment_type, pdf_template_path, attachment_files_json）",
+        "PDF生成機能の追加（form_fields.pdf_block_key, pdf_page_number）",
+        "期間チェック機能の追加（forms.public_period_start, public_period_end, answer_period_start, answer_period_end）",
+        "通知機能の追加（forms.notification_user_*, notification_admin_*）"
+      ]
+    },
+    {
+      "version": "v1.0.0",
+      "date": "2026-01-14",
+      "changes": ["初版作成"]
+    }
+  ]
+}

@@ -315,6 +315,73 @@ STEP 遷移の評価結果。
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
 
+### POST /v1/forms/{id}/attachment/pdf-template
+- **概要**: PDFテンプレートアップロード
+- **説明**: フォームのPDFテンプレートをアップロードする。PDFテンプレートは、フォーム送信時に回答データを埋め込んでPDFを生成するために使用される。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): フォームID
+- **リクエストボディ**:
+  - コンテンツタイプ: multipart/form-data
+    - `pdf_template` (必須, 型: file): PDFテンプレートファイル
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド: `data.pdf_template_path` (string) - アップロードされたPDFテンプレートのパス
+  - 401: 401 Unauthorized
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 403: 403 Forbidden
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 422: 422 Validation Error
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+
+### POST /v1/forms/{id}/attachment/files
+- **概要**: 添付ファイルアップロード
+- **説明**: フォームの添付ファイルをアップロードする（複数ファイル対応）。アップロードされたファイルは、フォーム送信時にメール通知に添付される。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): フォームID
+- **リクエストボディ**:
+  - コンテンツタイプ: multipart/form-data
+    - `files` (必須, 型: array[file]): アップロードするファイル（複数可）
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド: `data.attachment_files` (array) - アップロードされたファイル一覧
+  - 401: 401 Unauthorized
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 403: 403 Forbidden
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 422: 422 Validation Error
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+
+### DELETE /v1/forms/{id}/attachment/files/{file_index}
+- **概要**: 添付ファイル削除
+- **説明**: フォームの添付ファイルを削除する。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): フォームID
+  - `file_index` (パス, 必須, 型: integer): 削除するファイルのインデックス（0始まり）
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド: `data.deleted` (boolean) - 削除成功フラグ
+  - 401: 401 Unauthorized
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 403: 403 Forbidden
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 404: 404 Not Found
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+
 ### GET /v1/responses
 - **概要**: 送信一覧（Responses）
 - **パラメータ**:
@@ -367,6 +434,20 @@ STEP 遷移の評価結果。
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
       - 追加フィールド: `errors.step` (#/components/schemas/StepTransitionState) - STEP_TRANSITION_DENIED 時
+
+### GET /v1/public/forms/{form_key}
+- **概要**: 公開フォーム表示取得
+- **説明**: 一般ユーザー向けの公開フォーム取得。公開期間のチェックが行われ、期間外の場合はエラーを返す。
+- **パラメータ**:
+  - `form_key` (パス, 必須, 型: string): フォーム識別子
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - 追加フィールド: `data.condition_state` (#/components/schemas/ConditionState)
+  - 404: 404 Not Found
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
 
 ### GET /v1/forms/{form_key}/ack
 - **概要**: ACK 表示
