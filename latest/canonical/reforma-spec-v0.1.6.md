@@ -953,9 +953,9 @@ STEP 遷移の評価結果。
 
 ---
 
-# BACKEND 仕様 (v1.1.0)
+# BACKEND 仕様 (v0.1.1)
 
-- version: v1.1.0
+- version: v0.1.1
 - generated_at: 2026-01-14T11:37:59.885164+00:00
 
 ## Sources
@@ -1352,9 +1352,9 @@ _Source files:_ latest/backend/reforma-backend-spec-v0.1.1.json
 
 ---
 
-# FRONTEND 仕様 (v1.1.0)
+# FRONTEND 仕様 (v0.1.1)
 
-- version: v1.1.0
+- version: v0.1.1
 - generated_at: 2026-01-14T11:37:59.767769+00:00
 
 ## Sources
