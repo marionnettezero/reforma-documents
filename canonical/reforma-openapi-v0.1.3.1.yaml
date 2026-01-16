@@ -1,0 +1,4202 @@
+openapi: 3.0.3
+info:
+  title: ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8） (v0.1.3.1)
+  version: 0.1.3.1
+  description: API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI
+    を"実装可能な粒度"まで増補した草案。添付ファイル機能、通知機能、期間チェック機能を追加。
+servers:
+- url: /reforma/api
+tags:
+- name: Auth
+- name: Forms
+- name: Responses
+- name: ACK/PDF
+- name: Dashboard
+- name: System Admin
+- name: SUP (root-only)
+- name: progress
+  description: 進捗取得
+- name: search
+  description: 横断検索
+- name: logs
+  description: ログ
+- name: public-forms
+  description: 公開フォーム
+- name: system-admin-users
+  description: 管理者ユーザ
+- name: exports
+  description: 成果物
+- name: responses
+  description: 回答
+components:
+  securitySchemes:
+    sanctum:
+      type: apiKey
+      in: cookie
+      name: XSRF-TOKEN
+      description: Sanctum SPA session（例）。実装により Bearer 併用可
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+  schemas:
+    EnvelopeSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type:
+          - object
+          - 'null'
+        code:
+          type: string
+          description: API共通コード（成功時はOK等）
+          example: OK
+        request_id:
+          type: string
+          description: リクエストID（追跡用）
+          example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      required:
+      - success
+      - code
+      - request_id
+      - message
+      - data
+      - errors
+    EnvelopeError:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: 'null'
+        message:
+          type:
+          - string
+          - 'null'
+        errors:
+          type: object
+          properties:
+            fields:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+                description: エラーメッセージ配列
+            rule:
+              type:
+              - object
+              - 'null'
+            step:
+              type:
+              - object
+              - 'null'
+            reason:
+              type: string
+              description: '失敗理由（機械判定用）。例: ROOT_ONLY / EXPIRED / URL_EXPIRED / SYSTEM_ADMIN_REQUIRED
+                / TOKEN_EXPIRED'
+              example: ROOT_ONLY
+          required: []
+          description: errors 本体（用途に応じて fields/rule/step を利用）
+        code:
+          type: string
+          description: 'API共通コード（例: FORBIDDEN / CONSTRAINT_VIOLATION / VALIDATION_ERROR
+            等）'
+          example: FORBIDDEN
+        request_id:
+          type: string
+          description: リクエストID（追跡用）
+          example: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      required:
+      - success
+      - code
+      - request_id
+      - message
+      - data
+      - errors
+    ErrorObject:
+      type: object
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        fields:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+            description: エラーメッセージ配列
+        rule:
+          type:
+          - object
+          - 'null'
+        step:
+          type:
+          - object
+          - 'null'
+        reason:
+          type: string
+          description: 失敗理由（機械判定用）
+          example: ROOT_ONLY
+      required:
+      - code
+      description: errors 本体（用途に応じて fields/rule/step を利用）
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: users.id
+        name:
+          type: string
+          description: 表示名
+        email:
+          type: string
+          description: メールアドレス
+          format: email
+        status:
+          type: string
+          description: active / suspended
+          enum:
+          - active
+          - suspended
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+            - SYSTEM_ADMIN
+            - FORM_ADMIN
+            - LOG_ADMIN
+          description: 付与ロール
+        is_root:
+          type: boolean
+          description: root-only 判定フラグ（/auth/me 正本）
+        form_create_limit_enabled:
+          type: boolean
+          description: フォーム作成数制限を適用するか
+        form_create_limit:
+          type:
+          - integer
+          - 'null'
+          description: フォーム作成可能数（enabled=true の場合のみ有効。min=1）
+          minimum: 1
+        role:
+          type:
+          - string
+          - 'null'
+          deprecated: true
+          description: (deprecated) 互換のため残置。正本は roles[]。将来削除予定。
+          enum:
+          - SYSTEM_ADMIN
+          - FORM_ADMIN
+          - LOG_ADMIN
+          - system_admin
+          - form_admin
+          - log_admin
+      required:
+      - id
+      - name
+      - email
+      - status
+      - roles
+      - is_root
+      - form_create_limit_enabled
+      - form_create_limit
+    Form:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: forms.id
+        code:
+          type: string
+          description: forms.code（フォーム識別子）
+        status:
+          type: string
+          description: forms.status
+          enum:
+          - draft
+          - published
+          - closed
+        is_public:
+          type: boolean
+          description: forms.is_public
+        public_period_start:
+          type: string
+          format: date-time
+          nullable: true
+          description: 公開期間開始日時
+        public_period_end:
+          type: string
+          format: date-time
+          nullable: true
+          description: 公開期間終了日時
+        answer_period_start:
+          type: string
+          format: date-time
+          nullable: true
+          description: 回答期間開始日時
+        answer_period_end:
+          type: string
+          format: date-time
+          nullable: true
+          description: 回答期間終了日時
+        attachment_enabled:
+          type: boolean
+          description: 添付ファイル機能が有効か
+        attachment_type:
+          type: string
+          nullable: true
+          description: '添付ファイルタイプ（pdf_template: PDFテンプレート、uploaded_files: アップロードファイル）'
+          enum:
+          - pdf_template
+          - uploaded_files
+        pdf_template_path:
+          type: string
+          nullable: true
+          description: PDFテンプレートファイルパス
+        attachment_files_json:
+          type: array
+          nullable: true
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: ファイル名
+              path:
+                type: string
+                description: ファイルパス
+              size:
+                type: integer
+                format: int64
+                description: ファイルサイズ（バイト）
+              mime:
+                type: string
+                description: MIMEタイプ
+          description: アップロードファイル一覧（JSON配列）
+        notification_user_enabled:
+          type: boolean
+          description: ユーザー通知が有効か
+        notification_user_email_template:
+          type: string
+          nullable: true
+          description: ユーザー通知メールテンプレート
+        notification_user_email_subject:
+          type: string
+          nullable: true
+          description: ユーザー通知メール件名
+        notification_user_email_from:
+          type: string
+          nullable: true
+          format: email
+          description: ユーザー通知メール送信元アドレス
+        notification_user_email_reply_to:
+          type: string
+          nullable: true
+          format: email
+          description: ユーザー通知メール返信先アドレス
+        notification_user_email_cc:
+          type: array
+          nullable: true
+          items:
+            type: string
+            format: email
+          description: ユーザー通知メールCC（配列）
+        notification_user_email_bcc:
+          type: array
+          nullable: true
+          items:
+            type: string
+            format: email
+          description: ユーザー通知メールBCC（配列）
+        notification_admin_enabled:
+          type: boolean
+          description: 管理者通知が有効か
+        notification_admin_user_ids:
+          type: array
+          nullable: true
+          items:
+            type: integer
+            format: int64
+          description: 管理者通知送信先ユーザーID一覧
+        notification_admin_email_template:
+          type: string
+          nullable: true
+          description: 管理者通知メールテンプレート
+        notification_admin_email_subject:
+          type: string
+          nullable: true
+          description: 管理者通知メール件名
+        notification_admin_email_from:
+          type: string
+          nullable: true
+          format: email
+          description: 管理者通知メール送信元アドレス
+        notification_admin_email_reply_to:
+          type: string
+          nullable: true
+          format: email
+          description: 管理者通知メール返信先アドレス
+        created_by:
+          type: integer
+          format: int64
+          description: forms.created_by
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - code
+      - status
+      - is_public
+      - created_by
+      - created_at
+      - updated_at
+    FormTranslation:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        form_id:
+          type: integer
+          format: int64
+        locale:
+          type: string
+          enum:
+          - ja
+          - en
+        title:
+          type: string
+          description: フォーム名
+        description:
+          type: string
+          description: 説明
+          example: ''
+      required:
+      - id
+      - form_id
+      - locale
+      - title
+    FormField:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: form_fields.id
+        form_id:
+          type: integer
+          format: int64
+          description: form_fields.form_id
+        field_key:
+          type: string
+          description: form_fields.field_key
+        type:
+          type: string
+          description: form_fields.type（input種別）
+        sort_order:
+          type: integer
+          format: int32
+          description: form_fields.sort_order
+        is_required:
+          type: boolean
+          description: form_fields.is_required（固定必須）
+        options_json:
+          type:
+          - object
+          - 'null'
+          description: 選択肢など（JSON）
+        visibility_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 visibility_rule(JSON)
+        required_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 required_rule(JSON)
+        step_transition_rule:
+          type:
+          - object
+          - 'null'
+          description: A-06 step_transition_rule(JSON)
+        pdf_block_key:
+          type: string
+          nullable: true
+          description: PDFテンプレート内のブロックキー（PDF生成時に使用）
+        pdf_page_number:
+          type: integer
+          format: int32
+          nullable: true
+          description: PDFテンプレート内のページ番号（1始まり、PDF生成時に使用）
+      required:
+      - id
+      - form_id
+      - field_key
+      - type
+      - sort_order
+      - is_required
+    ConditionState:
+      type: object
+      properties:
+        version:
+          type: string
+          enum:
+          - '1'
+        evaluated_at:
+          type: string
+          format: date-time
+        fields:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              visible:
+                type: boolean
+              required:
+                type: boolean
+              store:
+                type: string
+                enum:
+                - store
+                - do_not_store
+              eval:
+                type: string
+                enum:
+                - ok
+                - fallback
+                - error
+              reasons:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    kind:
+                      type: string
+                      enum:
+                      - rule
+                      - type
+                      - missing_field
+                      - unknown_operator
+                    path:
+                      type: string
+                    message:
+                      type: string
+                description: 任意（デバッグ用途）
+            required:
+            - visible
+            - required
+            - store
+            - eval
+        step:
+          type:
+          - object
+          - 'null'
+          description: STEP遷移状態（STEPモードで利用）
+      required:
+      - version
+      - evaluated_at
+      - fields
+      description: 条件分岐評価結果（API→UI I/F）
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submissions.id
+        form_id:
+          type: integer
+          format: int64
+          description: submissions.form_id
+        status:
+          type: string
+          description: submissions.status
+          enum:
+          - received
+          - confirmed
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - form_id
+      - status
+      - created_at
+      - updated_at
+    SubmissionValue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: submission_values.id
+        submission_id:
+          type: integer
+          format: int64
+          description: submission_values.submission_id
+        field_key:
+          type: string
+          description: submission_values.field_key
+        field_label_snapshot:
+          type:
+          - string
+          - 'null'
+          description: ラベルスナップショット
+        value_json:
+          oneOf:
+          - type: string
+          - type: number
+          - type: boolean
+          - type: object
+          - type: array
+          - type: 'null'
+          description: 回答 value（JSON）
+        label_json:
+          type:
+          - object
+          - 'null'
+          description: label スナップショット（JSON）
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - field_key
+      - value_json
+      - created_at
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        channel:
+          type: string
+          enum:
+          - mail
+          - slack
+        status:
+          type: string
+          enum:
+          - queued
+          - sent
+          - failed
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - channel
+      - status
+      - created_at
+    SubmissionPdf:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        submission_id:
+          type: integer
+          format: int64
+        pdf_type:
+          type: string
+          enum:
+          - submission
+          - ack
+        storage_path:
+          type: string
+          description: S3等の保存先パス
+        is_latest:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - submission_id
+      - pdf_type
+      - storage_path
+      - is_latest
+      - created_at
+    PaginatedForms:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Form'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    PaginatedResponses:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submission'
+        total:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        per_page:
+          type: integer
+          format: int32
+        sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+      required:
+      - items
+      - total
+      - page
+      - per_page
+      - sort
+    SortEnum:
+      type: string
+      description: 一覧系 sort。既定=created_at_desc
+      enum:
+      - created_at_desc
+      - created_at_asc
+    ProgressJob:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ジョブID
+        type:
+          type: string
+          description: ジョブ種別（CSV_EXPORT/PDF_GENERATE 等）
+        status:
+          type: string
+          enum:
+          - queued
+          - running
+          - succeeded
+          - failed
+          - canceled
+        percent:
+          type:
+          - integer
+          - 'null'
+          minimum: 0
+          maximum: 100
+          description: 進捗率（不明な場合 null 可）
+        message:
+          type:
+          - string
+          - 'null'
+          description: 進捗メッセージ（任意）
+        result:
+          type:
+          - object
+          - 'null'
+          properties:
+            download_url:
+              type:
+              - string
+              - 'null'
+              description: 完了時の成果物DL URL（署名URLなど）
+        updated_at:
+          type: string
+          format: date-time
+        expires_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: 進捗参照期限（TTL）
+      required:
+      - id
+      - type
+      - status
+      - percent
+      - message
+      - result
+      - updated_at
+      - expires_at
+    EnvelopeProgress:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              job:
+                $ref: '#/components/schemas/ProgressJob'
+            required:
+            - job
+    AdminUserUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 表示名（任意）
+        status:
+          type: string
+          enum:
+          - active
+          - suspended
+          description: ステータス（任意）
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+            - SYSTEM_ADMIN
+            - FORM_ADMIN
+            - LOG_ADMIN
+          minItems: 1
+          maxItems: 1
+          description: 付与ロール（現状は単一ロール運用のため要素数1固定）
+        is_root:
+          type: boolean
+          description: root-only フラグ（変更には root 権限が必要）
+        form_create_limit_enabled:
+          type: boolean
+          description: フォーム作成数制限を適用するか
+        form_create_limit:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          description: フォーム作成可能数（enabled=true の場合のみ有効。min=1）
+      required:
+      - roles
+      additionalProperties: false
+    SearchHit:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 検索対象種別
+          enum:
+          - form
+          - response
+          - audit_log
+          - admin_user
+          - log
+        id:
+          type: string
+          description: 対象ID
+        title:
+          type: string
+          description: 表示タイトル
+        snippet:
+          type:
+          - string
+          - 'null'
+          description: 抜粋
+        url:
+          type:
+          - string
+          - 'null'
+          description: 遷移先（UI側で組み立てる場合はnull）
+      required:
+      - type
+      - id
+      - title
+      - snippet
+      - url
+    EnvelopeSearch:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              hits:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchHit'
+              total:
+                type: integer
+                minimum: 0
+            required:
+            - hits
+            - total
+    AdminLogItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        level:
+          type: string
+          enum:
+          - info
+          - warn
+          - error
+        category:
+          type: string
+          description: 分類（auth/audit/system/api 等）
+        message:
+          type: string
+        request_id:
+          type:
+          - string
+          - 'null'
+        endpoint:
+          type:
+          - string
+          - 'null'
+        reason:
+          type:
+          - string
+          - 'null'
+          description: errors.reason 等
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - level
+      - category
+      - message
+      - request_id
+      - endpoint
+      - reason
+      - created_at
+    EnvelopeLogsList:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              logs:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminLogItem'
+                  total:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  per_page:
+                    type: integer
+                    minimum: 1
+                required:
+                - items
+                - total
+                - page
+                - per_page
+            required:
+            - logs
+    EnvelopeLogDetail:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              log:
+                $ref: '#/components/schemas/AdminLogItem'
+            required:
+            - log
+    PublicFormView:
+      type: object
+      properties:
+        form_key:
+          type: string
+        title:
+          type: string
+        description:
+          type:
+          - string
+          - 'null'
+        fields:
+          type: array
+          items:
+            type: object
+        condition_state:
+          $ref: '#/components/schemas/ConditionState'
+      required:
+      - form_key
+      - title
+      - description
+      - fields
+      - condition_state
+    EnvelopePublicFormView:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              form:
+                $ref: '#/components/schemas/PublicFormView'
+            required:
+            - form
+    ResponsesCsvExportRequest:
+      type: object
+      properties:
+        q:
+          type:
+          - string
+          - 'null'
+          description: 検索キーワード（任意）
+        status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - active
+          - suspended
+          description: （任意）
+        date_from:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: 開始日（任意）
+        date_to:
+          type:
+          - string
+          - 'null'
+          format: date
+          description: 終了日（任意）
+      additionalProperties: false
+    EnvelopeJobAccepted:
+      allOf:
+      - $ref: '#/components/schemas/EnvelopeSuccess'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              job_id:
+                type: string
+              progress_url:
+                type: string
+                description: GET /v1/progress/{job_id}
+              download_url:
+                type:
+                - string
+                - 'null'
+                description: 完了後に利用できるDL URL（必要なら）
+            required:
+            - job_id
+            - progress_url
+            - download_url
+  responses:
+    Unauthorized:
+      description: 401 Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    Forbidden:
+      description: 403 Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+    ValidationError:
+      description: 422 Validation Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/EnvelopeError'
+  examples:
+    ForbiddenRootOnly:
+      summary: root-only により拒否
+      value:
+        success: false
+        data: null
+        message: Forbidden.
+        errors:
+          reason: ROOT_ONLY
+        code: FORBIDDEN
+        request_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    ForbiddenSystemAdminRequired:
+      summary: system_admin 必須により拒否
+      value:
+        success: false
+        data: null
+        message: Forbidden.
+        errors:
+          reason: SYSTEM_ADMIN_REQUIRED
+        code: FORBIDDEN
+        request_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+paths:
+  /v1/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: ログイン
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type:
+                        - string
+                        - 'null'
+                        description: token方式の場合に返却（Sanctum SPAの場合null）
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                remember:
+                  type: boolean
+              required:
+              - email
+              - password
+  /v1/auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: ログアウト
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logged_out:
+                        type: boolean
+                    required:
+                    - logged_out
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/auth/me:
+    get:
+      tags:
+      - Auth
+      summary: 自分自身の情報
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/forms:
+    get:
+      tags:
+      - Forms
+      summary: フォーム一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      forms:
+                        $ref: '#/components/schemas/PaginatedForms'
+                    required:
+                    - forms
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - draft
+          - published
+          - closed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（部分一致）
+        required: false
+    post:
+      tags:
+      - Forms
+      summary: フォーム作成
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: フォーム識別子
+                  example: CONTACT_2026
+                is_public:
+                  type: boolean
+                  example: false
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+                  description: 多言語（初期）
+              required:
+              - code
+  /v1/forms/{id}:
+    get:
+      tags:
+      - Forms
+      summary: フォーム取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                      translations:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormTranslation'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+    put:
+      tags:
+      - Forms
+      summary: フォーム更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      form:
+                        $ref: '#/components/schemas/Form'
+                    required:
+                    - form
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - published
+                  - closed
+                is_public:
+                  type: boolean
+                public_period_start:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: 公開期間開始日時
+                public_period_end:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: 公開期間終了日時
+                answer_period_start:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: 回答期間開始日時
+                answer_period_end:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: 回答期間終了日時
+                attachment_enabled:
+                  type: boolean
+                  description: 添付ファイル機能が有効か
+                attachment_type:
+                  type: string
+                  nullable: true
+                  description: '添付ファイルタイプ（pdf_template: PDFテンプレート、uploaded_files: アップロードファイル）'
+                  enum:
+                  - pdf_template
+                  - uploaded_files
+                notification_user_enabled:
+                  type: boolean
+                  description: ユーザー通知が有効か
+                notification_user_email_template:
+                  type: string
+                  nullable: true
+                  description: ユーザー通知メールテンプレート
+                notification_user_email_subject:
+                  type: string
+                  nullable: true
+                  description: ユーザー通知メール件名
+                notification_user_email_from:
+                  type: string
+                  nullable: true
+                  format: email
+                  description: ユーザー通知メール送信元アドレス
+                notification_user_email_reply_to:
+                  type: string
+                  nullable: true
+                  format: email
+                  description: ユーザー通知メール返信先アドレス
+                notification_user_email_cc:
+                  type: array
+                  nullable: true
+                  items:
+                    type: string
+                    format: email
+                  description: ユーザー通知メールCC（配列）
+                notification_user_email_bcc:
+                  type: array
+                  nullable: true
+                  items:
+                    type: string
+                    format: email
+                  description: ユーザー通知メールBCC（配列）
+                notification_admin_enabled:
+                  type: boolean
+                  description: 管理者通知が有効か
+                notification_admin_user_ids:
+                  type: array
+                  nullable: true
+                  items:
+                    type: integer
+                    format: int64
+                  description: 管理者通知送信先ユーザーID一覧
+                notification_admin_email_template:
+                  type: string
+                  nullable: true
+                  description: 管理者通知メールテンプレート
+                notification_admin_email_subject:
+                  type: string
+                  nullable: true
+                  description: 管理者通知メール件名
+                notification_admin_email_from:
+                  type: string
+                  nullable: true
+                  format: email
+                  description: 管理者通知メール送信元アドレス
+                notification_admin_email_reply_to:
+                  type: string
+                  nullable: true
+                  format: email
+                  description: 管理者通知メール返信先アドレス
+                translations:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormTranslation'
+    delete:
+      tags:
+      - Forms
+      summary: フォーム削除（論理）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      deleted:
+                        type: boolean
+                    required:
+                    - deleted
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+  /v1/forms/{id}/fields:
+    get:
+      tags:
+      - Forms
+      summary: フォーム項目一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - name: include_rules
+        in: query
+        schema:
+          type: boolean
+          description: visibility/required rules を含める
+        required: false
+    put:
+      tags:
+      - Forms
+      summary: フォーム項目一括更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      fields:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FormField'
+                    required:
+                    - fields
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormField'
+              required:
+              - fields
+  /v1/forms/{id}/attachment/pdf-template:
+    post:
+      tags:
+      - Forms
+      summary: PDFテンプレートアップロード
+      description: フォームのPDFテンプレートをアップロードする
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                pdf_template:
+                  type: string
+                  format: binary
+                  description: PDFテンプレートファイル
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      pdf_template_path:
+                        type: string
+                        description: アップロードされたPDFテンプレートのパス
+                    required:
+                    - pdf_template_path
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+  /v1/forms/{id}/attachment/files:
+    post:
+      tags:
+      - Forms
+      summary: 添付ファイルアップロード
+      description: フォームの添付ファイルをアップロードする（複数ファイル対応）
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: アップロードするファイル（複数可）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      attachment_files:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            path:
+                              type: string
+                            size:
+                              type: integer
+                              format: int64
+                            mime:
+                              type: string
+                    required:
+                    - attachment_files
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+  /v1/forms/{id}/attachment/files/{file_index}:
+    delete:
+      tags:
+      - Forms
+      summary: 添付ファイル削除
+      description: フォームの添付ファイルを削除する
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - name: file_index
+        in: path
+        schema:
+          type: integer
+          format: int32
+        required: true
+        description: 削除するファイルのインデックス（0始まり）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      deleted:
+                        type: boolean
+                    required:
+                    - deleted
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: 404 Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+  /v1/responses:
+    get:
+      tags:
+      - Responses
+      summary: 送信一覧（Responses）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      responses:
+                        $ref: '#/components/schemas/PaginatedResponses'
+                    required:
+                    - responses
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: form_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - received
+          - confirmed
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（メール/氏名など：A-02検索マトリクスに委譲）
+        required: false
+  /v1/responses/{id}:
+    get:
+      tags:
+      - Responses
+      summary: 送信詳細
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      response:
+                        $ref: '#/components/schemas/Submission'
+                      values:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionValue'
+                      notifications:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Notification'
+                      pdfs:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubmissionPdf'
+                    required:
+                    - response
+                    - values
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+  /v1/forms/{form_key}/submit:
+    post:
+      tags:
+      - ACK/PDF
+      summary: 公開 submit
+      description: 公開フォームへの回答を送信する。公開期間・回答期間のチェックが行われ、期間外の場合は403エラーを返す。送信後、通知ジョブがキューに投入される。
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      submission_id:
+                        type: integer
+                        format: int64
+                      ack_url:
+                        type: string
+                        description: ACK URL（UI遷移用）
+                      condition_state:
+                        $ref: '#/components/schemas/ConditionState'
+                    required:
+                    - submission_id
+                    - ack_url
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '403':
+          description: 403 Forbidden（公開期間外または回答期間外）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      parameters:
+      - name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: object
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                    - type: number
+                    - type: boolean
+                    - type: object
+                    - type: array
+                    - type: 'null'
+                locale:
+                  type: string
+                  enum:
+                  - ja
+                  - en
+                mode:
+                  type: string
+                  description: both/value/label (CSV等の表現に委譲)
+                  enum:
+                  - both
+                  - value
+                  - label
+              required:
+              - answers
+  /v1/forms/{form_key}/ack:
+    get:
+      tags:
+      - ACK/PDF
+      summary: ACK 表示
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      ack:
+                        type: object
+                        description: ACK 表示データ（テンプレ/変数はA-04に委譲）
+                      pdf_url:
+                        type:
+                        - string
+                        - 'null'
+                        description: PDFダウンロードURL（許可される場合）
+                    required:
+                    - ack
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+      parameters:
+      - name: form_key
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: token
+        in: query
+        schema:
+          type: string
+          description: confirm_url token
+        required: false
+      - name: submission_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+  /v1/responses/{id}/pdf:
+    get:
+      tags:
+      - ACK/PDF
+      summary: PDF 取得（管理側）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      - name: pdf_type
+        in: query
+        schema:
+          type: string
+          enum:
+          - submission
+          - ack
+        required: false
+  /v1/dashboard/summary:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード集計
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        properties:
+                          forms_count:
+                            type: integer
+                            format: int32
+                          responses_today:
+                            type: integer
+                            format: int32
+                          responses_total:
+                            type: integer
+                            format: int32
+                        required:
+                        - forms_count
+                        - responses_today
+                        - responses_total
+                    required:
+                    - summary
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/dashboard/errors:
+    get:
+      tags:
+      - Dashboard
+      summary: ダッシュボード（エラー/失敗一覧）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                kind:
+                                  type: string
+                                  enum:
+                                  - mail_failed
+                                  - slack_failed
+                                  - pdf_failed
+                                  - eval_error
+                                  - other
+                                message:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - kind
+                              - message
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - errors
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+  /v1/system/admin-users:
+    get:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/User'
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - users
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: role
+        in: query
+        schema:
+          type: string
+          enum:
+          - SYSTEM_ADMIN
+          - FORM_ADMIN
+          - LOG_ADMIN
+        required: false
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - active
+          - suspended
+        required: false
+      - name: q
+        in: query
+        schema:
+          type: string
+          description: 検索（email/name）
+        required: false
+      description: '- 返却の正本ロールは `roles[]`。
+
+        - `role` は互換のための deprecated フィールド（将来削除予定）。'
+    post:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ作成（招待）
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - SYSTEM_ADMIN
+                    - FORM_ADMIN
+                    - LOG_ADMIN
+              required:
+              - name
+              - email
+              - roles
+  /v1/system/admin-users/{id}:
+    put:
+      tags:
+      - System Admin
+      summary: 管理者ユーザ更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                    required:
+                    - user
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+              examples:
+                ROOT_ONLY:
+                  $ref: '#/components/examples/ForbiddenRootOnly'
+                SYSTEM_ADMIN_REQUIRED:
+                  $ref: '#/components/examples/ForbiddenSystemAdminRequired'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: id
+        in: path
+        schema:
+          type: integer
+          format: int64
+        required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserUpdateRequest'
+      description: '### RBAC
+
+        - 必須: system_admin
+
+        - **system_admin 付与（昇格）**は root-only（is_root=true 必須）
+
+        - system_admin 剥奪（降格）は system_admin で可（ただし自己降格禁止・最後の system_admin 禁止）
+
+
+        - `roles` は現状単一ロール運用（要素数1）
+
+        - `is_root` 変更は root 権限が必要'
+    get:
+      tags:
+      - system-admin-users
+      summary: 管理者アカウント詳細取得
+      description: S-03 アカウント詳細/編集用。返却ロールは roles[] が正本。role は返さない。
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/EnvelopeSuccess'
+                - type: object
+                  properties:
+                    data:
+                      type: object
+                      properties:
+                        user:
+                          $ref: '#/components/schemas/User'
+                      required:
+                      - user
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/system/admin-users/invites/resend:
+    post:
+      tags:
+      - System Admin
+      summary: 招待再送
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      sent:
+                        type: boolean
+                    required:
+                    - sent
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  format: int64
+              required:
+              - user_id
+  /v1/system/admin-audit-logs:
+    get:
+      tags:
+      - System Admin
+      summary: 監査ログ一覧
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      logs:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int64
+                                actor_user_id:
+                                  type: integer
+                                  format: int64
+                                action:
+                                  type: string
+                                target_type:
+                                  type: string
+                                target_id:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                              required:
+                              - id
+                              - actor_user_id
+                              - action
+                              - created_at
+                          total:
+                            type: integer
+                            format: int32
+                          page:
+                            type: integer
+                            format: int32
+                          per_page:
+                            type: integer
+                            format: int32
+                          sort:
+                            type: string
+                            enum:
+                            - created_at_desc
+                            - created_at_asc
+                        required:
+                        - items
+                        - total
+                        - page
+                        - per_page
+                        - sort
+                    required:
+                    - logs
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+        required: true
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+        required: true
+      - name: sort
+        in: query
+        schema:
+          $ref: '#/components/schemas/SortEnum'
+        required: false
+      - name: user_id
+        in: query
+        schema:
+          type: integer
+          format: int64
+        required: false
+      - name: action
+        in: query
+        schema:
+          type: string
+        required: false
+  /v1/system/roles/permissions:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      roles:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            role:
+                              type: string
+                            permissions:
+                              type: array
+                              items:
+                                type: string
+                          required:
+                          - role
+                          - permissions
+                    required:
+                    - roles
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: ロール権限定義更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      updated:
+                        type: boolean
+                    required:
+                    - updated
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      permissions:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                    - role
+                    - permissions
+              required:
+              - roles
+  /v1/system/settings:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: システム設定取得
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - SUP (root-only)
+      summary: システム設定更新
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      settings:
+                        type: object
+                    required:
+                    - settings
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                required:
+                - success
+                - data
+                - message
+                - errors
+        '401':
+          description: 401 Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: 422 Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                settings:
+                  type: object
+              required:
+              - settings
+  /v1/system/root-only/ping:
+    get:
+      tags:
+      - SUP (root-only)
+      summary: root-only 動作確認（ping）
+      description: root-only ミドルウェア動作確認用。system_admin を満たした上で is_root=true の場合のみ成功。
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      pong:
+                        type: boolean
+                    required:
+                    - pong
+                  message:
+                    type:
+                    - string
+                    - 'null'
+                  errors:
+                    type:
+                    - object
+                    - 'null'
+                  code:
+                    type: string
+                    example: OK
+                  request_id:
+                    type: string
+                required:
+                - success
+                - data
+                - code
+                - request_id
+              examples:
+                OK:
+                  summary: 成功
+                  value:
+                    success: true
+                    data:
+                      pong: true
+                    message: null
+                    errors: null
+                    code: OK
+                    request_id: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: 403 Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+              examples:
+                ROOT_ONLY:
+                  $ref: '#/components/examples/ForbiddenRootOnly'
+                SYSTEM_ADMIN_REQUIRED:
+                  $ref: '#/components/examples/ForbiddenSystemAdminRequired'
+  /v1/progress/{job_id}:
+    get:
+      tags:
+      - progress
+      summary: 進捗取得
+      description: CSV/PDF/ファイル操作等の進捗を取得する。
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeProgress'
+        '404':
+          description: Not Found / expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/search:
+    get:
+      tags:
+      - search
+      summary: 横断検索
+      description: フォーム/回答/監査ログ/アカウント等を横断検索する（S-06）。
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: types
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - form
+            - response
+            - audit_log
+            - admin_user
+            - log
+      - name: page
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      - name: per_page
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSearch'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/logs:
+    get:
+      tags:
+      - logs
+      summary: ログ一覧
+      description: L-01 ログ一覧。
+      parameters:
+      - name: page
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      - name: per_page
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      - name: level
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - info
+          - warn
+          - error
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: date_from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: date_to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeLogsList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/logs/{id}:
+    get:
+      tags:
+      - logs
+      summary: ログ詳細
+      description: L-02 ログ詳細。
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeLogDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/public/forms/{form_key}:
+    get:
+      tags:
+      - public-forms
+      summary: 公開フォーム表示取得
+      description: Respondent 用フォーム表示（/f/{form_key}）。条件分岐がある場合は condition_state を返す。公開期間のチェックが行われ、期間外の場合は403エラーを返す。
+      parameters:
+      - name: form_key
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopePublicFormView'
+        '403':
+          description: 403 Forbidden（公開期間外）
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+  /v1/responses/export/csv:
+    post:
+      tags:
+      - responses
+      summary: 回答CSVエクスポート（ジョブ開始）
+      description: 回答一覧のCSVエクスポートを非同期ジョブとして開始し、job_id を返す。
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResponsesCsvExportRequest'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeJobAccepted'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/exports/{job_id}/download:
+    get:
+      tags:
+      - exports
+      summary: 成果物ダウンロード
+      description: エクスポート成果物のダウンロード。URL期限切れ時は再署名（settings に依存）。
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '302':
+          description: Redirect to signed download URL
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found / expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/forms/{id}/copy:
+    post:
+      tags:
+      - Forms
+      summary: フォーム複製
+      description: 指定フォームを複製して新しいフォームを作成する。
+      x-status: planned
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 複製後のフォーム名（省略時は元の名前 + " (コピー)"）
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSuccess'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/forms/{id}/versions:
+    get:
+      tags:
+      - Forms
+      summary: フォームバージョン履歴
+      description: フォームの変更履歴（バージョン一覧）を取得する。
+      x-status: planned
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSuccess'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/templates:
+    get:
+      tags:
+      - Forms
+      summary: フォームテンプレート一覧
+      description: フォーム作成に使用可能なテンプレート一覧を取得する。
+      x-status: planned
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSuccess'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/responses/{id}/status:
+    patch:
+      tags:
+      - Responses
+      summary: 回答ステータス変更
+      description: 回答の承認/却下等のステータスを変更する。
+      x-status: planned
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [approved, rejected, pending_review]
+                comment:
+                  type: string
+              required:
+              - status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSuccess'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/system/notifications:
+    get:
+      tags:
+      - System Admin
+      summary: 通知設定取得
+      description: メール/Slack等の通知設定を取得する。
+      x-status: planned
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSuccess'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    put:
+      tags:
+      - System Admin
+      summary: 通知設定更新
+      description: メール/Slack等の通知設定を更新する。
+      x-status: planned
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_enabled:
+                  type: boolean
+                slack_webhook_url:
+                  type: string
+                notify_on_submit:
+                  type: boolean
+                notify_on_error:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSuccess'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/webhooks:
+    get:
+      tags:
+      - System Admin
+      summary: Webhook一覧
+      description: 登録済みWebhook一覧を取得する。
+      x-status: planned
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSuccess'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - System Admin
+      summary: Webhook登録
+      description: 外部連携用Webhookを登録する。
+      x-status: planned
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+                    enum: [form.submitted, form.published, response.created]
+                secret:
+                  type: string
+              required:
+              - url
+              - events
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSuccess'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+  /v1/webhooks/{id}:
+    delete:
+      tags:
+      - System Admin
+      summary: Webhook削除
+      description: 登録済みWebhookを削除する。
+      x-status: planned
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeSuccess'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvelopeError'
+      security:
+      - bearerAuth: []
+x-generated-at: '2026-01-16T12:00:00Z'
