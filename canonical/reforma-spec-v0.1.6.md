@@ -19,7 +19,7 @@
 
 | 分類 | バージョン | JSON | Markdown |
 | --- | --- | --- | --- |
-| api | v1.3.3 | classified/api/reforma-api-spec-v1.3.3.json | classified/api/reforma-api-spec-v1.3.3.md |
+| api | v0.1.4 | classified/api/reforma-api-spec-v0.1.4.json | classified/api/reforma-api-spec-v0.1.4.md |
 | backend | v1.1.0 | classified/backend/reforma-backend-spec-v1.1.0.json | classified/backend/reforma-backend-spec-v1.1.0.md |
 | common | v1.5.1 | classified/common/reforma-common-spec-v1.5.1.json | classified/common/reforma-common-spec-v1.5.1.md |
 | db | v1.0.0 | classified/db/reforma-db-spec-v1.0.0.json | classified/db/reforma-db-spec-v1.0.0.md |
