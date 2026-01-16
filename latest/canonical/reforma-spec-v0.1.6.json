@@ -1629,8 +1629,8 @@
               "version": "1.0.0"
             },
             {
-              "file": "latest/backend/reforma-backend-spec-v1.1.0.json",
-              "version": "1.1.0"
+              "file": "latest/backend/reforma-backend-spec-v0.1.1.json",
+              "version": "0.1.1"
             }
           ]
         },
