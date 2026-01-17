@@ -42,6 +42,13 @@ Alias /reforma/ "/var/www/reforma/frontend/dist/"
 <Directory "/var/www/reforma/frontend/dist">
     AllowOverride None
     Require all granted
+    
+    # BASIC認証を追加（フロントエンド側も保護）
+    AuthType Basic
+    AuthName "ReForma - Restricted Access"
+    AuthUserFile /var/www/.htpasswd
+    Require valid-user
+    
     FallbackResource /reforma/index.html
 </Directory>
 
@@ -123,15 +130,30 @@ export async function apiFetch(input: string, init?: RequestInit): Promise<Respo
 - 本番環境ではHTTPS必須
 
 ### 2. フロントエンドからのアクセス
-- `apiFetch.ts`でBASIC認証ヘッダーを自動追加すれば問題なし
-- ブラウザの自動BASIC認証ダイアログは表示されない（ヘッダーで送信するため）
+- **APIアクセス**: `apiFetch.ts`でBASIC認証ヘッダーを自動追加すれば問題なし
+  - ブラウザの自動BASIC認証ダイアログは表示されない（ヘッダーで送信するため）
+- **SPAアクセス**: フロントエンド側にもBASIC認証を追加した場合
+  - 初回アクセス時にブラウザのBASIC認証ダイアログが表示される
+  - 認証後はブラウザが認証情報を保持するため、以降のアクセスではダイアログは表示されない
+  - 静的ファイル（JS/CSS/画像）も同じ認証情報でアクセス可能
 
 ### 3. 環境別の設定
 - 開発環境: BASIC認証なし
-- ステージング環境: BASIC認証あり
+- ステージング環境: BASIC認証あり（APIのみ、またはAPI+SPA両方）
 - 本番環境: BASIC認証なし（または別の認証方式）
 
-### 4. CORSとの関係
+### 4. フロントエンド側にもBASIC認証を追加する場合の注意点
+- **UXへの影響**:
+  - 初回アクセス時にブラウザのBASIC認証ダイアログが表示される
+  - 認証後はブラウザが認証情報を保持するため、以降のアクセスではダイアログは表示されない
+  - ブラウザを閉じるまで認証情報は保持される
+- **技術的な問題**:
+  - フロントエンド側のコード変更は不要（既に`apiFetch.ts`で対応済み）
+  - 静的ファイル（JS/CSS/画像）も同じ認証情報でアクセス可能
+  - SPAのルーティング（React Router）には影響なし
+  - 同じ`.htpasswd`ファイルを使用可能（APIとSPAで同じ認証情報）
+
+### 5. CORSとの関係
 - BASIC認証はCORSとは独立して動作
 - `credentials: "include"`は既に設定済みなので問題なし
 
