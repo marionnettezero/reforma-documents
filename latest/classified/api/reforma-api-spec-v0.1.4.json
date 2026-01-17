@@ -1,9 +1,19 @@
 {
   "meta": {
-    "version": "v0.1.5",
+    "version": "v0.1.6",
     "generated_at": "2026-01-17T00:00:00Z",
     "openapi_version": "3.0.3",
-    "description": "v1.3.3 をベースに、テーマ機能、表示モード機能（locale/modeパラメータ）を追加した API 仕様書です。"
+    "description": "v1.3.3 をベースに、テーマ機能、表示モード機能（locale/modeパラメータ）、エラーメッセージの多言語対応を追加した API 仕様書です。"
+  },
+  "i18n": {
+    "supported_locales": ["ja", "en"],
+    "default_locale": "ja",
+    "locale_priority": [
+      "リクエストパラメータの`locale`（最優先）",
+      "`Accept-Language`ヘッダー",
+      "デフォルト（日本語）"
+    ],
+    "description": "ReForma APIは、エラーメッセージとレスポンスメッセージの多言語対応をサポートしています。すべてのエラーメッセージと成功メッセージは、取得されたロケールに応じて自動的に翻訳されます。"
   },
   "condition_schemas": {
     "Reason": {
