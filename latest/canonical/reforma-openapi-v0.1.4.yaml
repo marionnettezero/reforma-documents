@@ -1,9 +1,32 @@
 openapi: 3.0.3
 info:
   title: ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8） (v0.1.4)
-  version: 0.1.4
-  description: API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI
+  version: 0.1.6
+  description: |
+    API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI
     を"実装可能な粒度"まで増補した草案。添付ファイル機能、通知機能、期間チェック機能を追加。
+    
+    ## 多言語対応（Internationalization）
+    
+    ReForma APIは、エラーメッセージとレスポンスメッセージの多言語対応をサポートしています。
+    
+    ### ロケール取得の優先順位
+    
+    1. **リクエストパラメータの`locale`**（最優先）
+       - クエリパラメータまたはリクエストボディに`locale`パラメータが含まれている場合、その値を使用
+       - 有効な値: `"ja"`（日本語）、`"en"`（英語）
+    
+    2. **`Accept-Language`ヘッダー**
+       - HTTPリクエストヘッダーの`Accept-Language`から言語を取得
+       - サポートされる言語コード: `ja`, `en`
+    
+    3. **デフォルト（日本語）**
+       - 上記のいずれも指定されていない場合、デフォルトで日本語（`ja`）を使用
+    
+    ### サポート言語
+    
+    - `ja`: 日本語（デフォルト）
+    - `en`: 英語
 servers:
 - url: /reforma/api
 tags:
@@ -124,6 +147,29 @@ components:
       - errors
     ErrorObject:
       type: object
+  parameters:
+    LocaleQuery:
+      name: locale
+      in: query
+      description: ロケール（言語）を指定します。リクエストパラメータの`locale`が最優先で使用されます。
+      required: false
+      schema:
+        type: string
+        enum:
+          - ja
+          - en
+        default: ja
+      example: en
+  headers:
+    AcceptLanguage:
+      description: |
+        HTTP標準のAccept-Languageヘッダー。ロケール取得の優先順位は以下の通りです：
+        1. リクエストパラメータの`locale`（最優先）
+        2. `Accept-Language`ヘッダー
+        3. デフォルト（日本語）
+      schema:
+        type: string
+        example: en-US,en;q=0.9,ja;q=0.8
       properties:
         code:
           type: string

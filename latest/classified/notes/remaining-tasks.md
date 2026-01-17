@@ -225,6 +225,33 @@
 
 ---
 
+### ✅ エラーメッセージの多言語対応（バックエンド）
+**完了日**: 2026-01-17  
+**実装内容**:
+- `lang/ja/messages.php`と`lang/en/messages.php`の作成
+- エラーメッセージの翻訳キー定義（全メッセージを翻訳キーに置き換え）
+- ApiResponseクラスにロケール取得機能を追加
+  - ロケール取得の優先順位:
+    1. リクエストパラメータの`locale`（最優先）
+    2. `Accept-Language`ヘッダー
+    3. デフォルト（日本語）
+  - 翻訳キー形式（`messages.xxx`）の自動翻訳機能
+  - 置換パラメータ対応（`:count`, `:error`, `:fields`など）
+- 全コントローラーのハードコードされたメッセージを翻訳キーに置き換え
+  - PublicFormsController, FormsController, ThemesController
+  - ResponsesNotificationController, ResponsesPdfRegenerateController
+  - AdminUsersController, ResponsesExportController
+  - FormsFieldsController, AuthController
+  - RolesPermissionsController, SettingsController
+  - ResponsesController, ResponsesPdfController
+- テスト確認（全て通過）
+
+**参照**: 
+- 実装: `app/Support/ApiResponse.php`
+- 翻訳ファイル: `lang/ja/messages.php`, `lang/en/messages.php`
+
+---
+
 ## 未実装・要対応タスク
 
 ### 1. SUPP-DISPLAY-MODE-001: 表示モード機能（フロントエンド側）
@@ -277,23 +304,12 @@
 ---
 
 ### 3. フロントエンド調整: エラー構造の統一
-**現状**: バックエンド側はほぼ統一済み、一部改善の余地あり  
+**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
 **バックエンド実装状況**:
 - ✅ ApiResponseクラスで統一されたenvelope形式を使用（success, data, message, errors, code, request_id）
 - ✅ ApiErrorCode enumでエラーコードを定義
 - ✅ root-only拒否時には`errors.reason=ROOT_ONLY`を使用（AdminUsersController、ThemesController）
-- ⚠️ エラーメッセージの多言語対応が未実装（すべて日本語でハードコード）
-
-**バックエンド改善が必要**:
-- エラーメッセージの多言語対応（ja/en）
-  - `lang`ディレクトリの作成と翻訳ファイルの追加（`lang/ja/messages.php`, `lang/en/messages.php`）
-  - Laravelの翻訳関数（`__()`, `trans()`）の使用
-  - ロケール取得の優先順位:
-    1. リクエストパラメータの`locale`（最優先）
-    2. `Accept-Language`ヘッダー
-    3. デフォルト（日本語）
-  - ApiResponseクラスでのロケール対応メッセージ取得機能の追加
-  - すべてのコントローラーでのハードコードされたメッセージを翻訳キーに置き換え
+- ✅ エラーメッセージの多言語対応（完全実装済み）
 
 **フロントエンド未実装**:
 - errors.reason / code / message等の統一的な処理
@@ -306,38 +322,13 @@
 
 ---
 
-### 4. エラーメッセージの多言語対応（バックエンド）
-**現状**: 未実装（すべて日本語でハードコード）  
-**仕様**:
-- デフォルト: 日本語
-- ロケール取得の優先順位:
-  1. リクエストパラメータの`locale`（最優先）
-  2. `Accept-Language`ヘッダー
-  3. デフォルト（日本語）
-- サポート言語: ja, en
-
-**必要実装**:
-- `lang/ja/messages.php`と`lang/en/messages.php`の作成
-- エラーメッセージの翻訳キー定義
-- ApiResponseクラスにロケール取得機能を追加
-  - リクエストからロケールを取得（パラメータ > Accept-Language > デフォルト）
-  - 翻訳関数を使用してメッセージを取得
-- すべてのコントローラーでのハードコードされたメッセージを翻訳キーに置き換え
-  - 例: `'フォームが見つかりません'` → `__('messages.form_not_found', [], $locale)`
-
-**参照**: 
-- 現在の実装: `app/Support/ApiResponse.php`
-- 現在のエラーメッセージ: 各コントローラーの`ApiResponse::error()`呼び出し
-
----
-
 ## 優先度の推奨
 
 ### 高優先度
 1. フロントエンド調整: エラー構造の統一（ユーザー体験向上）
 
 ### 中優先度
-2. エラーメッセージの多言語対応（バックエンド）（国際化対応）
+2. （なし）
 
 ### 低優先度（v2候補）
 3. （なし）
