@@ -341,8 +341,8 @@
 
 ---
 
-### 3. フロントエンド調整: エラー構造の統一
-**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+### ✅ 3. フロントエンド調整: エラー構造の統一
+**完了日**: 2026-01-17  
 **優先度**: 高
 
 **バックエンド実装状況**:
@@ -351,17 +351,25 @@
 - ✅ root-only拒否時には`errors.reason=ROOT_ONLY`を使用（AdminUsersController、ThemesController）
 - ✅ エラーメッセージの多言語対応（完全実装済み）
 
-**フロントエンド未実装**:
-- ❌ errors.reason / code / message等の統一的な処理
-- ❌ /reforma/errorとトースト表示の分岐ロジック
-- ❌ エラーコード定義の明確化とハンドリング
-- ❌ Toast表示の優先順位実装（message → errors.reason → code）
+**フロントエンド実装内容**:
+- ✅ エラーコード定義（`src/utils/errorCodes.ts`）: ApiErrorCode enum、ApiErrorResponse型、extractToastMessage関数
+- ✅ Toastコンポーネント（`src/components/Toast.tsx`）: 右上固定表示、スタック表示、フェードイン/アウト
+- ✅ ToastContext（`src/ui/ToastContext.tsx`）: 重複抑制（1秒以内）、グローバル参照設定
+- ✅ apiFetch.ts改修: エラーレスポンス解析とToast表示の優先順位実装（message → errors.reason → code）
+- ✅ エラーハンドリング分岐:
+  - 401/419: セッション無効 → /logout?reason=session_invalid
+  - 403: 権限エラー → /error?code=FORBIDDEN&reason=...
+  - 400/409/422: Toast表示
+  - 500/503: Toast表示 + エラーページ遷移
+- ✅ ServerErrorWatcher: 500/503エラー時のエラーページ遷移
+- ✅ App.tsxにToastProvider追加
 
-**実装要件**:
-- エラーハンドリングの統一: `apiFetch.ts`等でエラーレスポンスを正規化
-- Toast表示ロジック: 共通仕様v1.5.1に準拠した優先順位で表示
-- エラー画面（E-01）: errors.reason=ROOT_ONLY等の専用表示
-- エラーコード定義: TypeScript enum等で定義
+**実装詳細**:
+- Toast表示の優先順位: `extractToastMessage`関数で実装（共通仕様v1.5.1準拠）
+- 重複抑制: 同一メッセージ+同一タイプを1秒以内に抑制（最新のみ表示）
+- 右上固定表示: `fixed top-4 right-4 z-50`
+- スタック表示: 複数メッセージを縦に並べて表示
+- エラーコード定義: TypeScript enumで定義（バックエンドのApiErrorCodeと対応）
 
 **参照**: 
 - reforma-common-spec-v1.5.1.md（Toast表示優先順位）
@@ -459,8 +467,7 @@
 ## 優先度の推奨
 
 ### 高優先度
-1. **フロントエンド調整: エラー構造の統一**（ユーザー体験向上、共通仕様準拠）
-2. **公開フォーム（U-01）: 条件分岐適用**（コア機能、必須）
+1. **公開フォーム（U-01）: 条件分岐適用**（コア機能、必須）
 
 ### 中優先度
 3. **SUPP-DISPLAY-MODE-001: 表示モード機能**（バックエンド実装済み、フロントのみ）
@@ -487,10 +494,12 @@
 ### 未実装機能
 - ❌ 表示モード機能（SUPP-DISPLAY-MODE-001）
 - ❌ テーマ機能（SUPP-THEME-001）
-- ❌ エラー構造の統一
 - ❌ 条件分岐UI（F-03/F-05）
 - ❌ 条件分岐適用（U-01）
 - ❌ 計算フィールド機能
+
+### 実装済み機能（追加）
+- ✅ エラー構造の統一（共通仕様v1.5.1準拠のToast表示優先順位実装）
 
 ---
 
