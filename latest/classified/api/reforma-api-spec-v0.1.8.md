@@ -960,6 +960,25 @@ STEP 遷移の評価結果。
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
 
+### GET /v1/system/roles
+- **概要**: ロール一覧取得
+- **説明**: 管理者ユーザー用のロール一覧を取得する。検索条件や編集画面の選択肢として使用する。
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.roles` (array) - ロール一覧
+          - `code` (string) - ロールコード（SYSTEM_ADMIN, FORM_ADMIN, LOG_ADMIN）
+          - `name` (string) - ロール名（日本語）
+          - `name_en` (string) - ロール名（英語）
+  - 401: 401 Unauthorized
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 403: 403 Forbidden
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+
 ### GET /v1/system/roles/permissions
 - **概要**: ロール権限定義取得
 - **レスポンス**:
