@@ -7,6 +7,26 @@
 
 ---
 
+## ドキュメント構成
+
+### 分類別仕様書（classified/）
+- **api**: `reforma-api-spec-v0.1.4.md` - API仕様（OpenAPI準拠、多言語対応、条件分岐スキーマ）
+- **backend**: `reforma-backend-spec-v0.1.1.md` - バックエンド仕様（Laravel 12）
+- **common**: `reforma-common-spec-v1.5.1.md` - 共通仕様（日時・タイムゾーン、進捗表示、Toast表示優先順位）
+- **db**: `reforma-db-spec-v0.1.1.md` - DB仕様（テーブル定義、マイグレーション）
+- **frontend**: `reforma-frontend-spec-v0.1.1.md` - フロントエンド仕様（React、UI規約、画面仕様）
+- **notes**: `reforma-notes-v1.1.0.md` - 補足仕様（実装詳細、追補パッチ）
+
+### 正本仕様書（canonical/）
+- **reforma-spec-v0.1.6.md** - 統合版正本仕様書（全分類を統合）
+- **reforma-openapi-v0.1.4.yaml/json** - OpenAPI定義（正本）
+
+### その他
+- **README.md** - リポジトリ説明、運用ルール
+- **CHANGELOG.md** - 変更履歴
+
+---
+
 ## 実装済み機能
 
 ✅ **添付ファイル機能**
@@ -252,59 +272,79 @@
 
 ---
 
-## 未実装・要対応タスク
+## 未実装・要対応タスク（フロントエンド）
 
 ### 1. SUPP-DISPLAY-MODE-001: 表示モード機能（フロントエンド側）
 **現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+**優先度**: 中
+
 **バックエンド実装済み**:
-- submission_valuesテーブルにlabel_json, field_label_snapshotカラム追加（既存）
-- POST /v1/forms/{form_key}/submitにlocale, modeパラメータ追加（実装済み）
-- label/both/valueモード対応（実装済み）
-- 保存の正はvalue、labelはスナップショット（実装済み）
-- ラベルスナップショット保存ロジックの改善（locale対応）
-- CSVエクスポート時のmode指定対応（既に実装済み）
+- ✅ submission_valuesテーブルにlabel_json, field_label_snapshotカラム追加（既存）
+- ✅ POST /v1/forms/{form_key}/submitにlocale, modeパラメータ追加（実装済み）
+- ✅ label/both/valueモード対応（実装済み）
+- ✅ 保存の正はvalue、labelはスナップショット（実装済み）
+- ✅ ラベルスナップショット保存ロジックの改善（locale対応）
+- ✅ CSVエクスポート時のmode指定対応（既に実装済み）
 
 **フロントエンド未実装**:
-- 公開フォーム: 選択肢表示（label/both/value）の切替
-- 管理画面プレビュー: locale+mode切替機能
-- ACK画面: labelを既定表示
+- ❌ 公開フォーム: 選択肢表示（label/both/value）の切替UI
+- ❌ 管理画面プレビュー: locale+mode切替機能
+- ❌ ACK画面: labelを既定表示（label_snapshot優先）
 
-**参照**: reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-DISPLAY-MODE-001
+**実装要件**:
+- 公開フォーム（U-01）: 選択肢フィールド（select/radio/checkbox）の表示モード切替
+- フォームプレビュー（F-04）: locale+mode切替UI追加
+- ACK画面（A-03）: label_snapshotがあればそれを優先表示
+
+**参照**: 
+- reforma-notes-v1.1.0.md SUPP-DISPLAY-MODE-001
+- reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json
 
 ---
 
 ### 2. SUPP-THEME-001: テーマ機能（フロントエンド側）
 **現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+**優先度**: 中
+
 **バックエンド実装済み**:
-- themesテーブルの作成
-- formsテーブルにtheme_id, theme_tokensカラム追加
-- テーマ管理API（System Admin以上）:
+- ✅ themesテーブルの作成
+- ✅ formsテーブルにtheme_id, theme_tokensカラム追加
+- ✅ テーマ管理API（System Admin以上）:
   - GET/POST/PUT/DELETE /v1/system/themes
   - GET /v1/system/themes/{id}/usage（使用状況確認）
   - POST /v1/system/themes/{id}/copy（テーマコピー）
-- フォームへのテーマ適用（Form Admin以上）:
+- ✅ フォームへのテーマ適用（Form Admin以上）:
   - GET/PUT /v1/forms/{id}にテーマ情報を追加
   - GET /v1/public/forms/{form_key}にテーマ情報を追加
-- テーマ解決ロジック（デフォルトテーマのフォールバック）
-- プリセットテーマのシーダー（default, dark, minimal）
-- 権限チェック（System Admin / Form Admin / root-only）
-- テーマトークンのバリデーション
-- テスト実装（11テスト、46アサーション）
+- ✅ テーマ解決ロジック（デフォルトテーマのフォールバック）
+- ✅ プリセットテーマのシーダー（default, dark, minimal）
+- ✅ 権限チェック（System Admin / Form Admin / root-only）
+- ✅ テーマトークンのバリデーション
+- ✅ テスト実装（11テスト、46アサーション）
 
 **フロントエンド未実装**:
-- 公開フォーム表示時に`theme_id`と`theme_tokens`を取得
-- フォームコンテナに`data-theme-id`属性を付与
-- `theme_tokens`をCSS変数に展開（:rootではなくフォームコンテナ配下）
-- プリセットテーマの定義と適用
+- ❌ 公開フォーム表示時に`theme_id`と`theme_tokens`を取得
+- ❌ フォームコンテナに`data-theme-id`属性を付与
+- ❌ `theme_tokens`をCSS変数に展開（:rootではなくフォームコンテナ配下）
+- ❌ プリセットテーマの定義と適用
+- ❌ テーマ管理画面（System Admin用）
+
+**実装要件**:
+- 公開フォーム（U-01）: `GET /v1/public/forms/{form_key}`からテーマ情報を取得し、フォームコンテナに適用
+- フォーム編集（F-02）: テーマ選択UI追加（theme_id選択、theme_tokensカスタマイズ）
+- テーマ管理画面（新規）: System Admin用のテーマCRUD画面
 
 **参照**: 
-- reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-THEME-001
+- reforma-notes-v1.1.0.md SUPP-THEME-001
 - SUPP-THEME-001-spec.md
+- reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json
 
 ---
 
 ### 3. フロントエンド調整: エラー構造の統一
 **現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+**優先度**: 高
+
 **バックエンド実装状況**:
 - ✅ ApiResponseクラスで統一されたenvelope形式を使用（success, data, message, errors, code, request_id）
 - ✅ ApiErrorCode enumでエラーコードを定義
@@ -312,26 +352,145 @@
 - ✅ エラーメッセージの多言語対応（完全実装済み）
 
 **フロントエンド未実装**:
-- errors.reason / code / message等の統一的な処理
-- /reforma/errorとトースト表示の分岐ロジック
-- エラーコード定義の明確化とハンドリング
+- ❌ errors.reason / code / message等の統一的な処理
+- ❌ /reforma/errorとトースト表示の分岐ロジック
+- ❌ エラーコード定義の明確化とハンドリング
+- ❌ Toast表示の優先順位実装（message → errors.reason → code）
+
+**実装要件**:
+- エラーハンドリングの統一: `apiFetch.ts`等でエラーレスポンスを正規化
+- Toast表示ロジック: 共通仕様v1.5.1に準拠した優先順位で表示
+- エラー画面（E-01）: errors.reason=ROOT_ONLY等の専用表示
+- エラーコード定義: TypeScript enum等で定義
 
 **参照**: 
-- reforma-notes-v1.1.0.md reforma-notes-v1.1.0.txt
+- reforma-common-spec-v1.5.1.md（Toast表示優先順位）
 - reforma-notes-v1.1.0.md エラー設計
+- reforma-frontend-spec-v0.1.1.md（エラーハンドリング）
+
+---
+
+### 4. 条件分岐UI（F-03/F-05）: 条件分岐ビルダー
+**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+**優先度**: 中
+
+**バックエンド実装済み**:
+- ✅ ConditionEvaluatorサービスの実装
+- ✅ visibility_rule, required_rule, step_transition_ruleの評価
+- ✅ ConditionStateレスポンス生成
+- ✅ 安全側フォールバック
+
+**フロントエンド未実装**:
+- ❌ F-03（フォーム項目設定）: 条件分岐ビルダーUI（visibility_rule, required_rule）
+- ❌ F-05（ステップ設定）: 条件分岐ビルダーUI（transition_rule）
+- ❌ 条件分岐ビルダー: field type × operator 許可表の適用
+- ❌ 条件分岐ビルダー: operator別 value_input UI
+
+**実装要件**:
+- 条件分岐ビルダー: row = field_selector / operator_selector / value_input
+- 論理結合: AND/OR明示（暗黙優先順位なし）
+- ネスト制限: max_nesting=1（v1.x制限）
+- 条件数制限: max_conditions=10
+- バリデーション: field_required, type_match, no_self_reference
+
+**参照**: 
+- reforma-frontend-spec-v1.0.0-condition-ui-.json
+- reforma-frontend-spec-v1.0.0-condition-operator-matrix-ui-.json
+- reforma-frontend-spec-v1.0.0-condition-ui-examples-.json
+- form-feature-attachments-v1.1.json A-06
+
+---
+
+### 5. 公開フォーム（U-01）: 条件分岐適用
+**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+**優先度**: 高
+
+**バックエンド実装済み**:
+- ✅ GET /v1/public/forms/{form_key}でConditionStateを返す
+- ✅ POST /v1/forms/{form_key}/submitでConditionStateを評価
+- ✅ 安全側フォールバック
+
+**フロントエンド未実装**:
+- ❌ ConditionStateの適用（fields.visible/required/store）
+- ❌ 非表示フィールドの非表示処理
+- ❌ 必須解除の適用
+- ❌ STEP遷移時の条件チェック（422エラー表示）
+
+**実装要件**:
+- ConditionState適用: APIから取得したConditionStateをUIに反映
+- フィールド表示制御: visible=falseのフィールドを非表示
+- 必須制御: required=falseのフィールドを任意化
+- STEP遷移: transition_rule評価結果に基づく遷移制御
+- エラー表示: 422 STEP_TRANSITION_DENIED時のエラー表示
+
+**参照**: 
+- reforma-notes-v1.0.0-条件分岐-評価結果IF-.json
+- reforma-api-spec-v0.1.4.md（ConditionStateスキーマ）
+
+---
+
+### 6. 計算フィールド機能（フロントエンド側）
+**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+**優先度**: 低
+
+**バックエンド実装済み**:
+- ✅ form_fieldsテーブルにcomputed_ruleカラム追加
+- ✅ ComputedEvaluatorサービスの実装
+- ✅ built_in_functions実装（sum, multiply, tax, round, min, max, if）
+- ✅ 循環検出（max_dependency_depth=1）
+- ✅ submit時のAPI再計算
+
+**フロントエンド未実装**:
+- ❌ 計算フィールドのreadonly表示
+- ❌ 依存フィールド変更時の再計算（UX向上）
+- ❌ エラー時のblank表示
+
+**実装要件**:
+- 計算フィールド: readonly入力欄として表示
+- 即時計算: 依存フィールド変更時に再計算して表示（UX向上）
+- エラー処理: 計算エラー時はblank表示、do_not_store
+
+**参照**: 
+- reforma-notes-v1.1.0.md SUPP-COMPUTED-001
+- reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json
 
 ---
 
 ## 優先度の推奨
 
 ### 高優先度
-1. フロントエンド調整: エラー構造の統一（ユーザー体験向上）
+1. **フロントエンド調整: エラー構造の統一**（ユーザー体験向上、共通仕様準拠）
+2. **公開フォーム（U-01）: 条件分岐適用**（コア機能、必須）
 
 ### 中優先度
-2. （なし）
+3. **SUPP-DISPLAY-MODE-001: 表示モード機能**（バックエンド実装済み、フロントのみ）
+4. **SUPP-THEME-001: テーマ機能**（バックエンド実装済み、フロントのみ）
+5. **条件分岐UI（F-03/F-05）: 条件分岐ビルダー**（管理画面機能）
 
 ### 低優先度（v2候補）
-3. （なし）
+6. **計算フィールド機能**（バックエンド実装済み、フロントのみ）
+
+---
+
+## フロントエンド実装状況（v0.5.16時点）
+
+### 実装済み機能
+- ✅ 認証・認可（AuthContext, RequireAuth, RequireRole）
+- ✅ セッション無効時の自動リダイレクト
+- ✅ 403エラー（ROOT_ONLY等）の専用処理
+- ✅ 共通レイアウト（AppLayout、サイドバー折りたたみ対応）
+- ✅ 多言語対応（ja/en、Cookie優先）
+- ✅ テーマ切替（light/dark/reforma）
+- ✅ Debug UI（VITE_DEBUG=true時）
+- ✅ 主要画面実装（A-01, A-02, S-01, S-02, F-01～F-04, U-01, A-03, R-01, R-02, L-01, L-02, C-01, E-01, N-01）
+
+### 未実装機能
+- ❌ 表示モード機能（SUPP-DISPLAY-MODE-001）
+- ❌ テーマ機能（SUPP-THEME-001）
+- ❌ エラー構造の統一
+- ❌ 条件分岐UI（F-03/F-05）
+- ❌ 条件分岐適用（U-01）
+- ❌ 計算フィールド機能
 
 ---
 
@@ -340,3 +499,6 @@
 - 各タスクの詳細仕様は `reforma-notes-v1.1.0.md` を参照
 - 実装時は OpenAPI 定義（reforma-openapi-v0.1.4.yaml）も更新すること
 - 仕様書への反映も忘れずに実施すること
+- フロントエンドの現在のバージョン: **v0.5.16**（2026-01-14）
+- デザイン変更は不可（既存デザイン維持）
+- 仕様書JSONを正としてUIを自動生成する方針を維持
