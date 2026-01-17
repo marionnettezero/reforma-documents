@@ -245,6 +245,22 @@
 
 ---
 
+### ✅ フロントエンド調整: ログイン/ログアウト周りのAPI連携実装
+**完了日**: 2026-01-17  
+**実装内容**:
+- AuthContext.tsx: POST /v1/auth/login API連携実装
+- AuthContext.tsx: GET /v1/auth/me API連携実装（アプリ起動時・リロード時のセッション確認）
+- AuthContext.tsx: POST /v1/auth/logout API連携実装
+- LoginPage.tsx: API連携に置き換え、エラーハンドリング追加、ログイン成功時のToast表示
+- LogoutPage.tsx: API連携に置き換え
+- RequireAuth.tsx: loading状態を考慮（セッション確認中はリダイレクトしない）
+- APIレスポンスのuserオブジェクトをフロントエンドのUser型に変換するmapApiUserToUser関数を追加
+
+**参照**: 
+- reforma-api-spec-v0.1.4.md（POST /v1/auth/login, GET /v1/auth/me, POST /v1/auth/logout）
+
+---
+
 ### ✅ エラーメッセージの多言語対応（バックエンド）
 **完了日**: 2026-01-17  
 **実装内容**:
