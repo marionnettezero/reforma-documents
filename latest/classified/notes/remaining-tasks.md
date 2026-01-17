@@ -291,32 +291,51 @@
 ## 未実装・要対応タスク（バックエンド）
 
 ### 1. ジョブキュー処理のsystemdサービス化
-**現状**: ジョブクラスは実装済み、systemdサービス化は未実装  
+**現状**: ジョブクラスは実装済み、systemdサービス化は完了  
 **優先度**: 高（本番環境で必須）
 
 **実装済み**:
-- ✅ `GeneratePdfJob`: PDF生成ジョブ（タイムアウト300秒、試行3回）
-- ✅ `SendFormSubmissionNotificationJob`: フォーム送信通知ジョブ（タイムアウト300秒、試行3回）
+- ✅ `GeneratePdfJob`: PDF生成ジョブ（タイムアウト300秒、試行3回、`pdfs`キュー）
+- ✅ `SendFormSubmissionNotificationJob`: フォーム送信通知ジョブ（タイムアウト300秒、試行3回、`notifications`キュー）
 - ✅ キュー設定: `database`接続、`failed_jobs`テーブル
+- ✅ systemdサービスファイル（`reforma-queue-worker@.service`）の作成
+- ✅ キュー分離戦略（`notifications`, `pdfs`）
+- ✅ README.mdにキューワーカー管理手順を追加
 
 **未実装**:
-- ❌ systemdサービスファイルの作成
-- ❌ ワーカープロセスの管理（起動・停止・再起動）
-- ❌ 複数キュー対応（優先度別キュー分離）
-- ❌ デプロイ時のグレースフル再起動処理
-- ❌ 監視・ログ管理
-
-**実装要件**:
-- systemdサービスファイル（`reforma-queue-worker@.service`）の作成
-- 環境変数設定（`QUEUE_CONNECTION`, `DB_QUEUE`等）
-- ワーカー数の設定（デフォルト: 1、必要に応じて複数）
-- キュー分離戦略（`default`, `notifications`, `pdfs`）
-- デプロイスクリプトの更新（キューワーカーの再起動処理）
-- メモリリーク対策（`--max-jobs`, `--max-time`オプション）
+- ❌ CSVエクスポートのジョブキュー対応（現在は同期処理）
 
 **参照**: 
 - `queue-worker-systemd-spec.md`（詳細仕様）
+- `queue-worker-operation-flow.md`（動作イメージ）
 - Laravel Queue Documentation
+
+---
+
+### 1-1. CSVエクスポートのジョブキュー対応
+**現状**: 現在は同期処理で実装、ジョブキュー対応は未実装  
+**優先度**: 中（大量データのエクスポート時にタイムアウトの可能性）
+
+**実装済み**:
+- ✅ `ResponsesExportController::startCsv()`: CSVエクスポート開始API
+- ✅ `CsvExportService::generate()`: CSV生成ロジック
+- ✅ `ProgressJob`モデル: 進捗管理
+
+**未実装**:
+- ❌ `ExportCsvJob`ジョブクラスの作成
+- ❌ コントローラーの修正（ジョブ投入に変更）
+- ❌ `exports`キュー用ワーカーの設定
+
+**実装要件**:
+- `ExportCsvJob`ジョブクラスの作成（タイムアウト600秒、試行2回、`exports`キュー）
+- `ResponsesExportController::startCsv()`の修正（ジョブ投入に変更）
+- 翻訳メッセージの追加（`csv_export_queued`, `csv_export_generating`）
+- systemdサービスファイルの更新（`exports`キュー対応）
+- README.mdの更新（exportsキュー用ワーカーの起動方法）
+
+**参照**: 
+- `csv-export-queue-spec.md`（詳細仕様）
+- `queue-worker-systemd-spec.md`（キューワーカー管理仕様）
 
 ---
 
