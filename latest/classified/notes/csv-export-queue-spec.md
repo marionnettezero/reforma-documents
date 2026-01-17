@@ -98,6 +98,9 @@ class ExportCsvJob implements ShouldQueue
         }
 
         try {
+            // 進捗更新: キューに投入された状態（コントローラーで設定済み）
+            // status: queued, percent: 0
+
             // 進捗更新: 準備中
             $job->status = 'running';
             $job->percent = 0;
@@ -111,14 +114,23 @@ class ExportCsvJob implements ShouldQueue
             }
             $submissions = $query->orderBy('created_at', 'desc')->get();
 
-            // 進捗更新: 生成中
+            // 進捗更新: データ取得完了
+            $job->percent = 30;
+            $job->message = 'messages.csv_export_data_loaded';
+            $job->save();
+
+            // CSV生成
             $job->percent = 50;
             $job->message = 'messages.csv_export_generating';
             $job->save();
 
-            // CSV生成
             $csv = $csvExportService->generate($submissions, $this->mode);
             
+            // 進捗更新: CSV生成完了
+            $job->percent = 80;
+            $job->message = 'messages.csv_export_saving';
+            $job->save();
+
             // ファイル保存
             $path = sprintf('exports/%s_responses.csv', $this->jobId);
             Storage::disk('local')->put($path, $csv);
@@ -255,7 +267,14 @@ sudo systemctl start reforma-queue-worker@exports.service
 ### バックエンド側
 - [ ] `ExportCsvJob`ジョブクラスの作成
 - [ ] `ResponsesExportController::startCsv()`の修正（ジョブ投入に変更）
-- [ ] 翻訳メッセージの追加（`csv_export_queued`, `csv_export_generating`）
+- [ ] 翻訳メッセージの追加:
+  - `csv_export_queued`: キューに投入されました
+  - `csv_export_preparing`: 準備中...
+  - `csv_export_data_loaded`: データ取得完了
+  - `csv_export_generating`: CSV生成中...
+  - `csv_export_saving`: ファイル保存中...
+  - `csv_export_completed`: エクスポート完了
+  - `csv_export_failed`: エクスポート失敗
 - [ ] systemdサービスファイルの更新（`exports`キュー対応）
 - [ ] README.mdの更新（exportsキュー用ワーカーの起動方法）
 - [ ] CHANGELOG.mdの更新
@@ -283,8 +302,18 @@ sudo systemctl start reforma-queue-worker@exports.service
 
 ### 4. 進捗管理
 - `status`: `queued` → `running` → `succeeded` / `failed`
-- `percent`: 0 → 50 → 100
-- ユーザーは進捗APIで状態を確認可能
+- `percent`: 0 → 30 → 50 → 80 → 100（段階的に更新）
+- ユーザーは `GET /v1/progress/{job_id}` で進捗を確認可能
+- フロントエンドは定期的にポーリングして進捗を表示
+
+**進捗の段階**:
+1. `queued` (0%): キューに投入された状態
+2. `running` (0%): 準備中
+3. `running` (30%): データ取得完了
+4. `running` (50%): CSV生成中
+5. `running` (80%): ファイル保存中
+6. `succeeded` (100%): 完了（ダウンロードURLが利用可能）
+7. `failed` (0%): 失敗
 
 ---
 
