@@ -2,6 +2,7 @@
 
 **作成日**: 2026-01-16  
 **最終更新**: 2026-01-17  
+**補足**: フォームの回答日時（submitted_at）をマイクロ秒まで対応（submissionsテーブルのcreated_at/updated_atをtimestamp(6)に変更）  
 **ベース**: reforma-notes-v1.1.0.md の内容と実装状況の照合結果
 
 ---
@@ -173,23 +174,52 @@
 
 ---
 
+### ✅ SUPP-DISPLAY-MODE-001: 表示モード機能
+**完了日**: 2026-01-17  
+**実装内容**:
+- POST /v1/forms/{form_key}/submitにlocale, modeパラメータ追加（実装済み）
+- ラベルスナップショット保存ロジックの改善（locale対応）
+  - フィールドラベルのlocale別取得（getFieldLabelSnapshot）
+  - 選択肢ラベルのlocale別取得（extractLabelFromOptions）
+- submission_valuesテーブルのlabel_json, field_label_snapshotカラムは既に存在
+- CSVエクスポート時のmode指定対応（既に実装済み）
+- テスト追加（ラベルスナップショット保存、locale別ラベル取得）
+
+**参照**: reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-DISPLAY-MODE-001
+
+---
+
+### ✅ フォームの回答日時をマイクロ秒まで対応
+**完了日**: 2026-01-17  
+**実装内容**:
+- submissionsテーブルのcreated_at, updated_atをマイクロ秒対応に変更
+  - MySQL: timestamp(6)に変更
+  - SQLite: datetime型はデフォルトでマイクロ秒をサポート
+- CSVエクスポート時のtoISOString()は既にマイクロ秒を含む
+
+**参照**: マイグレーション: 2026_01_17_033629_add_microseconds_to_submissions_table.php
+
+---
+
 ## 未実装・要対応タスク
 
 ### 1. SUPP-DISPLAY-MODE-001: 表示モード機能
-**現状**: 未実装  
-**必要実装**:
-- submission_valuesテーブルにlabel_json, field_label_snapshotカラム追加
-- POST /v1/forms/{form_key}/submitにlocale, modeパラメータ追加
-- label/both/valueモード対応
-- 保存の正はvalue、labelはスナップショット
-- CSVエクスポート時のmode指定対応
+**現状**: 完全実装済み  
+**実装内容**:
+- submission_valuesテーブルにlabel_json, field_label_snapshotカラム追加（既存）
+- POST /v1/forms/{form_key}/submitにlocale, modeパラメータ追加（実装済み）
+- label/both/valueモード対応（実装済み）
+- 保存の正はvalue、labelはスナップショット（実装済み）
+- ラベルスナップショット保存ロジックの改善（locale対応）
+- CSVエクスポート時のmode指定対応（既に実装済み）
 
 **参照**: reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-DISPLAY-MODE-001
 
 ---
 
 ### 2. SUPP-THEME-001: テーマ機能
-**現状**: 未実装  
+**現状**: 仕様まとめ完了（実装待ち）  
+**仕様書**: `SUPP-THEME-001-spec.md`  
 **必要実装**:
 - formsテーブルにtheme_id, theme_tokensカラム追加
 - GET /v1/forms/{id}のレスポンスにtheme_id, theme_tokens追加
@@ -197,7 +227,9 @@
 - テーマトークンスキーマ定義（color_primary, color_secondary等）
 - 外部CSS URLはv2で検討（v1.xでは提供しない）
 
-**参照**: reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-THEME-001
+**参照**: 
+- reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-THEME-001
+- SUPP-THEME-001-spec.md
 
 ---
 
@@ -220,10 +252,10 @@
 1. フロントエンド調整: エラー構造の統一（ユーザー体験向上）
 
 ### 中優先度
-2. SUPP-DISPLAY-MODE-001: 表示モード機能（多言語対応）
+2. SUPP-THEME-001: テーマ機能（仕様まとめ完了、実装待ち）
 
 ### 低優先度（v2候補）
-3. SUPP-THEME-001: テーマ機能
+3. （なし）
 
 ---
 
