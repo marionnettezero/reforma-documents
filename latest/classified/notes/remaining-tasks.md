@@ -288,6 +288,38 @@
 
 ---
 
+## 未実装・要対応タスク（バックエンド）
+
+### 1. ジョブキュー処理のsystemdサービス化
+**現状**: ジョブクラスは実装済み、systemdサービス化は未実装  
+**優先度**: 高（本番環境で必須）
+
+**実装済み**:
+- ✅ `GeneratePdfJob`: PDF生成ジョブ（タイムアウト300秒、試行3回）
+- ✅ `SendFormSubmissionNotificationJob`: フォーム送信通知ジョブ（タイムアウト300秒、試行3回）
+- ✅ キュー設定: `database`接続、`failed_jobs`テーブル
+
+**未実装**:
+- ❌ systemdサービスファイルの作成
+- ❌ ワーカープロセスの管理（起動・停止・再起動）
+- ❌ 複数キュー対応（優先度別キュー分離）
+- ❌ デプロイ時のグレースフル再起動処理
+- ❌ 監視・ログ管理
+
+**実装要件**:
+- systemdサービスファイル（`reforma-queue-worker@.service`）の作成
+- 環境変数設定（`QUEUE_CONNECTION`, `DB_QUEUE`等）
+- ワーカー数の設定（デフォルト: 1、必要に応じて複数）
+- キュー分離戦略（`default`, `notifications`, `pdfs`）
+- デプロイスクリプトの更新（キューワーカーの再起動処理）
+- メモリリーク対策（`--max-jobs`, `--max-time`オプション）
+
+**参照**: 
+- `queue-worker-systemd-spec.md`（詳細仕様）
+- Laravel Queue Documentation
+
+---
+
 ## 未実装・要対応タスク（フロントエンド）
 
 ### 0. BASIC認証対応（環境変数設定）
