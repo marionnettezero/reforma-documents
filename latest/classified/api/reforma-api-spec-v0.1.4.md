@@ -4,12 +4,27 @@
 **注意**: このMarkdownファイルの変更は、対応するJSONファイル（reforma-api-spec-v0.1.4.json）にも反映してください。
 
 ## バージョンおよびメタ情報
-- **バージョン**: v0.1.6
+- **バージョン**: v0.1.7
 - **生成日時**: 2026-01-17T00:00:00Z
 - **OpenAPI バージョン**: 3.0.3
-- **更新内容**: エラーメッセージの多言語対応、ロケール取得機能の追加
+- **更新内容**: ファイルアップロード・CSVインポートのジョブキュー対応、進捗表示機能の追加
 
 ### 変更履歴
+
+#### v0.1.7 (2026-01-17)
+- ファイルアップロードのジョブキュー対応
+  - `POST /v1/forms/{id}/attachment/pdf-template`: 非同期処理に変更、進捗表示対応
+  - `POST /v1/forms/{id}/attachment/files`: 非同期処理に変更、進捗表示対応
+  - レスポンス: `data.job.job_id`を返却（進捗確認用）
+- CSVインポート機能の追加
+  - `POST /v1/forms/{id}/fields/import/csv`: CSVインポート開始（`type`パラメータ: `options` or `fields`）
+  - 選択肢インポート（`options`）: 既存フィールドの選択肢を追加・更新
+  - 項目全体インポート（`fields`）: フォーム項目全体を一括置き換え
+  - 進捗表示対応（`GET /v1/progress/{job_id}`）
+  - エラーレポート機能（`result_data`に詳細情報を保存）
+- 進捗管理の拡張
+  - `progress_jobs`テーブルに`result_data`カラム追加（JSON形式）
+  - `GET /v1/progress/{job_id}`に`result_data`フィールドを追加
 
 #### v0.1.6 (2026-01-17)
 - エラーメッセージの多言語対応機能を追加
@@ -376,14 +391,16 @@ STEP 遷移の評価結果。
 ### PUT /v1/forms/{id}/fields
 - **概要**: フォーム項目一括更新
 - **パラメータ**:
-  - `id` (パス, 必須, 型: integer): 
+  - `id` (パス, 必須, 型: integer): フォームID
 - **リクエストボディ**:
   - コンテンツタイプ: application/json
     - スキーマ型: object
+    - フィールド: `fields` (array) - フォーム項目配列
 - **レスポンス**:
   - 200: OK
     - コンテンツタイプ: application/json
       - スキーマ型: object
+      - フィールド: `data.fields` (array) - 更新されたフォーム項目配列
   - 401: 401 Unauthorized
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
@@ -394,19 +411,57 @@ STEP 遷移の評価結果。
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
 
-### POST /v1/forms/{id}/attachment/pdf-template
-- **概要**: PDFテンプレートアップロード
-- **説明**: フォームのPDFテンプレートをアップロードする。PDFテンプレートは、フォーム送信時に回答データを埋め込んでPDFを生成するために使用される。
+### POST /v1/forms/{id}/fields/import/csv
+- **概要**: CSVインポート開始（非同期処理）
+- **説明**: フォームの選択肢または項目全体をCSVファイルから一括インポートする。インポート処理は非同期で実行され、進捗は`GET /v1/progress/{job_id}`で確認できる。
 - **パラメータ**:
   - `id` (パス, 必須, 型: integer): フォームID
 - **リクエストボディ**:
   - コンテンツタイプ: multipart/form-data
-    - `pdf_template` (必須, 型: file): PDFテンプレートファイル
+    - `file` (必須, 型: file): CSVファイル（最大10MB）
+    - `type` (必須, 型: string): インポートタイプ（`options` or `fields`）
+      - `options`: 選択肢インポート（既存フィールドの選択肢を追加・更新）
+      - `fields`: 項目全体インポート（フォーム項目全体を一括置き換え）
 - **レスポンス**:
   - 200: OK
     - コンテンツタイプ: application/json
       - スキーマ型: object
-      - フィールド: `data.pdf_template_path` (string) - アップロードされたPDFテンプレートのパス
+      - フィールド: `data.job.job_id` (string) - 進捗確認用のジョブID
+  - 401: 401 Unauthorized
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 403: 403 Forbidden
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 422: 422 Validation Error
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+
+**CSV形式（選択肢インポート）**:
+- ヘッダー行: `field_key,value,label,label_ja,label_en`
+- データ行: 選択肢のデータ（1行1選択肢）
+
+**CSV形式（項目全体インポート）**:
+- ヘッダー行: `field_key,type,sort_order,is_required,options_json,visibility_rule,required_rule,step_transition_rule,pdf_block_key,pdf_page_number,computed_rule`
+- データ行: フォーム項目のデータ（1行1項目）
+- JSON形式のフィールド（`options_json`, `visibility_rule`等）はJSON文字列として記述
+
+**参照**: 
+- `csv-import-spec.md`（詳細仕様）
+
+### POST /v1/forms/{id}/attachment/pdf-template
+- **概要**: PDFテンプレートアップロード（非同期処理）
+- **説明**: フォームのPDFテンプレートをアップロードする。PDFテンプレートは、フォーム送信時に回答データを埋め込んでPDFを生成するために使用される。アップロード処理は非同期で実行され、進捗は`GET /v1/progress/{job_id}`で確認できる。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): フォームID
+- **リクエストボディ**:
+  - コンテンツタイプ: multipart/form-data
+    - `file` (必須, 型: file): PDFテンプレートファイル（最大10MB）
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド: `data.job.job_id` (string) - 進捗確認用のジョブID
   - 401: 401 Unauthorized
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
@@ -418,18 +473,18 @@ STEP 遷移の評価結果。
       - スキーマ型: #/components/schemas/EnvelopeError
 
 ### POST /v1/forms/{id}/attachment/files
-- **概要**: 添付ファイルアップロード
-- **説明**: フォームの添付ファイルをアップロードする（複数ファイル対応）。アップロードされたファイルは、フォーム送信時にメール通知に添付される。
+- **概要**: 添付ファイルアップロード（非同期処理）
+- **説明**: フォームの添付ファイルをアップロードする（複数ファイル対応、最大10ファイル、各ファイル最大10MB）。アップロードされたファイルは、フォーム送信時にメール通知に添付される。アップロード処理は非同期で実行され、進捗は`GET /v1/progress/{job_id}`で確認できる。
 - **パラメータ**:
   - `id` (パス, 必須, 型: integer): フォームID
 - **リクエストボディ**:
   - コンテンツタイプ: multipart/form-data
-    - `files` (必須, 型: array[file]): アップロードするファイル（複数可）
+    - `files` (必須, 型: array[file]): アップロードするファイル（複数可、最大10ファイル、各ファイル最大10MB）
 - **レスポンス**:
   - 200: OK
     - コンテンツタイプ: application/json
       - スキーマ型: object
-      - フィールド: `data.attachment_files` (array) - アップロードされたファイル一覧
+      - フィールド: `data.job.job_id` (string) - 進捗確認用のジョブID
   - 401: 401 Unauthorized
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
@@ -929,6 +984,28 @@ STEP 遷移の評価結果。
       - スキーマ型: #/components/schemas/EnvelopeError
 
 ### GET /v1/progress/{job_id}
+- **概要**: 進捗状況取得
+- **説明**: バックグラウンドジョブの進捗状況を取得する。ファイルアップロード、CSVインポート、CSVエクスポート等の非同期処理の進捗を確認できる。
+- **パラメータ**:
+  - `job_id` (パス, 必須, 型: string): ジョブID（UUID形式）
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.job.job_id` (string) - ジョブID
+        - `data.job.type` (string) - ジョブタイプ（`file_upload`, `options_csv_import`, `fields_csv_import`, `csv_export`等）
+        - `data.job.status` (string) - ステータス（`queued`, `running`, `succeeded`, `failed`）
+        - `data.job.percent` (integer) - 進捗率（0-100）
+        - `data.job.message` (string) - 進捗メッセージ（翻訳キー形式）
+        - `data.job.download_url` (string, nullable) - ダウンロードURL（CSVエクスポートの場合）
+        - `data.job.result_data` (object, nullable) - 結果データ（CSVインポートの場合、`imported`, `failed`, `errors`を含む）
+        - `data.job.expires_at` (string, nullable) - ジョブの有効期限（ISO 8601形式）
+        - `data.job.download_expires_at` (string, nullable) - ダウンロードURLの有効期限（ISO 8601形式）
+  - 404: Not Found
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+      - 説明: ジョブが見つからない、または有効期限が切れている場合
 - **概要**: 進捗取得
 - **説明**: CSV/PDF/ファイル操作等の進捗を取得する。
 - **パラメータ**:

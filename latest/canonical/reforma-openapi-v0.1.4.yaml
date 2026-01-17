@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8） (v0.1.4)
-  version: 0.1.6
+  version: 0.1.7
   description: |
     API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI
     を"実装可能な粒度"まで増補した草案。添付ファイル機能、通知機能、期間チェック機能を追加。
@@ -1891,8 +1891,8 @@ paths:
     post:
       tags:
       - Forms
-      summary: PDFテンプレートアップロード
-      description: フォームのPDFテンプレートをアップロードする
+      summary: PDFテンプレートアップロード（非同期処理）
+      description: フォームのPDFテンプレートをアップロードする。アップロード処理は非同期で実行され、進捗は`GET /v1/progress/{job_id}`で確認できる。
       security:
       - bearerAuth: []
       parameters:
@@ -1909,10 +1909,10 @@ paths:
             schema:
               type: object
               properties:
-                pdf_template:
+                file:
                   type: string
                   format: binary
-                  description: PDFテンプレートファイル
+                  description: PDFテンプレートファイル（最大10MB）
       responses:
         '200':
           description: OK
@@ -1926,11 +1926,16 @@ paths:
                   data:
                     type: object
                     properties:
-                      pdf_template_path:
-                        type: string
-                        description: アップロードされたPDFテンプレートのパス
+                      job:
+                        type: object
+                        properties:
+                          job_id:
+                            type: string
+                            description: 進捗確認用のジョブID
+                        required:
+                        - job_id
                     required:
-                    - pdf_template_path
+                    - job
                   message:
                     type:
                     - string
@@ -1966,8 +1971,8 @@ paths:
     post:
       tags:
       - Forms
-      summary: 添付ファイルアップロード
-      description: フォームの添付ファイルをアップロードする（複数ファイル対応）
+      summary: 添付ファイルアップロード（非同期処理）
+      description: フォームの添付ファイルをアップロードする（複数ファイル対応、最大10ファイル、各ファイル最大10MB）。アップロード処理は非同期で実行され、進捗は`GET /v1/progress/{job_id}`で確認できる。
       security:
       - bearerAuth: []
       parameters:
@@ -2003,22 +2008,16 @@ paths:
                   data:
                     type: object
                     properties:
-                      attachment_files:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            name:
-                              type: string
-                            path:
-                              type: string
-                            size:
-                              type: integer
-                              format: int64
-                            mime:
-                              type: string
+                      job:
+                        type: object
+                        properties:
+                          job_id:
+                            type: string
+                            description: 進捗確認用のジョブID
+                        required:
+                        - job_id
                     required:
-                    - attachment_files
+                    - job
                   message:
                     type:
                     - string

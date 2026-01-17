@@ -312,52 +312,54 @@
 
 ---
 
-### 1-1. CSVエクスポートのジョブキュー対応
-**現状**: 現在は同期処理で実装、ジョブキュー対応は未実装  
-**優先度**: 中（大量データのエクスポート時にタイムアウトの可能性）
-
-**実装済み**:
-- ✅ `ResponsesExportController::startCsv()`: CSVエクスポート開始API
-- ✅ `CsvExportService::generate()`: CSV生成ロジック
-- ✅ `ProgressJob`モデル: 進捗管理
-
-**未実装**:
-- ❌ `ExportCsvJob`ジョブクラスの作成
-- ❌ コントローラーの修正（ジョブ投入に変更）
-- ❌ `exports`キュー用ワーカーの設定
-
-**実装要件**:
-- `ExportCsvJob`ジョブクラスの作成（タイムアウト600秒、試行2回、`exports`キュー）
-- `ResponsesExportController::startCsv()`の修正（ジョブ投入に変更）
-- 翻訳メッセージの追加（`csv_export_queued`, `csv_export_generating`）
-- systemdサービスファイルの更新（`exports`キュー対応）
-- README.mdの更新（exportsキュー用ワーカーの起動方法）
+### ✅ 1-1. CSVエクスポートのジョブキュー対応
+**完了日**: 2026-01-17  
+**実装内容**:
+- ✅ `ExportCsvJob`ジョブクラスの作成（タイムアウト600秒、試行2回、`exports`キュー）
+- ✅ `ResponsesExportController::startCsv()`の修正（ジョブ投入に変更）
+- ✅ 翻訳メッセージの追加（`csv_export_queued`, `csv_export_generating`, `csv_export_saving`）
+- ✅ 進捗表示対応（0% → 50% → 100%）
+- ✅ README.mdの更新（exportsキュー用ワーカーの起動方法）
 
 **参照**: 
 - `csv-export-queue-spec.md`（詳細仕様）
-- `queue-worker-systemd-spec.md`（キューワーカー管理仕様）
+- `csv-export-progress-flow.md`（進捗表示フロー）
 
 ---
 
-### 1-2. ファイルアップロード・CSVインポートのジョブキュー対応（将来実装）
-**現状**: ファイルアップロードは同期処理、CSVインポートは未実装  
-**優先度**: 低（オプション・将来実装）
+### ✅ 1-2. ファイルアップロード・CSVインポートのジョブキュー対応
+**完了日**: 2026-01-17  
+**実装内容**:
 
-**実装済み**:
-- ✅ `POST /v1/forms/{id}/attachment/pdf-template`: PDFテンプレートアップロード（同期処理）
-- ✅ `POST /v1/forms/{id}/attachment/files`: 添付ファイルアップロード（同期処理）
+**ファイルアップロード**:
+- ✅ `ProcessFileUploadJob`ジョブクラスの作成（タイムアウト300秒、試行2回、`uploads`キュー）
+- ✅ PDFテンプレートアップロードを非同期処理に変更
+- ✅ 添付ファイルアップロードを非同期処理に変更（複数ファイル対応）
+- ✅ 進捗表示対応（0% → 30% → 60% → 90% → 100%）
+- ✅ 元のファイル名を保持する機能
 
-**未実装**:
-- ❌ CSVインポート機能
-- ❌ ファイルアップロードのジョブキュー対応（オプション）
-- ❌ CSVインポートのジョブキュー対応（将来実装時は必須）
+**CSVインポート**:
+- ✅ `CsvImportService`の作成（CSV解析・検証・インポート）
+- ✅ `ImportCsvJob`ジョブクラスの作成（タイムアウト1800秒、試行1回、`imports`キュー）
+- ✅ 選択肢インポート（`options`タイプ）: 既存フィールドの選択肢を追加・更新
+- ✅ 項目全体インポート（`fields`タイプ）: フォーム項目全体を一括置き換え
+- ✅ `POST /v1/forms/{id}/fields/import/csv`エンドポイント追加（`type`パラメータでタイプ指定）
+- ✅ 進捗表示対応（選択肢: 0% → 10% → 20% → 40% → 100%、項目全体: 0% → 10% → 20% → 40% → 60% → 100%）
+- ✅ エラーレポート機能（失敗した行の情報を返却）
+- ✅ ルールバリデーション（項目全体インポート時）
+- ✅ トランザクション処理（データ整合性保証）
 
-**実装要件（将来）**:
-- ファイルアップロード: 大量ファイル・処理が必要な場合のみジョブキュー対応
-- CSVインポート: 実装時はジョブキュー対応が必須（大量データに対応）
+**データベース変更**:
+- ✅ `progress_jobs`テーブルに`result_data`カラム追加（JSON形式、CSVインポート結果の詳細情報を保存）
+
+**テスト**:
+- ✅ `FileUploadQueueTest`: ファイルアップロードのテスト（4テスト、27アサーション）
+- ✅ `CsvImportQueueTest`: CSVインポートのテスト（5テスト、35アサーション）
+- ✅ `FormsAttachmentApiTest`: 既存テストの更新（非同期処理対応）
 
 **参照**: 
 - `file-upload-queue-spec.md`（詳細仕様）
+- `csv-import-spec.md`（CSVインポート詳細仕様）
 
 ---
 
