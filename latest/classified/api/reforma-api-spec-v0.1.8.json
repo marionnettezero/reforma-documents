@@ -1,6 +1,6 @@
 {
   "meta": {
-    "version": "v0.1.6",
+    "version": "v0.1.8",
     "generated_at": "2026-01-17T00:00:00Z",
     "openapi_version": "3.0.3",
     "description": "v1.3.3 をベースに、テーマ機能、表示モード機能（locale/modeパラメータ）、エラーメッセージの多言語対応を追加した API 仕様書です。"

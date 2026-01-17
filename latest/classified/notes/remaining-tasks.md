@@ -10,16 +10,16 @@
 ## ドキュメント構成
 
 ### 分類別仕様書（classified/）
-- **api**: `reforma-api-spec-v0.1.4.md` - API仕様（OpenAPI準拠、多言語対応、条件分岐スキーマ）
+- **api**: `reforma-api-spec-v0.1.8.md` - API仕様（OpenAPI準拠、多言語対応、条件分岐スキーマ）
 - **backend**: `reforma-backend-spec-v0.1.1.md` - バックエンド仕様（Laravel 12）
 - **common**: `reforma-common-spec-v1.5.1.md` - 共通仕様（日時・タイムゾーン、進捗表示、Toast表示優先順位）
-- **db**: `reforma-db-spec-v0.1.1.md` - DB仕様（テーブル定義、マイグレーション）
+- **db**: `reforma-db-spec-v0.1.2.md` - DB仕様（テーブル定義、マイグレーション）
 - **frontend**: `reforma-frontend-spec-v0.1.1.md` - フロントエンド仕様（React、UI規約、画面仕様）
 - **notes**: `reforma-notes-v1.1.0.md` - 補足仕様（実装詳細、追補パッチ）
 
 ### 正本仕様書（canonical/）
 - **reforma-spec-v0.1.6.md** - 統合版正本仕様書（全分類を統合）
-- **reforma-openapi-v0.1.4.yaml/json** - OpenAPI定義（正本）
+- **reforma-openapi-v0.1.8.yaml/json** - OpenAPI定義（正本）
 
 ### その他
 - **README.md** - リポジトリ説明、運用ルール
@@ -257,7 +257,7 @@
 - APIレスポンスのuserオブジェクトをフロントエンドのUser型に変換するmapApiUserToUser関数を追加
 
 **参照**: 
-- reforma-api-spec-v0.1.4.md（POST /v1/auth/login, GET /v1/auth/me, POST /v1/auth/logout）
+- reforma-api-spec-v0.1.8.md（POST /v1/auth/login, GET /v1/auth/me, POST /v1/auth/logout）
 
 ---
 
@@ -546,7 +546,7 @@
 
 **参照**: 
 - reforma-notes-v1.0.0-条件分岐-評価結果IF-.json
-- reforma-api-spec-v0.1.4.md（ConditionStateスキーマ）
+- reforma-api-spec-v0.1.8.md（ConditionStateスキーマ）
 
 ---
 
@@ -592,7 +592,7 @@
 - APIから統計情報を取得して表示
 - ロール別の表示制御（system_admin, form_admin, operator, viewer）
 
-**参照**: reforma-api-spec-v0.1.4.md
+**参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
@@ -613,7 +613,7 @@
 - 仕様書JSON（ui.list.columns）に準拠した列表示
 - アクション（actions）に準拠した操作ボタン
 
-**参照**: reforma-api-spec-v0.1.4.md
+**参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
@@ -639,7 +639,7 @@
 - 進捗表示コンポーネント（共通化推奨）
 
 **参照**: 
-- reforma-api-spec-v0.1.4.md
+- reforma-api-spec-v0.1.8.md
 - SUPP-THEME-001-spec.md
 - file-upload-queue-spec.md（ファイルアップロード詳細仕様）
 
@@ -668,7 +668,7 @@
 - CSVインポートUI（ファイルアップロード、タイプ選択、進捗表示、エラーレポート）
 
 **参照**: 
-- reforma-api-spec-v0.1.4.md
+- reforma-api-spec-v0.1.8.md
 - reforma-frontend-spec-v1.0.0-condition-ui-.json
 - csv-import-spec.md（CSVインポート詳細仕様）
 
@@ -690,7 +690,7 @@
 - locale+mode切替UI追加
 
 **参照**: 
-- reforma-api-spec-v0.1.4.md
+- reforma-api-spec-v0.1.8.md
 - SUPP-DISPLAY-MODE-001
 
 ---
@@ -719,7 +719,7 @@
 - ポーリング間隔: 2秒（実行中）、完了/失敗時は停止
 
 **参照**: 
-- reforma-api-spec-v0.1.4.md
+- reforma-api-spec-v0.1.8.md
 - reforma-notes-v1.1.0.md A-01_csv_column_definition
 - csv-export-queue-spec.md（CSVエクスポート詳細仕様）
 - csv-export-progress-flow.md（進捗表示フロー）
@@ -744,7 +744,7 @@
 - 通知再送・PDF再生成機能（System Admin以上）
 
 **参照**: 
-- reforma-api-spec-v0.1.4.md
+- reforma-api-spec-v0.1.8.md
 - reforma-notes-v1.1.0.md A-05_examples
 
 ---
@@ -763,7 +763,7 @@
 - APIからログ一覧を取得して表示
 - ログタイプ別の表示（notification, pdf, ack等）
 
-**参照**: reforma-api-spec-v0.1.4.md
+**参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
@@ -780,7 +780,7 @@
 - APIからログ詳細を取得して表示
 - ログタイプ別の詳細表示
 
-**参照**: reforma-api-spec-v0.1.4.md
+**参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
@@ -798,7 +798,7 @@
 - 検索結果の種類別表示（kind: response, log, form）
 - 検索結果からの詳細画面への遷移
 
-**参照**: reforma-api-spec-v0.1.4.md
+**参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
@@ -818,7 +818,7 @@
 - アカウント詳細表示
 - 招待再送機能
 
-**参照**: reforma-api-spec-v0.1.4.md
+**参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
@@ -840,7 +840,7 @@
 - 使用状況表示
 
 **参照**: 
-- reforma-api-spec-v0.1.4.md
+- reforma-api-spec-v0.1.8.md
 - SUPP-THEME-001-spec.md
 
 ---
@@ -931,7 +931,7 @@
 **削除予定**: 将来のバージョン（v2.x以降を想定）
 
 **現状の実装**:
-- **OpenAPI定義**: `reforma-openapi-v0.1.4.yaml`の`User`スキーマに`role`フィールドが`deprecated: true`として定義
+- **OpenAPI定義**: `reforma-openapi-v0.1.8.yaml`の`User`スキーマに`role`フィールドが`deprecated: true`として定義
 - **バックエンド**: `AuthController.php`で`role => $roleCodes[0] ?? null`として返却（互換性のため）
 - **フロントエンド**: `AuthContext.tsx`の`mapApiUserToUser`で`role`をマッピング（互換性のため）
 
@@ -943,7 +943,7 @@
 - `screenRegistry.ts`等で`role`を使用している箇所を`roles[]`に置き換え
 
 **参照**: 
-- reforma-openapi-v0.1.4.yaml（240-252行目: `role`フィールドの定義）
+- reforma-openapi-v0.1.8.yaml（240-252行目: `role`フィールドの定義）
 - app/Http/Controllers/Api/V1/AuthController.php（83行目: `role`フィールドの返却）
 
 ---
@@ -951,7 +951,7 @@
 ## 補足
 
 - 各タスクの詳細仕様は `reforma-notes-v1.1.0.md` を参照
-- 実装時は OpenAPI 定義（reforma-openapi-v0.1.4.yaml）も更新すること
+- 実装時は OpenAPI 定義（reforma-openapi-v0.1.8.yaml）も更新すること
 - 仕様書への反映も忘れずに実施すること
 - フロントエンドの現在のバージョン: **v0.5.16**（2026-01-14）
 - デザイン変更は不可（既存デザイン維持）
