@@ -275,15 +275,63 @@ STEP 遷移の評価結果。
 ### GET /v1/forms
 - **概要**: フォーム一覧
 - **パラメータ**:
-  - `page` (クエリ, 必須, 型: integer): 
-  - `per_page` (クエリ, 必須, 型: integer): 
-  - `sort` (クエリ, 任意, 型: None): 
-  - `status` (クエリ, 任意, 型: string): 
-  - `q` (クエリ, 任意, 型: string): 
+  - `page` (クエリ, 必須, 型: integer): ページ番号（1以上）
+  - `per_page` (クエリ, 必須, 型: integer): 1ページあたりの件数（1-200）
+  - `sort` (クエリ, 任意, 型: string): ソート順（`created_at_desc`, `created_at_asc`, `updated_at_desc`, `updated_at_asc`）
+  - `status` (クエリ, 任意, 型: string): ステータスで絞り込み（`draft`, `published`, `closed`）
+  - `q` (クエリ, 任意, 型: string): キーワード検索（code、翻訳のtitle/descriptionで部分一致）
 - **レスポンス**:
   - 200: OK
     - コンテンツタイプ: application/json
       - スキーマ型: object
+      - レスポンス構造:
+        ```json
+        {
+          "success": true,
+          "data": {
+            "forms": {
+              "items": [
+                {
+                  "id": 1,
+                  "code": "FORM_001",
+                  "status": "published",
+                  "is_public": true,
+                  "attachment_enabled": false,
+                  "attachment_type": null,
+                  "pdf_template_path": null,
+                  "attachment_files": null,
+                  "notification_user_enabled": false,
+                  "notification_admin_enabled": false,
+                  "created_by": 1,
+                  "created_at": "2026-01-17T00:00:00Z",
+                  "updated_at": "2026-01-17T00:00:00Z",
+                  "translations": [
+                    {
+                      "id": 1,
+                      "form_id": 1,
+                      "locale": "ja",
+                      "title": "フォーム名",
+                      "description": "説明"
+                    }
+                  ],
+                  "response_count": 10
+                }
+              ],
+              "total": 1,
+              "page": 1,
+              "per_page": 20,
+              "sort": "created_at_desc"
+            }
+          },
+          "message": null,
+          "errors": null,
+          "code": "OK",
+          "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+        ```
+      - フィールド説明:
+        - `data.forms.items[].translations`: 多言語翻訳情報の配列（一覧取得時のみ含まれる）
+        - `data.forms.items[].response_count`: 回答数（一覧取得時のみ含まれる）
   - 401: 401 Unauthorized
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError

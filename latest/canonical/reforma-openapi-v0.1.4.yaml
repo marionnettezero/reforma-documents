@@ -406,6 +406,17 @@ components:
         updated_at:
           type: string
           format: date-time
+        translations:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/FormTranslation'
+          description: 多言語翻訳情報（一覧取得時のみ含まれる）
+        response_count:
+          type: integer
+          format: int32
+          description: 回答数（一覧取得時のみ含まれる）
+          example: 10
       required:
       - id
       - code
