@@ -2,9 +2,9 @@
   "metadata": {
     "project": "ReForma",
     "category": "db",
-    "version": "v0.1.1",
-    "generated_at": "2026-01-16T00:00:00Z",
-    "description": "実装されているマイグレーションファイルを基に最新のDB仕様をまとめたもの。添付ファイル機能、通知機能、期間チェック機能を追加。"
+    "version": "v0.1.2",
+    "generated_at": "2026-01-17T00:00:00Z",
+    "description": "実装されているマイグレーションファイルを基に最新のDB仕様をまとめたもの。テーマ機能、表示モード機能、計算フィールド機能、マイクロ秒対応を追加。"
   },
   "tables": {
     "forms": {
@@ -35,6 +35,8 @@
         "notification_admin_email_subject": { "type": "varchar(255)", "nullable": true, "comment": "管理者宛メールタイトル" },
         "notification_admin_email_from": { "type": "varchar(255)", "nullable": true, "comment": "管理者宛メール送信元" },
         "notification_admin_email_reply_to": { "type": "varchar(255)", "nullable": true, "comment": "管理者宛メール返信先" },
+        "theme_id": { "type": "bigint unsigned", "nullable": true, "comment": "テーマID（themesテーブルへの外部キー）" },
+        "theme_tokens": { "type": "json", "nullable": true, "comment": "テーマトークン（フォーム固有のカスタマイズ）" },
         "created_by": { "type": "bigint unsigned", "nullable": true, "comment": "作成者ID" },
         "created_at": { "type": "timestamp", "nullable": true },
         "updated_at": { "type": "timestamp", "nullable": true },
@@ -42,10 +44,12 @@
       },
       "indexes": [
         { "name": "idx_forms_status_is_public", "columns": ["status", "is_public"] },
-        { "name": "idx_forms_code", "columns": ["code"] }
+        { "name": "idx_forms_code", "columns": ["code"] },
+        { "name": "idx_forms_theme_id", "columns": ["theme_id"] }
       ],
       "foreign_keys": [
-        { "column": "created_by", "references": "users.id", "on_delete": "SET NULL" }
+        { "column": "created_by", "references": "users.id", "on_delete": "SET NULL" },
+        { "column": "theme_id", "references": "themes.id", "on_delete": "SET NULL" }
       ]
     },
     "form_fields": {
@@ -61,6 +65,7 @@
         "visibility_rule": { "type": "json", "nullable": true, "comment": "表示条件ルール（JSON）" },
         "required_rule": { "type": "json", "nullable": true, "comment": "必須条件ルール（JSON）" },
         "step_transition_rule": { "type": "json", "nullable": true, "comment": "ステップ遷移ルール（JSON）" },
+        "computed_rule": { "type": "json", "nullable": true, "comment": "計算フィールドルール（JSON）" },
         "pdf_block_key": { "type": "varchar(255)", "nullable": true, "comment": "PDFテンプレート内のblock名" },
         "pdf_page_number": { "type": "integer", "nullable": true, "comment": "PDFテンプレートのページ番号（1始まり、デフォルトは1）" },
         "created_at": { "type": "timestamp", "nullable": true },
@@ -80,8 +85,8 @@
         "id": { "type": "bigint unsigned", "nullable": false, "primary": true },
         "form_id": { "type": "bigint unsigned", "nullable": false },
         "status": { "type": "varchar(16)", "nullable": false, "default": "received", "comment": "ステータス（received/confirmed）" },
-        "created_at": { "type": "timestamp", "nullable": true },
-        "updated_at": { "type": "timestamp", "nullable": true }
+        "created_at": { "type": "timestamp(6)", "nullable": true, "comment": "作成日時（マイクロ秒対応）" },
+        "updated_at": { "type": "timestamp(6)", "nullable": true, "comment": "更新日時（マイクロ秒対応）" }
       },
       "indexes": [
         { "name": "idx_submissions_form_id_created_at", "columns": ["form_id", "created_at"] },
@@ -97,21 +102,55 @@
         "id": { "type": "bigint unsigned", "nullable": false, "primary": true },
         "submission_id": { "type": "bigint unsigned", "nullable": false },
         "field_key": { "type": "varchar(255)", "nullable": false },
-        "value": { "type": "text", "nullable": true, "comment": "値" },
-        "label": { "type": "text", "nullable": true, "comment": "ラベル（スナップショット）" },
+        "field_label_snapshot": { "type": "varchar(255)", "nullable": true, "comment": "フィールドラベルのスナップショット" },
+        "value_json": { "type": "json", "nullable": false, "comment": "回答値（JSON）" },
+        "label_json": { "type": "json", "nullable": true, "comment": "ラベルスナップショット（JSON）" },
         "created_at": { "type": "timestamp", "nullable": true },
         "updated_at": { "type": "timestamp", "nullable": true }
       },
       "indexes": [
-        { "name": "idx_submission_values_submission_id", "columns": ["submission_id"] },
-        { "name": "uk_submission_values_submission_id_field_key", "columns": ["submission_id", "field_key"], "unique": true }
+        { "name": "idx_submission_values_submission_id_field_key", "columns": ["submission_id", "field_key"] }
       ],
       "foreign_keys": [
         { "column": "submission_id", "references": "submissions.id", "on_delete": "CASCADE" }
       ]
+    },
+    "themes": {
+      "description": "テーマ定義のマスタテーブル",
+      "columns": {
+        "id": { "type": "bigint unsigned", "nullable": false, "primary": true },
+        "code": { "type": "varchar(255)", "nullable": false, "unique": true, "comment": "テーマコード" },
+        "name": { "type": "varchar(255)", "nullable": false, "comment": "テーマ名（表示用）" },
+        "description": { "type": "text", "nullable": true, "comment": "テーマの説明" },
+        "theme_tokens": { "type": "json", "nullable": false, "comment": "テーマトークン（CSS変数の値）" },
+        "is_preset": { "type": "boolean", "nullable": false, "default": false, "comment": "プリセットテーマかどうか" },
+        "is_active": { "type": "boolean", "nullable": false, "default": true, "comment": "有効かどうか" },
+        "created_by": { "type": "bigint unsigned", "nullable": true, "comment": "作成者ID（プリセットテーマはNULL）" },
+        "created_at": { "type": "timestamp", "nullable": false },
+        "updated_at": { "type": "timestamp", "nullable": false },
+        "deleted_at": { "type": "timestamp", "nullable": true, "comment": "削除日時（論理削除）" }
+      },
+      "indexes": [
+        { "name": "idx_themes_code", "columns": ["code"], "unique": true },
+        { "name": "idx_themes_is_active", "columns": ["is_active"] },
+        { "name": "idx_themes_is_preset", "columns": ["is_preset"] }
+      ],
+      "foreign_keys": [
+        { "column": "created_by", "references": "users.id", "on_delete": "SET NULL" }
+      ]
     }
   },
   "changelog": [
+    {
+      "version": "v0.1.2",
+      "date": "2026-01-17",
+      "changes": [
+        "テーマ機能の追加（themesテーブル、forms.theme_id, forms.theme_tokens）",
+        "表示モード機能の追加（submission_values.label_json, submission_values.field_label_snapshot）",
+        "計算フィールド機能の追加（form_fields.computed_rule）",
+        "マイクロ秒対応（submissions.created_at, submissions.updated_atをtimestamp(6)に変更）"
+      ]
+    },
     {
       "version": "v0.1.1",
       "date": "2026-01-16",
