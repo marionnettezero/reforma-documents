@@ -281,12 +281,15 @@
 **バックエンド実装状況**:
 - ✅ ApiResponseクラスで統一されたenvelope形式を使用（success, data, message, errors, code, request_id）
 - ✅ ApiErrorCode enumでエラーコードを定義
-- ✅ root-only拒否時には`errors.reason=ROOT_ONLY`を使用（AdminUsersController）
-- ⚠️ 一部のroot-only拒否で`errors.reason`が未設定（ThemesControllerのプリセットテーマ更新拒否など）
+- ✅ root-only拒否時には`errors.reason=ROOT_ONLY`を使用（AdminUsersController、ThemesController）
+- ⚠️ エラーメッセージの多言語対応が未実装（すべて日本語でハードコード）
 
 **バックエンド改善が必要**:
-- すべてのroot-only拒否時に`errors.reason=ROOT_ONLY`を統一して設定
-- エラーレスポンスの構造を完全に統一
+- エラーメッセージの多言語対応（ja/en）
+  - `lang`ディレクトリの作成と翻訳ファイルの追加
+  - Laravelの翻訳関数（`__()`, `trans()`）の使用
+  - リクエストの`locale`パラメータまたは`Accept-Language`ヘッダーからのロケール取得
+  - ApiResponseクラスでのロケール対応メッセージ取得
 
 **フロントエンド未実装**:
 - errors.reason / code / message等の統一的な処理
