@@ -777,6 +777,30 @@
 
 ---
 
+## 将来削除予定（互換性のため現状維持）
+
+### roleフィールド（単一）の削除
+**現状**: OpenAPI定義・バックエンド・フロントエンドで`deprecated: true`として残置  
+**削除予定**: 将来のバージョン（v2.x以降を想定）
+
+**現状の実装**:
+- **OpenAPI定義**: `reforma-openapi-v0.1.4.yaml`の`User`スキーマに`role`フィールドが`deprecated: true`として定義
+- **バックエンド**: `AuthController.php`で`role => $roleCodes[0] ?? null`として返却（互換性のため）
+- **フロントエンド**: `AuthContext.tsx`の`mapApiUserToUser`で`role`をマッピング（互換性のため）
+
+**削除時の対応**:
+- OpenAPI定義から`role`フィールドを削除
+- バックエンドの`AuthController.php`から`role`フィールドの返却を削除
+- フロントエンドの`AuthContext.tsx`から`role`フィールドのマッピングを削除
+- フロントエンドの`User`型から`role`フィールドを削除
+- `screenRegistry.ts`等で`role`を使用している箇所を`roles[]`に置き換え
+
+**参照**: 
+- reforma-openapi-v0.1.4.yaml（240-252行目: `role`フィールドの定義）
+- app/Http/Controllers/Api/V1/AuthController.php（83行目: `role`フィールドの返却）
+
+---
+
 ## 補足
 
 - 各タスクの詳細仕様は `reforma-notes-v1.1.0.md` を参照
