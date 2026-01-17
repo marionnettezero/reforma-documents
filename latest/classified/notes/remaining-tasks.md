@@ -873,6 +873,63 @@
 
 ---
 
+## 未実装・要対応タスク（API実装済み、フロントエンド未実装）
+
+### システム設定管理画面（新規）
+**現状**: API実装済み、フロントエンド未実装  
+**優先度**: 低（System Admin機能）
+
+**未実装機能**:
+- ❌ GET /v1/system/settings: システム設定取得・表示
+- ❌ PUT /v1/system/settings: システム設定更新
+- ❌ 設定項目の編集UI（Settings Key Catalogに基づく）
+
+**実装要件**:
+- System Admin用のシステム設定管理画面
+- 設定項目の編集フォーム（キー・値の編集）
+- 設定項目の説明表示
+
+**参照**: 
+- reforma-api-spec-v0.1.8.md
+- reforma-notes-v1.1.0.md reforma-notes-v1.0.0-settings-key-catalog.json
+
+---
+
+### ロール権限管理画面（新規）
+**現状**: API実装済み、フロントエンド未実装  
+**優先度**: 低（System Admin機能）
+
+**未実装機能**:
+- ❌ GET /v1/system/roles/permissions: ロール権限定義取得・表示
+- ❌ PUT /v1/system/roles/permissions: ロール権限定義更新
+- ❌ ロール権限の編集UI
+
+**実装要件**:
+- System Admin用のロール権限管理画面
+- ロール別の権限設定UI
+
+**参照**: reforma-api-spec-v0.1.8.md
+
+---
+
+### 監査ログ一覧画面（新規）
+**現状**: API実装済み、フロントエンド未実装  
+**優先度**: 低（System Admin機能）
+
+**未実装機能**:
+- ❌ GET /v1/system/admin-audit-logs: 監査ログ一覧取得・表示
+- ❌ ページネーション（page, per_page）
+- ❌ ソート機能
+- ❌ 検索・フィルタ機能（ユーザー別、アクション別等）
+
+**実装要件**:
+- System Admin用の監査ログ一覧画面
+- ログタイプ別の表示
+
+**参照**: reforma-api-spec-v0.1.8.md
+
+---
+
 ## 優先度の推奨
 
 ### 高優先度
