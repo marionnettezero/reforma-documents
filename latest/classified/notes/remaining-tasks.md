@@ -201,6 +201,30 @@
 
 ---
 
+### ✅ SUPP-THEME-001: テーマ機能
+**完了日**: 2026-01-17  
+**実装内容**:
+- themesテーブルの作成
+- formsテーブルにtheme_id, theme_tokensカラム追加
+- テーマ管理API（System Admin以上）:
+  - GET/POST/PUT/DELETE /v1/system/themes
+  - GET /v1/system/themes/{id}/usage（使用状況確認）
+  - POST /v1/system/themes/{id}/copy（テーマコピー）
+- フォームへのテーマ適用（Form Admin以上）:
+  - GET/PUT /v1/forms/{id}にテーマ情報を追加
+  - GET /v1/public/forms/{form_key}にテーマ情報を追加
+- テーマ解決ロジック（デフォルトテーマのフォールバック）
+- プリセットテーマのシーダー（default, dark, minimal）
+- 権限チェック（System Admin / Form Admin / root-only）
+- テーマトークンのバリデーション
+- テスト実装（11テスト、46アサーション）
+
+**参照**: 
+- reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-THEME-001
+- SUPP-THEME-001-spec.md
+
+---
+
 ## 未実装・要対応タスク
 
 ### 1. SUPP-DISPLAY-MODE-001: 表示モード機能
@@ -218,14 +242,22 @@
 ---
 
 ### 2. SUPP-THEME-001: テーマ機能
-**現状**: 仕様まとめ完了（実装待ち）  
-**仕様書**: `SUPP-THEME-001-spec.md`  
-**必要実装**:
+**現状**: 完全実装済み  
+**実装内容**:
+- themesテーブルの作成
 - formsテーブルにtheme_id, theme_tokensカラム追加
-- GET /v1/forms/{id}のレスポンスにtheme_id, theme_tokens追加
-- PUT /v1/forms/{id}のリクエストにtheme_id, theme_tokens追加
-- テーマトークンスキーマ定義（color_primary, color_secondary等）
-- 外部CSS URLはv2で検討（v1.xでは提供しない）
+- テーマ管理API（System Admin以上）:
+  - GET/POST/PUT/DELETE /v1/system/themes
+  - GET /v1/system/themes/{id}/usage（使用状況確認）
+  - POST /v1/system/themes/{id}/copy（テーマコピー）
+- フォームへのテーマ適用（Form Admin以上）:
+  - GET/PUT /v1/forms/{id}にテーマ情報を追加
+  - GET /v1/public/forms/{form_key}にテーマ情報を追加
+- テーマ解決ロジック（デフォルトテーマのフォールバック）
+- プリセットテーマのシーダー（default, dark, minimal）
+- 権限チェック（System Admin / Form Admin / root-only）
+- テーマトークンのバリデーション
+- テスト実装（11テスト、46アサーション）
 
 **参照**: 
 - reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-THEME-001
@@ -252,7 +284,7 @@
 1. フロントエンド調整: エラー構造の統一（ユーザー体験向上）
 
 ### 中優先度
-2. SUPP-THEME-001: テーマ機能（仕様まとめ完了、実装待ち）
+2. （なし）
 
 ### 低優先度（v2候補）
 3. （なし）

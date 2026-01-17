@@ -448,38 +448,39 @@ v1.xでは外部CSS URLを許可しないため、以下のCSPポリシーを適
 
 #### データモデル
 
-1. ⬜ マイグレーション: `themes`テーブルを作成
-2. ⬜ マイグレーション: `forms`テーブルに`theme_id`と`theme_tokens`カラムを追加
-3. ⬜ モデル: `Theme`モデルを作成
-4. ⬜ モデル: `Form`モデルに`theme_id`と`theme_tokens`を追加（fillable, casts）
-5. ⬜ シーダー: プリセットテーマ（default, dark, minimal）を作成
+1. ✅ マイグレーション: `themes`テーブルを作成
+2. ✅ マイグレーション: `forms`テーブルに`theme_id`と`theme_tokens`カラムを追加
+3. ✅ モデル: `Theme`モデルを作成
+4. ✅ モデル: `Form`モデルに`theme_id`と`theme_tokens`を追加（fillable, casts）
+5. ✅ シーダー: プリセットテーマ（default, dark, minimal）を作成
 
 #### テーマ管理API（System Admin以上）
 
-6. ⬜ コントローラ: `System\ThemesController`を作成
-7. ⬜ API: `GET /v1/system/themes` - テーマ一覧取得（is_activeフィルタ対応）
-8. ⬜ API: `POST /v1/system/themes` - テーマ作成
-9. ⬜ API: `GET /v1/system/themes/{id}` - テーマ詳細取得
-10. ⬜ API: `PUT /v1/system/themes/{id}` - テーマ更新（プリセットテーマはroot-only）
-11. ⬜ API: `DELETE /v1/system/themes/{id}` - テーマ削除（論理削除、使用中は不可）
-12. ⬜ API: `GET /v1/system/themes/{id}/usage` - テーマ使用状況確認
-13. ⬜ API: `POST /v1/system/themes/{id}/copy` - テーマコピー
-14. ⬜ バリデーション: `theme_tokens`のスキーマバリデーション
-15. ⬜ 権限チェック: System Admin以上のみアクセス可能（プリセットテーマ更新はroot-only）
-16. ⬜ 削除チェック: 使用中のテーマは削除不可
+6. ✅ コントローラ: `System\ThemesController`を作成
+7. ✅ API: `GET /v1/system/themes` - テーマ一覧取得（is_activeフィルタ対応）
+8. ✅ API: `POST /v1/system/themes` - テーマ作成
+9. ✅ API: `GET /v1/system/themes/{id}` - テーマ詳細取得
+10. ✅ API: `PUT /v1/system/themes/{id}` - テーマ更新（プリセットテーマはroot-only）
+11. ✅ API: `DELETE /v1/system/themes/{id}` - テーマ削除（論理削除、使用中は不可）
+12. ✅ API: `GET /v1/system/themes/{id}/usage` - テーマ使用状況確認
+13. ✅ API: `POST /v1/system/themes/{id}/copy` - テーマコピー
+14. ✅ バリデーション: `theme_tokens`のスキーマバリデーション
+15. ✅ 権限チェック: System Admin以上のみアクセス可能（プリセットテーマ更新はroot-only）
+16. ✅ 削除チェック: 使用中のテーマは削除不可
 
 #### フォームへのテーマ適用API（Form Admin以上）
 
-14. ⬜ API: `GET /v1/forms/{id}`のレスポンスに`theme_id`、`theme`、`theme_tokens`を追加
-15. ⬜ API: `PUT /v1/forms/{id}`のリクエストに`theme_id`と`theme_tokens`を追加
-16. ⬜ 権限チェック: Form Admin以上のみフォーム編集可能
-17. ⬜ ロジック: テーマ解決（theme_id → theme_tokens、デフォルトテーマのフォールバック）
+14. ✅ API: `GET /v1/forms/{id}`のレスポンスに`theme_id`、`theme`、`theme_tokens`を追加
+15. ✅ API: `PUT /v1/forms/{id}`のリクエストに`theme_id`と`theme_tokens`を追加
+16. ✅ API: `GET /v1/public/forms/{form_key}`のレスポンスに`theme_id`、`theme_code`、`theme_tokens`を追加
+17. ✅ 権限チェック: Form Admin以上のみフォーム編集可能
+18. ✅ ロジック: テーマ解決（theme_id → theme_tokens、デフォルトテーマのフォールバック）
 
 #### テスト
 
-18. ⬜ テーマ管理APIのテスト（System Admin権限チェック含む）
-19. ⬜ フォームへのテーマ適用のテスト（Form Admin権限チェック含む）
-20. ⬜ テーマトークンのバリデーションテスト
+19. ✅ テーマ管理APIのテスト（System Admin権限チェック含む、11テスト、46アサーション）
+20. ✅ フォームへのテーマ適用のテスト（Form Admin権限チェック含む、4テスト、26アサーション）
+21. ✅ テーマトークンのバリデーションテスト（含む）
 
 ### フロントエンド
 
