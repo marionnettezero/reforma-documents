@@ -963,6 +963,7 @@ STEP 遷移の評価結果。
 ### GET /v1/system/roles
 - **概要**: ロール一覧取得
 - **説明**: 管理者ユーザー用のロール一覧を取得する。検索条件や編集画面の選択肢として使用する。
+- **注意**: 多言語対応はフロントエンド側で行う。APIは`name`カラム（日本語）のみを返却する。
 - **レスポンス**:
   - 200: OK
     - コンテンツタイプ: application/json
@@ -970,8 +971,7 @@ STEP 遷移の評価結果。
       - フィールド:
         - `data.roles` (array) - ロール一覧
           - `code` (string) - ロールコード（SYSTEM_ADMIN, FORM_ADMIN, LOG_ADMIN）
-          - `name` (string) - ロール名（日本語）
-          - `name_en` (string) - ロール名（英語）
+          - `name` (string) - ロール名（rolesテーブルのnameカラムの値、日本語）
   - 401: 401 Unauthorized
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
