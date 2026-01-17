@@ -365,19 +365,19 @@
 
 ## 未実装・要対応タスク（フロントエンド）
 
-### 0. BASIC認証対応（環境変数設定）
-**現状**: バックエンド側（Apache設定）とフロントエンド側（apiFetch.ts）の実装は完了  
+### ✅ 0. BASIC認証対応（環境変数設定）
+**完了日**: 2026-01-17  
 **優先度**: 中（ステージング環境等でBASIC認証が必要な場合のみ）
 
-**フロントエンド対応が必要な内容**:
-- ❌ 環境変数の設定（`.env.staging`または`.env.production`）
+**実装内容**:
+- ✅ `apiFetch.ts`: BASIC認証ヘッダー自動追加機能（環境変数から取得）
+- ✅ `env.ts`: `envString`関数を使用して環境変数を取得
+- ✅ 環境変数が設定されていない場合はBASIC認証なしで動作
+
+**環境変数設定**:
+- `.env.staging`または`.env.production`に以下を設定:
   - `VITE_API_BASIC_AUTH_USER`: BASIC認証のユーザー名
   - `VITE_API_BASIC_AUTH_PASS`: BASIC認証のパスワード
-- ❌ ビルド時の環境変数設定確認
-- ❌ デプロイ時の環境変数設定確認
-
-**実装要件**:
-- ステージング環境等でBASIC認証が必要な場合、環境変数を設定する
 - 開発環境では環境変数を設定しない（BASIC認証なしで動作）
 - 本番環境では通常、BASIC認証は不要（または別の認証方式を使用）
 
@@ -627,15 +627,21 @@
 - ❌ テーマ選択UI（theme_id選択、theme_tokensカスタマイズ）
 - ❌ フォーム基本情報の編集（name, code, description等）
 - ❌ 通知設定、PDF設定等の編集
+- ❌ ファイルアップロードの進捗表示（POST /v1/forms/{id}/attachment/pdf-template, POST /v1/forms/{id}/attachment/files）
+  - 進捗表示（GET /v1/progress/{job_id}）
+  - 非同期処理対応（0% → 30% → 60% → 90% → 100%）
 
 **実装要件**:
 - APIからフォーム情報を取得して表示
 - 仕様書JSON（ui.fields）に準拠した入力項目表示
 - 保存時のバリデーション・エラーハンドリング
+- ファイルアップロードUI（PDFテンプレート、添付ファイル）
+- 進捗表示コンポーネント（共通化推奨）
 
 **参照**: 
 - reforma-api-spec-v0.1.4.md
 - SUPP-THEME-001-spec.md
+- file-upload-queue-spec.md（ファイルアップロード詳細仕様）
 
 ---
 
@@ -649,15 +655,22 @@
 - ❌ 条件分岐ビルダーUI（visibility_rule, required_rule）
 - ❌ フィールド追加・削除・並び替え
 - ❌ フィールドタイプ別の設定UI
+- ❌ CSVインポート機能（POST /v1/forms/{id}/fields/import/csv）
+  - 選択肢インポート（`type=options`）
+  - 項目全体インポート（`type=fields`）
+  - 進捗表示（GET /v1/progress/{job_id}）
+  - エラーレポート表示（result_data.errors）
 
 **実装要件**:
 - APIからフィールド一覧を取得して表示
 - 条件分岐ビルダー実装（別タスク参照）
 - フィールド編集フォーム
+- CSVインポートUI（ファイルアップロード、タイプ選択、進捗表示、エラーレポート）
 
 **参照**: 
 - reforma-api-spec-v0.1.4.md
 - reforma-frontend-spec-v1.0.0-condition-ui-.json
+- csv-import-spec.md（CSVインポート詳細仕様）
 
 ---
 
@@ -692,16 +705,24 @@
 - ❌ ソート機能
 - ❌ 検索・フィルタ機能（フォーム別、ステータス別等）
 - ❌ CSVエクスポート（POST /v1/responses/export/csv）
-- ❌ 進捗表示（GET /v1/progress/{job_id}）
+- ❌ CSVエクスポートの進捗表示（GET /v1/progress/{job_id}）
+  - 進捗バー表示（0% → 30% → 50% → 80% → 100%）
+  - 完了時のダウンロードURL表示（GET /v1/exports/{job_id}/download）
+  - 有効期限表示（download_expires_at）
+  - エラー時のエラーメッセージ表示
 
 **実装要件**:
 - APIから回答一覧を取得して表示
 - 検索機能の実装
 - CSVエクスポート機能（非同期処理、進捗表示）
+- 進捗表示コンポーネント（共通化推奨）
+- ポーリング間隔: 2秒（実行中）、完了/失敗時は停止
 
 **参照**: 
 - reforma-api-spec-v0.1.4.md
 - reforma-notes-v1.1.0.md A-01_csv_column_definition
+- csv-export-queue-spec.md（CSVエクスポート詳細仕様）
+- csv-export-progress-flow.md（進捗表示フロー）
 
 ---
 
@@ -829,10 +850,11 @@
 ### 高優先度
 1. **公開フォーム（U-01）: 条件分岐適用**（コア機能、必須）
 2. **F-01: フォーム一覧のAPI連携**（基本機能）
-3. **F-02: フォーム編集のAPI連携**（基本機能）
-4. **F-03: フォーム項目設定のAPI連携**（基本機能）
-5. **R-01: 回答一覧のAPI連携**（基本機能）
+3. **F-02: フォーム編集のAPI連携**（基本機能、ファイルアップロード進捗表示含む）
+4. **F-03: フォーム項目設定のAPI連携**（基本機能、CSVインポート機能含む）
+5. **R-01: 回答一覧のAPI連携**（基本機能、CSVエクスポート進捗表示含む）
 6. **R-02: 回答詳細のAPI連携**（基本機能）
+7. **進捗表示コンポーネント（共通化）**（CSVエクスポート、ファイルアップロード、CSVインポートで共通利用）
 
 ### 中優先度
 7. **SUPP-DISPLAY-MODE-001: 表示モード機能**（バックエンド実装済み、フロントのみ）
@@ -871,6 +893,34 @@
 
 ### 実装済み機能（追加）
 - ✅ エラー構造の統一（共通仕様v1.5.1準拠のToast表示優先順位実装）
+- ✅ BASIC認証対応（環境変数設定、apiFetch.tsでの自動ヘッダー追加）
+
+### 新規追加タスク（バックエンド仕様追加に伴う）
+
+#### 進捗表示コンポーネント（共通化）
+**現状**: 未実装  
+**優先度**: 高（CSVエクスポート、ファイルアップロード、CSVインポートで共通利用）
+
+**未実装機能**:
+- ❌ 進捗表示コンポーネント（ProgressDisplay等）
+- ❌ GET /v1/progress/{job_id}のポーリング機能
+- ❌ 進捗バー表示（percent）
+- ❌ ステータス表示（queued, running, succeeded, failed）
+- ❌ メッセージ表示（message）
+- ❌ 完了時のダウンロードURL表示（download_url）
+- ❌ 有効期限表示（download_expires_at, expires_at）
+- ❌ エラーレポート表示（result_data.errors）
+
+**実装要件**:
+- 共通の進捗表示コンポーネントを作成
+- ポーリング間隔: 2秒（実行中）、完了/失敗時は停止
+- タイムアウト: 30秒以上応答がない場合はエラー表示
+- CSVエクスポート、ファイルアップロード、CSVインポートで共通利用
+
+**参照**: 
+- csv-export-progress-flow.md（進捗表示フロー）
+- file-upload-queue-spec.md（ファイルアップロード詳細仕様）
+- csv-import-spec.md（CSVインポート詳細仕様）
 
 ---
 
