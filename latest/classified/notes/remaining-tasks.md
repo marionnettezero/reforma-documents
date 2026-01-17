@@ -608,10 +608,22 @@
 - ❌ フォーム作成（POST /v1/forms）
 - ❌ フォーム削除（DELETE /v1/forms/{id}）
 
+**実装済み機能**:
+- ✅ GET /v1/forms: フォーム一覧取得・表示
+- ✅ ページネーション（page, per_page）
+- ✅ ソート機能（created_at_desc, created_at_asc）
+- ✅ 検索・フィルタ機能（キーワード検索、ステータスフィルタ）
+- ✅ フォーム作成（POST /v1/forms）
+- ✅ フォーム削除（DELETE /v1/forms/{id}）
+
+**未実装機能**:
+- ❌ フォーム詳細表示（GET /v1/forms/{id}）
+- ❌ フォーム編集（PUT /v1/forms/{id}）
+- ❌ フォームプレビュー（F-04）への遷移
+
 **実装要件**:
-- APIからフォーム一覧を取得して表示
-- 仕様書JSON（ui.list.columns）に準拠した列表示
-- アクション（actions）に準拠した操作ボタン
+- フォーム詳細モーダルまたは詳細ページ
+- フォーム編集機能（F-02への遷移またはモーダル）
 
 **参照**: reforma-api-spec-v0.1.8.md
 
