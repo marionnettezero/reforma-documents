@@ -227,9 +227,9 @@
 
 ## 未実装・要対応タスク
 
-### 1. SUPP-DISPLAY-MODE-001: 表示モード機能
-**現状**: 完全実装済み  
-**実装内容**:
+### 1. SUPP-DISPLAY-MODE-001: 表示モード機能（フロントエンド側）
+**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+**バックエンド実装済み**:
 - submission_valuesテーブルにlabel_json, field_label_snapshotカラム追加（既存）
 - POST /v1/forms/{form_key}/submitにlocale, modeパラメータ追加（実装済み）
 - label/both/valueモード対応（実装済み）
@@ -237,13 +237,18 @@
 - ラベルスナップショット保存ロジックの改善（locale対応）
 - CSVエクスポート時のmode指定対応（既に実装済み）
 
+**フロントエンド未実装**:
+- 公開フォーム: 選択肢表示（label/both/value）の切替
+- 管理画面プレビュー: locale+mode切替機能
+- ACK画面: labelを既定表示
+
 **参照**: reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-DISPLAY-MODE-001
 
 ---
 
-### 2. SUPP-THEME-001: テーマ機能
-**現状**: 完全実装済み  
-**実装内容**:
+### 2. SUPP-THEME-001: テーマ機能（フロントエンド側）
+**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+**バックエンド実装済み**:
 - themesテーブルの作成
 - formsテーブルにtheme_id, theme_tokensカラム追加
 - テーマ管理API（System Admin以上）:
@@ -259,6 +264,12 @@
 - テーマトークンのバリデーション
 - テスト実装（11テスト、46アサーション）
 
+**フロントエンド未実装**:
+- 公開フォーム表示時に`theme_id`と`theme_tokens`を取得
+- フォームコンテナに`data-theme-id`属性を付与
+- `theme_tokens`をCSS変数に展開（:rootではなくフォームコンテナ配下）
+- プリセットテーマの定義と適用
+
 **参照**: 
 - reforma-notes-v1.1.0.md reforma-notes-v1.0.0-追補パッチ-表示モード-テーマ-計算フィールド-.json SUPP-THEME-001
 - SUPP-THEME-001-spec.md
@@ -266,11 +277,21 @@
 ---
 
 ### 3. フロントエンド調整: エラー構造の統一
-**現状**: 実装状況不明  
-**必要実装**:
-- errors.reason / code / message等の統一
+**現状**: バックエンド側はほぼ統一済み、一部改善の余地あり  
+**バックエンド実装状況**:
+- ✅ ApiResponseクラスで統一されたenvelope形式を使用（success, data, message, errors, code, request_id）
+- ✅ ApiErrorCode enumでエラーコードを定義
+- ✅ root-only拒否時には`errors.reason=ROOT_ONLY`を使用（AdminUsersController）
+- ⚠️ 一部のroot-only拒否で`errors.reason`が未設定（ThemesControllerのプリセットテーマ更新拒否など）
+
+**バックエンド改善が必要**:
+- すべてのroot-only拒否時に`errors.reason=ROOT_ONLY`を統一して設定
+- エラーレスポンスの構造を完全に統一
+
+**フロントエンド未実装**:
+- errors.reason / code / message等の統一的な処理
 - /reforma/errorとトースト表示の分岐ロジック
-- エラーコード定義の明確化
+- エラーコード定義の明確化とハンドリング
 
 **参照**: 
 - reforma-notes-v1.1.0.md reforma-notes-v1.1.0.txt
