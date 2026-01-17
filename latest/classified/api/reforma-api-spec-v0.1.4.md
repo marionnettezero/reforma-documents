@@ -4,9 +4,10 @@
 **注意**: このMarkdownファイルの変更は、対応するJSONファイル（reforma-api-spec-v0.1.4.json）にも反映してください。
 
 ## バージョンおよびメタ情報
-- **バージョン**: v0.1.4
-- **生成日時**: 2026-01-16T00:00:00Z
+- **バージョン**: v0.1.5
+- **生成日時**: 2026-01-17T00:00:00Z
 - **OpenAPI バージョン**: 3.0.3
+- **更新内容**: テーマ機能、表示モード機能（locale/modeパラメータ）の追加
 
 ---
 
@@ -237,6 +238,10 @@ STEP 遷移の評価結果。
   - 200: OK
     - コンテンツタイプ: application/json
       - スキーマ型: object
+      - 追加フィールド:
+        - `data.form.theme_id` (型: integer, 任意): テーマID
+        - `data.form.theme` (型: object, 任意): テーマ情報（theme_idが指定されている場合）
+        - `data.form.theme_tokens` (型: object, 任意): テーマトークン（解決済み）
   - 401: 401 Unauthorized
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
@@ -246,11 +251,15 @@ STEP 遷移の評価結果。
 
 ### PUT /v1/forms/{id}
 - **概要**: フォーム更新
+- **権限**: Form Admin以上
 - **パラメータ**:
   - `id` (パス, 必須, 型: integer): 
 - **リクエストボディ**:
   - コンテンツタイプ: application/json
     - スキーマ型: object
+    - 追加フィールド:
+      - `theme_id` (任意, 型: integer, exists:themes,id,where:is_active,true): テーマID（is_active=trueのテーマのみ）
+      - `theme_tokens` (任意, 型: object): テーマトークン（フォーム固有のカスタマイズ）
 - **レスポンス**:
   - 200: OK
     - コンテンツタイプ: application/json
@@ -427,6 +436,9 @@ STEP 遷移の評価結果。
 - **リクエストボディ**:
   - コンテンツタイプ: application/json
     - スキーマ型: object
+    - 追加フィールド:
+      - `locale` (任意, 型: string, enum: ["ja", "en"]): ロケール（デフォルト: "ja"）
+      - `mode` (任意, 型: string, enum: ["both", "value", "label"]): 表示モード（保存の正はvalue固定、modeはACK/出力の表示方針用）
 - **レスポンス**:
   - 200: OK
     - コンテンツタイプ: application/json
@@ -446,7 +458,11 @@ STEP 遷移の評価結果。
   - 200: OK
     - コンテンツタイプ: application/json
       - スキーマ型: object
-      - 追加フィールド: `data.condition_state` (#/components/schemas/ConditionState)
+      - 追加フィールド: 
+        - `data.condition_state` (#/components/schemas/ConditionState)
+        - `data.form.theme_id` (型: integer, 任意): テーマID
+        - `data.form.theme_code` (型: string, 任意): テーマコード
+        - `data.form.theme_tokens` (型: object, 任意): テーマトークン（CSS変数の値）
   - 404: 404 Not Found
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
@@ -617,6 +633,137 @@ STEP 遷移の評価結果。
   - 422: 422 Validation Error
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
+
+### GET /v1/system/themes
+- **概要**: テーマ一覧取得
+- **権限**: System Admin以上
+- **パラメータ**:
+  - `page` (クエリ, 必須, 型: integer): ページ番号
+  - `per_page` (クエリ, 必須, 型: integer): 1ページあたりの件数（1-200）
+  - `sort` (クエリ, 任意, 型: string, enum: ["created_at_desc", "created_at_asc", "name_asc", "name_desc"]): ソート順
+  - `is_preset` (クエリ, 任意, 型: boolean): プリセットテーマのみ取得
+  - `is_active` (クエリ, 任意, 型: boolean): 有効なテーマのみ取得（デフォルト: true）
+  - `q` (クエリ, 任意, 型: string): キーワード検索（code, name）
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.themes` (型: array): テーマ一覧
+        - `data.pagination` (型: object): ページネーション情報
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+
+### POST /v1/system/themes
+- **概要**: テーマ作成
+- **権限**: System Admin以上
+- **リクエストボディ**:
+  - コンテンツタイプ: application/json
+    - スキーマ型: object
+    - 必須フィールド:
+      - `code` (型: string, max:255, unique:themes,code): テーマコード
+      - `name` (型: string, max:255): テーマ名
+      - `theme_tokens` (型: object): テーマトークン（スキーマ準拠）
+    - 任意フィールド:
+      - `description` (型: string): テーマの説明
+      - `is_active` (型: boolean, デフォルト: true): 有効かどうか
+- **レスポンス**:
+  - 201: Created
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+  - 422: 422 Validation Error
+
+### GET /v1/system/themes/{id}
+- **概要**: テーマ詳細取得
+- **権限**: System Admin以上
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): テーマID
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+  - 404: 404 Not Found
+
+### PUT /v1/system/themes/{id}
+- **概要**: テーマ更新
+- **権限**: 
+  - 通常テーマ: System Admin以上
+  - プリセットテーマ: root-only（is_root=true必須）
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): テーマID
+- **リクエストボディ**:
+  - コンテンツタイプ: application/json
+    - スキーマ型: object
+    - 任意フィールド:
+      - `name` (型: string, max:255): テーマ名
+      - `description` (型: string): テーマの説明
+      - `theme_tokens` (型: object): テーマトークン（スキーマ準拠）
+      - `is_active` (型: boolean): 有効かどうか
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden（プリセットテーマ更新時はroot-only）
+  - 404: 404 Not Found
+  - 422: 422 Validation Error
+
+### DELETE /v1/system/themes/{id}
+- **概要**: テーマ削除（論理削除）
+- **権限**: System Admin以上
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): テーマID
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden（プリセットテーマは削除不可）
+  - 404: 404 Not Found
+  - 409: 409 Conflict（使用中のテーマは削除不可）
+
+### GET /v1/system/themes/{id}/usage
+- **概要**: テーマ使用状況確認
+- **権限**: System Admin以上
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): テーマID
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.theme` (型: object): テーマ情報
+        - `data.usage.form_count` (型: integer): 使用中のフォーム数
+        - `data.usage.forms` (型: array): 使用中のフォーム一覧
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+  - 404: 404 Not Found
+
+### POST /v1/system/themes/{id}/copy
+- **概要**: テーマコピー
+- **権限**: System Admin以上
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): コピー元テーマID
+- **リクエストボディ**:
+  - コンテンツタイプ: application/json
+    - スキーマ型: object
+    - 必須フィールド:
+      - `code` (型: string, max:255, unique:themes,code): 新しいテーマコード
+      - `name` (型: string, max:255): 新しいテーマ名
+    - 任意フィールド:
+      - `description` (型: string): テーマの説明
+- **レスポンス**:
+  - 201: Created
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+  - 404: 404 Not Found
+  - 422: 422 Validation Error
 
 ### GET /v1/system/admin-audit-logs
 - **概要**: 監査ログ一覧
