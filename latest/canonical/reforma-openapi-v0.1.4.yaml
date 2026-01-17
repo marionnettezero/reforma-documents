@@ -790,6 +790,22 @@ components:
               - string
               - 'null'
               description: 完了時の成果物DL URL（署名URLなど）
+        result_data:
+          type:
+          - object
+          - 'null'
+          description: 結果データ（CSVインポートの場合、imported, failed, errorsを含む）
+        download_url:
+          type:
+          - string
+          - 'null'
+          description: ダウンロードURL（CSVエクスポートの場合）
+        download_expires_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: ダウンロードURLの有効期限
         updated_at:
           type: string
           format: date-time
