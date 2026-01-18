@@ -1,15 +1,36 @@
-# ReForma API仕様書 (v0.1.8 統合版)
+# ReForma API仕様書 (v0.9.1 統合版)
 この文書は、OpenAPI仕様を元に最新のAPI仕様をまとめたものです。以前のAPI仕様からの差分ではなく、**全文を日本語で記載**しており、最新版のみを参照すれば十分です。v1.3.3 をベースに、添付ファイル機能、通知機能、期間チェック機能を追加しています。
 
-**注意**: このMarkdownファイルの変更は、対応するJSONファイル（reforma-api-spec-v0.1.8.json）にも反映してください。
+**注意**: このMarkdownファイルの変更は、対応するJSONファイル（reforma-api-spec-v0.9.1.json）にも反映してください。
 
 ## バージョンおよびメタ情報
-- **バージョン**: v0.1.8
-- **生成日時**: 2026-01-17T00:00:00Z
+- **バージョン**: v0.9.1
+- **生成日時**: 2026-01-19T00:00:00Z
 - **OpenAPI バージョン**: 3.0.3
-- **更新内容**: フォーム一覧APIにtranslationsとresponse_countフィールドを追加
+- **更新内容**: 実装コードとの整合性を確保するため、不足していたエンドポイントを追加
 
 ### 変更履歴
+
+#### v0.9.1 (2026-01-19)
+- 実装コードとの整合性を確保するため、不足していたエンドポイントを追加
+  - GET /v1/health - ヘルスチェック（認証不要）
+  - POST /v1/forms/{form_key}/step-transition - STEP遷移評価（認証不要）
+  - POST /v1/responses/{id}/notifications/resend - 通知再送（system_admin権限必須）
+  - POST /v1/responses/{id}/pdf/regenerate - PDF再生成（system_adminまたはroot-only権限必須）
+  - GET /v1/system/themes - テーマ一覧（system_admin権限必須）
+  - POST /v1/system/themes - テーマ作成（system_admin権限必須）
+  - GET /v1/system/themes/{id} - テーマ詳細（system_admin権限必須）
+  - PUT /v1/system/themes/{id} - テーマ更新（system_admin権限必須、プリセットテーマはroot-only）
+  - DELETE /v1/system/themes/{id} - テーマ削除（system_admin権限必須）
+  - GET /v1/system/themes/{id}/usage - テーマ使用状況（system_admin権限必須）
+  - POST /v1/system/themes/{id}/copy - テーマコピー（system_admin権限必須）
+  - GET /v1/system/roles - ロール一覧（system_admin権限必須）
+
+#### v0.9.0 (2026-01-19)
+- 条件分岐ビルダーUI（フロントエンド実装）に関する記載を追加
+  - フロントエンド側で実装された`ConditionRuleBuilder`コンポーネントの概要を追加
+  - 条件分岐ルールの保存形式（JSON）について記載
+  - 詳細はフロントエンド仕様書（reforma-frontend-spec-v0.9.0.md）を参照
 
 #### v0.1.8 (2026-01-17)
 - フォーム一覧API（GET /v1/forms）のレスポンスに`translations`と`response_count`フィールドを追加
@@ -242,7 +263,121 @@ STEP 遷移の評価結果。
 
 ---
 
+## 条件分岐ビルダーUI（フロントエンド実装）
+
+フロントエンド側で実装された条件分岐ビルダーUI（`ConditionRuleBuilder`コンポーネント）についての概要です。詳細な実装仕様は、フロントエンド仕様書（`reforma-frontend-spec-v0.9.0.md`）の「F-03: フォーム項目設定」セクションを参照してください。
+
+### 概要
+
+条件分岐ビルダーUIは、フォーム項目設定画面（F-03）で条件分岐ルールを視覚的に構築するためのUIコンポーネントです。以下の機能を提供します：
+
+- **複数条件の追加・削除**: 最大10個の条件を追加可能
+- **AND/ORの論理結合**: 論理演算子（AND/OR）を明示的に選択可能
+- **field type × operator 許可表の適用**: フィールドタイプに応じて使用可能な演算子を自動フィルタリング
+- **operator別 value_input UI**: 演算子に応じた適切な値入力UI（例: `between`は範囲入力、`in`はカンマ区切り入力）
+- **バリデーション**: 自己参照チェック、フィールド存在チェック
+
+### ルールタイプ
+
+以下の3種類のルールタイプに対応しています：
+
+1. **visibility_rule**: フィールドの表示/非表示を制御
+2. **required_rule**: フィールドの必須/任意を制御
+3. **step_transition_rule**: STEP遷移の可否を制御
+
+### 保存形式（JSON）
+
+条件分岐ビルダーUIで構築されたルールは、以下のJSON形式で保存されます：
+
+#### 単一条件の例
+
+```json
+{
+  "version": "1",
+  "op": "eq",
+  "field": "category",
+  "value": "business"
+}
+```
+
+#### 複数条件（AND結合）の例
+
+```json
+{
+  "version": "1",
+  "op": "and",
+  "items": [
+    {
+      "op": "eq",
+      "field": "category",
+      "value": "business"
+    },
+    {
+      "op": "exists",
+      "field": "company_name",
+      "value": true
+    }
+  ]
+}
+```
+
+#### 複数条件（OR結合）の例
+
+```json
+{
+  "version": "1",
+  "op": "or",
+  "items": [
+    {
+      "op": "eq",
+      "field": "category",
+      "value": "business"
+    },
+    {
+      "op": "exists",
+      "field": "company_name",
+      "value": true
+    }
+  ]
+}
+```
+
+### 制約
+
+- **最大条件数**: 10個
+- **最大ネスト深度**: 1段（v1.x制限）
+- **自己参照禁止**: フィールドが自身を参照する条件は設定不可
+
+### 実装ファイル
+
+- **コンポーネント**: `src/pages/forms/FormItemPage.tsx`内の`ConditionRuleBuilder`
+- **詳細仕様**: `reforma-frontend-spec-v0.9.0.md`の「F-03: フォーム項目設定」セクション
+
+---
+
 ## エンドポイント一覧
+
+### GET /v1/health
+- **概要**: ヘルスチェック
+- **説明**: APIの稼働状況とビルド情報を返却する。認証不要。
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.status` (string) - 稼働状態（"ok"）
+        - `data.app` (object) - アプリケーション情報
+          - `name` (string) - アプリケーション名
+          - `env` (string) - 環境（local, staging, production等）
+          - `laravel_version` (string) - Laravelバージョン
+        - `data.api` (object) - API情報
+          - `base` (string) - APIベースパス
+          - `version_path` (string) - バージョンパス（"v1"）
+          - `openapi_version` (string) - OpenAPIバージョン
+        - `data.build` (object) - ビルド情報
+          - `version` (string) - ビルドバージョン
+          - `sha` (string) - Git SHA
+          - `timestamp` (string) - ビルドタイムスタンプ
 
 ### POST /v1/auth/login
 - **概要**: ログイン
@@ -643,6 +778,34 @@ STEP 遷移の評価結果。
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
 
+### POST /v1/forms/{form_key}/step-transition
+- **概要**: STEP遷移評価
+- **説明**: 現在のSTEPから次のSTEPへの遷移が可能かどうかを評価する。認証不要。
+- **パラメータ**:
+  - `form_key` (パス, 必須, 型: string): フォーム識別子
+- **リクエストボディ**:
+  - コンテンツタイプ: application/json
+    - スキーマ型: object
+    - 必須フィールド:
+      - `current_step_key` (string) - 現在のSTEPキー
+      - `answers` (object) - 回答値
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.condition_state` (#/components/schemas/ConditionState) - 条件分岐評価結果
+  - 403: 403 Forbidden（公開期間外）
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 422: 422 Validation Error（STEP遷移拒否またはバリデーションエラー）
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+      - エラーコード: `STEP_TRANSITION_DENIED`（STEP遷移が拒否された場合）
+  - 404: Not Found
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+
 ### GET /v1/forms/{form_key}/ack
 - **概要**: ACK 表示
 - **パラメータ**:
@@ -667,6 +830,67 @@ STEP 遷移の評価結果。
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
   - 403: 403 Forbidden
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+
+### POST /v1/responses/{id}/notifications/resend
+- **概要**: 通知再送
+- **説明**: 指定された送信データの通知を再送する。system_admin権限が必要。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): 送信ID
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.submission_id` (integer) - 送信ID
+        - `data.form_id` (integer) - フォームID
+        - `data.form_code` (string) - フォームコード
+  - 400: 400 Bad Request（通知が有効でない）
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 401: 401 Unauthorized
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 403: 403 Forbidden（system_admin権限が必要）
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 404: Not Found
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 500: Server Error
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+
+### POST /v1/responses/{id}/pdf/regenerate
+- **概要**: PDF再生成
+- **説明**: 指定された送信データのPDFを再生成する。system_adminまたはroot-only権限が必要。デフォルトでは再生成禁止（409エラー）。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): 送信ID
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.submission_id` (integer) - 送信ID
+        - `data.form_id` (integer) - フォームID
+        - `data.form_code` (string) - フォームコード
+  - 400: 400 Bad Request（PDF生成が利用できない）
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 401: 401 Unauthorized
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 403: 403 Forbidden
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 404: Not Found
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 409: 409 Conflict（再生成が許可されていない）
+    - コンテンツタイプ: application/json
+      - スキーマ型: #/components/schemas/EnvelopeError
+  - 500: Server Error
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
 
@@ -960,9 +1184,137 @@ STEP 遷移の評価結果。
     - コンテンツタイプ: application/json
       - スキーマ型: #/components/schemas/EnvelopeError
 
+### GET /v1/system/themes
+- **概要**: テーマ一覧取得
+- **説明**: テーマ一覧を取得する。system_admin権限が必要。
+- **パラメータ**:
+  - `page` (クエリ, 必須, 型: integer): ページ番号（1以上）
+  - `per_page` (クエリ, 必須, 型: integer): 1ページあたりの件数（1-200）
+  - `sort` (クエリ, 任意, 型: string, enum: ["created_at_desc", "created_at_asc", "name_asc", "name_desc"]): ソート順
+  - `is_preset` (クエリ, 任意, 型: boolean): プリセットテーマのみ取得
+  - `is_active` (クエリ, 任意, 型: boolean): 有効なテーマのみ取得（デフォルト: true）
+  - `q` (クエリ, 任意, 型: string): キーワード検索（code, name）
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.themes` (array) - テーマ一覧
+        - `data.pagination` (object) - ページネーション情報
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+
+### POST /v1/system/themes
+- **概要**: テーマ作成
+- **説明**: テーマを作成する。system_admin権限が必要。
+- **リクエストボディ**:
+  - コンテンツタイプ: application/json
+    - スキーマ型: object
+    - 必須フィールド:
+      - `code` (string, max:255, unique:themes,code) - テーマコード
+      - `name` (string, max:255) - テーマ名
+      - `theme_tokens` (object) - テーマトークン（スキーマ準拠）
+    - 任意フィールド:
+      - `description` (string) - テーマの説明
+      - `is_active` (boolean, デフォルト: true) - 有効かどうか
+- **レスポンス**:
+  - 201: Created
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+  - 422: 422 Validation Error
+
+### GET /v1/system/themes/{id}
+- **概要**: テーマ詳細取得
+- **説明**: テーマ詳細を取得する。system_admin権限が必要。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): テーマID
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.theme` (object) - テーマ情報
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+  - 404: Not Found
+
+### PUT /v1/system/themes/{id}
+- **概要**: テーマ更新
+- **説明**: テーマを更新する。system_admin権限が必要。プリセットテーマの更新はroot-only権限が必要。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): テーマID
+- **リクエストボディ**:
+  - コンテンツタイプ: application/json
+    - スキーマ型: object
+    - 任意フィールド:
+      - `name` (string, max:255) - テーマ名
+      - `description` (string) - テーマの説明
+      - `theme_tokens` (object) - テーマトークン
+      - `is_active` (boolean) - 有効かどうか
+- **レスポンス**:
+  - 200: OK
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden（プリセットテーマ更新にはroot-only権限が必要）
+  - 404: Not Found
+  - 422: 422 Validation Error
+
+### DELETE /v1/system/themes/{id}
+- **概要**: テーマ削除
+- **説明**: テーマを削除する（論理削除）。system_admin権限が必要。プリセットテーマは削除不可。使用中のテーマは削除不可。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): テーマID
+- **レスポンス**:
+  - 200: OK
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden（プリセットテーマは削除不可）
+  - 404: Not Found
+  - 409: 409 Conflict（使用中のテーマは削除不可）
+
+### GET /v1/system/themes/{id}/usage
+- **概要**: テーマ使用状況確認
+- **説明**: テーマの使用状況を確認する。system_admin権限が必要。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): テーマID
+- **レスポンス**:
+  - 200: OK
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.theme` (object) - テーマ情報
+        - `data.usage` (object) - 使用状況
+          - `form_count` (integer) - 使用中のフォーム数
+          - `forms` (array) - 使用中のフォーム一覧
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+  - 404: Not Found
+
+### POST /v1/system/themes/{id}/copy
+- **概要**: テーマコピー
+- **説明**: テーマをコピーして新規テーマを作成する。system_admin権限が必要。
+- **パラメータ**:
+  - `id` (パス, 必須, 型: integer): テーマID
+- **リクエストボディ**:
+  - コンテンツタイプ: application/json
+    - スキーマ型: object
+    - 必須フィールド:
+      - `code` (string, max:255, unique:themes,code) - 新しいテーマコード
+      - `name` (string, max:255) - 新しいテーマ名
+    - 任意フィールド:
+      - `description` (string) - 新しいテーマの説明
+- **レスポンス**:
+  - 201: Created
+    - コンテンツタイプ: application/json
+      - スキーマ型: object
+      - フィールド:
+        - `data.theme` (object) - 作成されたテーマ情報
+  - 401: 401 Unauthorized
+  - 403: 403 Forbidden
+  - 404: Not Found
+  - 422: 422 Validation Error
+
 ### GET /v1/system/roles
 - **概要**: ロール一覧取得
-- **説明**: 管理者ユーザー用のロール一覧を取得する。検索条件や編集画面の選択肢として使用する。
+- **説明**: 管理者ユーザー用のロール一覧を取得する。検索条件や編集画面の選択肢として使用する。system_admin権限が必要。
 - **注意**: 多言語対応はフロントエンド側で行う。APIは`name`カラム（日本語）のみを返却する。
 - **レスポンス**:
   - 200: OK

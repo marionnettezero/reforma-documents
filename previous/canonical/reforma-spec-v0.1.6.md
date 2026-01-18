@@ -1,12 +1,12 @@
 # ReForma 正本仕様書 v0.1.6
 
-**生成日時**: 2026-01-31T00:00:00.000000+00:00
+**生成日時**: 2026-01-16T00:00:00.000000+00:00
 
 このドキュメントは最新の分類別仕様書から自動生成された統合版です。
 
 ## 変更履歴
 
-### v0.1.6 (2026-01-31)
+### v0.1.6 (2026-01-16)
 - バージョン体系を変更（v1.x.x → v0.x.x）
 - 添付ファイル機能を追加（PDFテンプレート、アップロードファイル）
 - 通知機能を追加（ユーザー通知、管理者通知、CC/BCC対応）
@@ -19,11 +19,11 @@
 
 | 分類 | バージョン | JSON | Markdown |
 | --- | --- | --- | --- |
-| api | v0.1.4 | classified/api/reforma-api-spec-v0.1.4.json | classified/api/reforma-api-spec-v0.1.4.md |
-| backend | v1.1.0 | classified/backend/reforma-backend-spec-v1.1.0.json | classified/backend/reforma-backend-spec-v1.1.0.md |
-| common | v1.5.1 | classified/common/reforma-common-spec-v1.5.1.json | classified/common/reforma-common-spec-v1.5.1.md |
-| db | v0.1.1 | classified/db/reforma-db-spec-v0.1.1.json | classified/db/reforma-db-spec-v0.1.1.md |
-| frontend | v1.1.0 | classified/frontend/reforma-frontend-spec-v1.1.0.json | classified/frontend/reforma-frontend-spec-v1.1.0.md |
+| api | v0.1.8 | latest/classified/api/reforma-api-spec-v0.1.8.json | latest/classified/api/reforma-api-spec-v0.1.8.md |
+| backend | v0.1.1 | latest/classified/backend/reforma-backend-spec-v0.1.1.json | latest/classified/backend/reforma-backend-spec-v0.1.1.md |
+| common | v1.5.1 | latest/classified/common/reforma-common-spec-v1.5.1.json | latest/classified/common/reforma-common-spec-v1.5.1.md |
+| db | v0.1.2 | latest/classified/db/reforma-db-spec-v0.1.2.json | latest/classified/db/reforma-db-spec-v0.1.2.md |
+| frontend | v0.1.1 | latest/classified/frontend/reforma-frontend-spec-v0.1.1.json | latest/classified/frontend/reforma-frontend-spec-v0.1.1.md |
 
 ---
 
@@ -88,7 +88,7 @@ const toastText =
 
 ## バージョンおよびメタ情報
 - **バージョン**: v0.1.4
-- **生成日時**: 2026-01-31T00:00:00Z
+- **生成日時**: 2026-01-16T00:00:00Z
 - **OpenAPI バージョン**: 3.0.3
 
 ---
@@ -953,16 +953,16 @@ STEP 遷移の評価結果。
 
 ---
 
-# BACKEND 仕様 (v1.1.0)
+# BACKEND 仕様 (v0.1.1)
 
-- version: v1.1.0
+- version: v0.1.1
 - generated_at: 2026-01-14T11:37:59.885164+00:00
 
 ## Sources
 - latest/backend/reforma-backend-spec-v1.0.0-Backend-共有テンプレ-.json.json (v1.0.0)
 - latest/backend/reforma-backend-spec-v1.0.0-backend-chat-init.json.json (v1.0.0)
 - latest/backend/reforma-backend-spec-v1.0.0.json (v1.0.0)
-- latest/backend/reforma-backend-spec-v1.1.0.json (v1.1.0)
+- latest/backend/reforma-backend-spec-v0.1.1.json (v0.1.1)
 
 ---
 
@@ -1259,15 +1259,15 @@ _Source files:_ latest/backend/reforma-backend-spec-v1.0.0.json
 }
 ```
 
-## reforma-backend-spec-v1.1.0
+## reforma-backend-spec-v0.1.1
 
-_Source files:_ latest/backend/reforma-backend-spec-v1.1.0.json
+_Source files:_ latest/backend/reforma-backend-spec-v0.1.1.json
 
 ```json
 {
   "meta": {
     "title": "ReForma Backend 共有テンプレ（追補反映）",
-    "version": "1.1",
+          "version": "0.1.1",
     "generated_at": "2026-01-13T01:08:32.431777",
     "timezone": "Asia/Tokyo"
   },
@@ -1352,9 +1352,9 @@ _Source files:_ latest/backend/reforma-backend-spec-v1.1.0.json
 
 ---
 
-# FRONTEND 仕様 (v1.1.0)
+# FRONTEND 仕様 (v0.1.1)
 
-- version: v1.1.0
+- version: v0.1.1
 - generated_at: 2026-01-14T11:37:59.767769+00:00
 
 ## Sources
@@ -1368,7 +1368,7 @@ _Source files:_ latest/backend/reforma-backend-spec-v1.1.0.json
 - latest/frontend/reforma-frontend-spec-v1.0.0-frontend-chat-init.json.json (v1.0.0)
 - latest/frontend/reforma-frontend-spec-v1.0.0-frontend-handoff-20260112.json.json (v1.0.0)
 - latest/frontend/reforma-frontend-spec-v1.0.0.json (v1.0.0)
-- latest/frontend/reforma-frontend-spec-v1.1.0.json (v1.1.0)
+- latest/frontend/reforma-frontend-spec-v0.1.1.json (v0.1.1)
 
 ---
 
@@ -2116,7 +2116,7 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v0.5.8.json
       "フルZIPがダウンロード不可になる事象が発生したため、以後は差分ZIP運用を基本とし、フルZIPはユーザー側でバックアップ生成する方針も併記。"
     ],
     "updated_at": "2026-01-14T00:47:07.802954+09:00",
-    "version": "1.1.0"
+    "version": "0.1.1"
   },
   "baseline": {
     "source_of_truth_version": "0.5.8",
@@ -4571,15 +4571,15 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v1.0.0.json
 }
 ```
 
-## reforma-frontend-spec-v1.1.0
+## reforma-frontend-spec-v0.1.1
 
-_Source files:_ latest/frontend/reforma-frontend-spec-v1.1.0.json
+_Source files:_ latest/frontend/reforma-frontend-spec-v0.1.1.json
 
 ```json
 {
   "meta": {
     "title": "ReForma Frontend 共有テンプレ（追補反映）",
-    "version": "1.1",
+          "version": "0.1.1",
     "generated_at": "2026-01-13T01:08:32.431777",
     "timezone": "Asia/Tokyo"
   },
@@ -4662,7 +4662,7 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v1.1.0.json
 
 ## バージョンおよびメタ情報
 - **バージョン**: v0.1.1
-- **生成日時**: 2026-01-31T00:00:00Z
+- **生成日時**: 2026-01-16T00:00:00Z
 - **更新内容**: 添付ファイル機能、通知機能、期間チェック機能の追加
 
 ---
@@ -4786,7 +4786,7 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v1.1.0.json
 
 ## 変更履歴
 
-### v0.1.1 (2026-01-31)
+### v0.1.1 (2026-01-16)
 - 添付ファイル機能の追加（forms.attachment_enabled, attachment_type, pdf_template_path, attachment_files_json）
 - PDF生成機能の追加（form_fields.pdf_block_key, pdf_page_number）
 - 期間チェック機能の追加（forms.public_period_start, public_period_end, answer_period_start, answer_period_end）
@@ -4804,7 +4804,7 @@ _Source files:_ latest/frontend/reforma-frontend-spec-v1.1.0.json
 - version: v1.0.0
 - generated_at: 2026-01-14T11:37:59.882283+00:00
 
-_Source files:_ previous/db/reforma-db-spec-v1.0.0.json
+_Source files:_ previous/classified/db/reforma-db-spec-v1.0.0.json
 
 <FULL_JSON_REPLACED_IN_RUNTIME>
 

@@ -3,34 +3,34 @@
     "project": "ReForma",
     "category": "overall",
     "version": "v0.1.6",
-    "generated_at": "2026-01-31T00:00:00.000000+00:00",
+    "generated_at": "2026-01-16T00:00:00.000000+00:00",
     "description": "分類別仕様書を統合した正本仕様書。添付ファイル機能、通知機能、期間チェック機能を追加。"
   },
   "component_manifest": {
     "db": {
-      "version": "v0.1.1",
-      "json_file": "classified/db/reforma-db-spec-v0.1.1.json",
-      "md_file": "classified/db/reforma-db-spec-v0.1.1.md"
+      "version": "v0.1.2",
+      "json_file": "latest/classified/db/reforma-db-spec-v0.1.2.json",
+      "md_file": "latest/classified/db/reforma-db-spec-v0.1.2.md"
     },
     "api": {
-      "version": "v0.1.4",
-      "json_file": "classified/api/reforma-api-spec-v0.1.4.json",
-      "md_file": "classified/api/reforma-api-spec-v0.1.4.md"
+      "version": "v0.1.8",
+      "json_file": "latest/classified/api/reforma-api-spec-v0.1.8.json",
+      "md_file": "latest/classified/api/reforma-api-spec-v0.1.8.md"
     },
     "backend": {
-      "version": "v1.1.0",
-      "json_file": "classified/backend/reforma-backend-spec-v1.1.0.json",
-      "md_file": "classified/backend/reforma-backend-spec-v1.1.0.md"
+      "version": "v0.1.1",
+      "json_file": "latest/classified/backend/reforma-backend-spec-v0.1.1.json",
+      "md_file": "latest/classified/backend/reforma-backend-spec-v0.1.1.md"
     },
     "common": {
       "version": "v1.5.1",
-      "json_file": "classified/common/reforma-common-spec-v1.5.1.json",
-      "md_file": "classified/common/reforma-common-spec-v1.5.1.md"
+      "json_file": "latest/classified/common/reforma-common-spec-v1.5.1.json",
+      "md_file": "latest/classified/common/reforma-common-spec-v1.5.1.md"
     },
     "frontend": {
-      "version": "v1.1.0",
-      "json_file": "classified/frontend/reforma-frontend-spec-v1.1.0.json",
-      "md_file": "classified/frontend/reforma-frontend-spec-v1.1.0.md"
+      "version": "v0.1.1",
+      "json_file": "latest/classified/frontend/reforma-frontend-spec-v0.1.1.json",
+      "md_file": "latest/classified/frontend/reforma-frontend-spec-v0.1.1.md"
     }
   },
   "specifications": {
@@ -39,7 +39,7 @@
       "content": {
         "meta": {
           "version": "v0.1.4",
-          "generated_at": "2026-01-31T00:00:00Z",
+          "generated_at": "2026-01-16T00:00:00Z",
           "openapi_version": "3.0.3",
           "description": "v1.3.1 をベースに、添付ファイル機能、通知機能、期間チェック機能を追加した API 仕様書です。"
         },
@@ -1608,12 +1608,12 @@
       }
     },
     "backend": {
-      "version": "v1.1.0",
+      "version": "v0.1.1",
       "content": {
         "metadata": {
           "project": "ReForma",
           "category": "backend",
-          "version": "v1.1.0",
+          "version": "v0.1.1",
           "generated_at": "2026-01-14T11:37:59.885164+00:00",
           "sources": [
             {
@@ -1629,8 +1629,8 @@
               "version": "1.0.0"
             },
             {
-              "file": "latest/backend/reforma-backend-spec-v1.1.0.json",
-              "version": "1.1.0"
+              "file": "latest/backend/reforma-backend-spec-v0.1.1.json",
+              "version": "0.1.1"
             }
           ]
         },
@@ -1937,12 +1937,12 @@
           },
           {
             "id": "BACKEND-0008",
-            "title": "reforma-backend-spec-v1.1.0",
+            "title": "reforma-backend-spec-v0.1.1",
             "kind": "json",
             "content": {
               "meta": {
                 "title": "ReForma Backend 共有テンプレ（追補反映）",
-                "version": "1.1",
+                "version": "0.1.1",
                 "generated_at": "2026-01-13T01:08:32.431777",
                 "timezone": "Asia/Tokyo"
               },
@@ -2094,12 +2094,12 @@
       }
     },
     "frontend": {
-      "version": "v1.1.0",
+      "version": "v0.1.1",
       "content": {
         "metadata": {
           "project": "ReForma",
           "category": "frontend",
-          "version": "v1.1.0",
+          "version": "v0.1.1",
           "generated_at": "2026-01-14T11:37:59.767769+00:00",
           "sources": [
             {
@@ -2143,8 +2143,8 @@
               "version": "1.0.0"
             },
             {
-              "file": "latest/frontend/reforma-frontend-spec-v1.1.0.json",
-              "version": "1.1.0"
+              "file": "latest/frontend/reforma-frontend-spec-v0.1.1.json",
+              "version": "0.1.1"
             }
           ]
         },
@@ -2905,7 +2905,7 @@
                   "フルZIPがダウンロード不可になる事象が発生したため、以後は差分ZIP運用を基本とし、フルZIPはユーザー側でバックアップ生成する方針も併記。"
                 ],
                 "updated_at": "2026-01-14T00:47:07.802954+09:00",
-                "version": "1.1.0"
+                "version": "0.1.1"
               },
               "baseline": {
                 "source_of_truth_version": "0.5.8",
@@ -5391,12 +5391,12 @@
           },
           {
             "id": "FRONTEND-0042",
-            "title": "reforma-frontend-spec-v1.1.0",
+            "title": "reforma-frontend-spec-v0.1.1",
             "kind": "json",
             "content": {
               "meta": {
                 "title": "ReForma Frontend 共有テンプレ（追補反映）",
-                "version": "1.1",
+                "version": "0.1.1",
                 "generated_at": "2026-01-13T01:08:32.431777",
                 "timezone": "Asia/Tokyo"
               },

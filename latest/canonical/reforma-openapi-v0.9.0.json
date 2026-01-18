@@ -1,0 +1,6570 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ReForma API v1.1 OpenAPI（起草：7.1/7.2/7.3/7.4/7.7/7.8） (v0.9.0)",
+    "version": "0.9.0",
+    "description": "API仕様書のカテゴリ一覧（v1.1統合版）＋DB仕様（v1.1統合版）＋条件分岐I/F（ConditionState）を用いて OpenAPI
+    を\"実装可能な粒度\"まで増補した草案。添付ファイル機能、通知機能、期間チェック機能を追加。
+    
+    ## 変更履歴
+    
+    ### v0.9.0 (2026-01-19)
+    - 条件分岐ビルダーUI（フロントエンド実装）に関する記載を追加
+      - フロントエンド側で実装された`ConditionRuleBuilder`コンポーネントの概要を追加
+      - 条件分岐ルールの保存形式（JSON）について記載
+      - 詳細はフロントエンド仕様書（reforma-frontend-spec-v0.9.0.md）を参照
+    
+    ## 多言語対応（Internationalization）
+    
+    ReForma APIは、エラーメッセージとレスポンスメッセージの多言語対応をサポートしています。
+    
+    ### ロケール取得の優先順位
+    
+    1. **リクエストパラメータの`locale`**（最優先）
+       - クエリパラメータまたはリクエストボディに`locale`パラメータが含まれている場合、その値を使用
+       - 有効な値: `\"ja\"`（日本語）、`\"en\"`（英語）
+    
+    2. **`Accept-Language`ヘッダー**
+       - HTTPリクエストヘッダーの`Accept-Language`から言語を取得
+       - サポートされる言語コード: `ja`, `en`
+    
+    3. **デフォルト（日本語）**
+       - 上記のいずれも指定されていない場合、デフォルトで日本語（`ja`）を使用
+    
+    ### サポート言語
+    
+    - `ja`: 日本語（デフォルト）
+    - `en`: 英語
+    
+    ## 条件分岐ビルダーUI（フロントエンド実装）
+    
+    フロントエンド側で実装された条件分岐ビルダーUI（`ConditionRuleBuilder`コンポーネント）についての概要です。
+    詳細な実装仕様は、フロントエンド仕様書（`reforma-frontend-spec-v0.9.0.md`）の「F-03: フォーム項目設定」セクションを参照してください。
+    
+    ### 概要
+    
+    条件分岐ビルダーUIは、フォーム項目設定画面（F-03）で条件分岐ルールを視覚的に構築するためのUIコンポーネントです。
+    以下の機能を提供します：
+    
+    - **複数条件の追加・削除**: 最大10個の条件を追加可能
+    - **AND/ORの論理結合**: 論理演算子（AND/OR）を明示的に選択可能
+    - **field type × operator 許可表の適用**: フィールドタイプに応じて使用可能な演算子を自動フィルタリング
+    - **operator別 value_input UI**: 演算子に応じた適切な値入力UI（例: `between`は範囲入力、`in`はカンマ区切り入力）
+    - **バリデーション**: 自己参照チェック、フィールド存在チェック
+    
+    ### ルールタイプ
+    
+    以下の3種類のルールタイプに対応しています：
+    
+    1. **visibility_rule**: フィールドの表示/非表示を制御
+    2. **required_rule**: フィールドの必須/任意を制御
+    3. **step_transition_rule**: STEP遷移の可否を制御
+    
+    ### 保存形式（JSON）
+    
+    条件分岐ビルダーUIで構築されたルールは、以下のJSON形式で保存されます：
+    
+    #### 単一条件の例
+    
+    ```json
+    {
+      \"version\": \"1\",
+      \"op\": \"eq\",
+      \"field\": \"category\",
+      \"value\": \"business\"
+    }
+    ```
+    
+    #### 複数条件（AND結合）の例
+    
+    ```json
+    {
+      \"version\": \"1\",
+      \"op\": \"and\",
+      \"items\": [
+        {
+          \"op\": \"eq\",
+          \"field\": \"category\",
+          \"value\": \"business\"
+        },
+        {
+          \"op\": \"exists\",
+          \"field\": \"company_name\",
+          \"value\": true
+        }
+      ]
+    }
+    ```
+    
+    #### 複数条件（OR結合）の例
+    
+    ```json
+    {
+      \"version\": \"1\",
+      \"op\": \"or\",
+      \"items\": [
+        {
+          \"op\": \"eq\",
+          \"field\": \"category\",
+          \"value\": \"business\"
+        },
+        {
+          \"op\": \"exists\",
+          \"field\": \"company_name\",
+          \"value\": true
+        }
+      ]
+    }
+    ```
+    
+    ### 制約
+    
+    - **最大条件数**: 10個
+    - **最大ネスト深度**: 1段（v1.x制限）
+    - **自己参照禁止**: フィールドが自身を参照する条件は設定不可
+    
+    ### 実装ファイル
+    
+    - **コンポーネント**: `src/pages/forms/FormItemPage.tsx`内の`ConditionRuleBuilder`
+    - **詳細仕様**: `reforma-frontend-spec-v0.9.0.md`の「F-03: フォーム項目設定」セクション"螳溯｣・庄閭ｽ縺ｪ邊貞ｺｦ\"縺ｾ縺ｧ蠅苓｣懊＠縺溯拷譯医よｷｻ莉倥ヵ繧｡繧､繝ｫ讖溯・縲・夂衍讖溯・縲∵悄髢薙メ繧ｧ繝・け讖溯・繧定ｿｽ蜉縲・
+  },
+  "servers": [
+    {
+      "url": "/reforma/api"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Forms"
+    },
+    {
+      "name": "Responses"
+    },
+    {
+      "name": "ACK/PDF"
+    },
+    {
+      "name": "Dashboard"
+    },
+    {
+      "name": "System Admin"
+    },
+    {
+      "name": "SUP (root-only)"
+    },
+    {
+      "name": "progress",
+      "description": "騾ｲ謐怜叙蠕・
+    },
+    {
+      "name": "search",
+      "description": "讓ｪ譁ｭ讀懃ｴ｢"
+    },
+    {
+      "name": "logs",
+      "description": "繝ｭ繧ｰ"
+    },
+    {
+      "name": "public-forms",
+      "description": "蜈ｬ髢九ヵ繧ｩ繝ｼ繝"
+    },
+    {
+      "name": "system-admin-users",
+      "description": "邂｡逅・・Θ繝ｼ繧ｶ"
+    },
+    {
+      "name": "exports",
+      "description": "謌先棡迚ｩ"
+    },
+    {
+      "name": "responses",
+      "description": "蝗樒ｭ・
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sanctum": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "XSRF-TOKEN",
+        "description": "Sanctum SPA session・井ｾ具ｼ峨ょｮ溯｣・↓繧医ｊ Bearer 菴ｵ逕ｨ蜿ｯ"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    },
+    "schemas": {
+      "EnvelopeSuccess": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "description": "API蜈ｱ騾壹さ繝ｼ繝会ｼ域・蜉滓凾縺ｯOK遲会ｼ・,
+            "example": "OK"
+          },
+          "request_id": {
+            "type": "string",
+            "description": "繝ｪ繧ｯ繧ｨ繧ｹ繝・D・郁ｿｽ霍｡逕ｨ・・,
+            "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          }
+        },
+        "required": [
+          "success",
+          "code",
+          "request_id",
+          "message",
+          "data",
+          "errors"
+        ]
+      },
+      "EnvelopeError": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "null"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "errors": {
+            "type": "object",
+            "properties": {
+              "fields": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "繧ｨ繝ｩ繝ｼ繝｡繝・そ繝ｼ繧ｸ驟榊・"
+                }
+              },
+              "rule": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "step": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "description": "螟ｱ謨礼炊逕ｱ・域ｩ滓｢ｰ蛻､螳夂畑・峨ゆｾ・ ROOT_ONLY / EXPIRED / URL_EXPIRED / SYSTEM_ADMIN_REQUIRED / TOKEN_EXPIRED",
+                "example": "ROOT_ONLY"
+              }
+            },
+            "required": [],
+            "description": "errors 譛ｬ菴難ｼ育畑騾斐↓蠢懊§縺ｦ fields/rule/step 繧貞茜逕ｨ・・
+          },
+          "code": {
+            "type": "string",
+            "description": "API蜈ｱ騾壹さ繝ｼ繝会ｼ井ｾ・ FORBIDDEN / CONSTRAINT_VIOLATION / VALIDATION_ERROR 遲会ｼ・,
+            "example": "FORBIDDEN"
+          },
+          "request_id": {
+            "type": "string",
+            "description": "繝ｪ繧ｯ繧ｨ繧ｹ繝・D・郁ｿｽ霍｡逕ｨ・・,
+            "example": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          }
+        },
+        "required": [
+          "success",
+          "code",
+          "request_id",
+          "message",
+          "data",
+          "errors"
+        ]
+      },
+      "ErrorObject": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "繧ｨ繝ｩ繝ｼ繧ｳ繝ｼ繝・
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "繧ｨ繝ｩ繝ｼ繝｡繝・そ繝ｼ繧ｸ驟榊・"
+            }
+          },
+          "rule": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "description": "螟ｱ謨礼炊逕ｱ・域ｩ滓｢ｰ蛻､螳夂畑・・,
+            "example": "ROOT_ONLY"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "description": "errors 譛ｬ菴難ｼ育畑騾斐↓蠢懊§縺ｦ fields/rule/step 繧貞茜逕ｨ・・
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "users.id"
+          },
+          "name": {
+            "type": "string",
+            "description": "陦ｨ遉ｺ蜷・
+          },
+          "email": {
+            "type": "string",
+            "description": "繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ",
+            "format": "email"
+          },
+          "status": {
+            "type": "string",
+            "description": "active / suspended",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "description": "莉倅ｸ弱Ο繝ｼ繝ｫ"
+          },
+          "is_root": {
+            "type": "boolean",
+            "description": "root-only 蛻､螳壹ヵ繝ｩ繧ｰ・・auth/me 豁｣譛ｬ・・
+          },
+          "form_create_limit_enabled": {
+            "type": "boolean",
+            "description": "繝輔か繝ｼ繝菴懈・謨ｰ蛻ｶ髯舌ｒ驕ｩ逕ｨ縺吶ｋ縺・
+          },
+          "form_create_limit": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "繝輔か繝ｼ繝菴懈・蜿ｯ閭ｽ謨ｰ・・nabled=true 縺ｮ蝣ｴ蜷医・縺ｿ譛牙柑縲Ｎin=1・・,
+            "minimum": 1
+          },
+          "role": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "deprecated": true,
+            "description": "(deprecated) 莠呈鋤縺ｮ縺溘ａ谿狗ｽｮ縲よｭ｣譛ｬ縺ｯ roles[]縲ょｰ・擂蜑企勁莠亥ｮ壹・,
+            "enum": [
+              "SYSTEM_ADMIN",
+              "FORM_ADMIN",
+              "LOG_ADMIN",
+              "system_admin",
+              "form_admin",
+              "log_admin"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "status",
+          "roles",
+          "is_root",
+          "form_create_limit_enabled",
+          "form_create_limit"
+        ]
+      },
+      "Form": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.id"
+          },
+          "code": {
+            "type": "string",
+            "description": "forms.code・医ヵ繧ｩ繝ｼ繝隴伜挨蟄撰ｼ・
+          },
+          "status": {
+            "type": "string",
+            "description": "forms.status",
+            "enum": [
+              "draft",
+              "published",
+              "closed"
+            ]
+          },
+          "is_public": {
+            "type": "boolean",
+            "description": "forms.is_public"
+          },
+          "public_period_start": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "蜈ｬ髢区悄髢馴幕蟋区律譎・
+          },
+          "public_period_end": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "蜈ｬ髢区悄髢鍋ｵゆｺ・律譎・
+          },
+          "answer_period_start": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "蝗樒ｭ疲悄髢馴幕蟋区律譎・
+          },
+          "answer_period_end": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "蝗樒ｭ疲悄髢鍋ｵゆｺ・律譎・
+          },
+          "attachment_enabled": {
+            "type": "boolean",
+            "description": "豺ｻ莉倥ヵ繧｡繧､繝ｫ讖溯・縺梧怏蜉ｹ縺・
+          },
+          "attachment_type": {
+            "type": "string",
+            "nullable": true,
+            "description": "豺ｻ莉倥ヵ繧｡繧､繝ｫ繧ｿ繧､繝暦ｼ・df_template: PDF繝・Φ繝励Ξ繝ｼ繝医「ploaded_files: 繧｢繝・・繝ｭ繝ｼ繝峨ヵ繧｡繧､繝ｫ・・,
+            "enum": [
+              "pdf_template",
+              "uploaded_files"
+            ]
+          },
+          "pdf_template_path": {
+            "type": "string",
+            "nullable": true,
+            "description": "PDF繝・Φ繝励Ξ繝ｼ繝医ヵ繧｡繧､繝ｫ繝代せ"
+          },
+          "attachment_files_json": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "繝輔ぃ繧､繝ｫ蜷・
+                },
+                "path": {
+                  "type": "string",
+                  "description": "繝輔ぃ繧､繝ｫ繝代せ"
+                },
+                "size": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "繝輔ぃ繧､繝ｫ繧ｵ繧､繧ｺ・医ヰ繧､繝茨ｼ・
+                },
+                "mime": {
+                  "type": "string",
+                  "description": "MIME繧ｿ繧､繝・
+                }
+              }
+            },
+            "description": "繧｢繝・・繝ｭ繝ｼ繝峨ヵ繧｡繧､繝ｫ荳隕ｧ・・SON驟榊・・・
+          },
+          "notification_user_enabled": {
+            "type": "boolean",
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍縺梧怏蜉ｹ縺・
+          },
+          "notification_user_email_template": {
+            "type": "string",
+            "nullable": true,
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ繝・Φ繝励Ξ繝ｼ繝・
+          },
+          "notification_user_email_subject": {
+            "type": "string",
+            "nullable": true,
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ莉ｶ蜷・
+          },
+          "notification_user_email_from": {
+            "type": "string",
+            "nullable": true,
+            "format": "email",
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ騾∽ｿ｡蜈・い繝峨Ξ繧ｹ"
+          },
+          "notification_user_email_reply_to": {
+            "type": "string",
+            "nullable": true,
+            "format": "email",
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ霑比ｿ｡蜈医い繝峨Ξ繧ｹ"
+          },
+          "notification_user_email_cc": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫCC・磯・蛻暦ｼ・
+          },
+          "notification_user_email_bcc": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫBCC・磯・蛻暦ｼ・
+          },
+          "notification_admin_enabled": {
+            "type": "boolean",
+            "description": "邂｡逅・・夂衍縺梧怏蜉ｹ縺・
+          },
+          "notification_admin_user_ids": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "邂｡逅・・夂衍騾∽ｿ｡蜈医Θ繝ｼ繧ｶ繝ｼID荳隕ｧ"
+          },
+          "notification_admin_email_template": {
+            "type": "string",
+            "nullable": true,
+            "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ繝・Φ繝励Ξ繝ｼ繝・
+          },
+          "notification_admin_email_subject": {
+            "type": "string",
+            "nullable": true,
+            "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ莉ｶ蜷・
+          },
+          "notification_admin_email_from": {
+            "type": "string",
+            "nullable": true,
+            "format": "email",
+            "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ騾∽ｿ｡蜈・い繝峨Ξ繧ｹ"
+          },
+          "notification_admin_email_reply_to": {
+            "type": "string",
+            "nullable": true,
+            "format": "email",
+            "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ霑比ｿ｡蜈医い繝峨Ξ繧ｹ"
+          },
+          "created_by": {
+            "type": "integer",
+            "format": "int64",
+            "description": "forms.created_by"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "status",
+          "is_public",
+          "created_by",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "FormTranslation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "ja",
+              "en"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "繝輔か繝ｼ繝蜷・
+          },
+          "description": {
+            "type": "string",
+            "description": "隱ｬ譏・,
+            "example": ""
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "locale",
+          "title"
+        ]
+      },
+      "FormField": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "form_fields.form_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "form_fields.field_key"
+          },
+          "type": {
+            "type": "string",
+            "description": "form_fields.type・・nput遞ｮ蛻･・・
+          },
+          "sort_order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "form_fields.sort_order"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "form_fields.is_required・亥崋螳壼ｿ・茨ｼ・
+          },
+          "options_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "驕ｸ謚櫁い縺ｪ縺ｩ・・SON・・
+          },
+          "visibility_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 visibility_rule(JSON)"
+          },
+          "required_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 required_rule(JSON)"
+          },
+          "step_transition_rule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "A-06 step_transition_rule(JSON)"
+          },
+          "pdf_block_key": {
+            "type": "string",
+            "nullable": true,
+            "description": "PDF繝・Φ繝励Ξ繝ｼ繝亥・縺ｮ繝悶Ο繝・け繧ｭ繝ｼ・・DF逕滓・譎ゅ↓菴ｿ逕ｨ・・
+          },
+          "pdf_page_number": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "PDF繝・Φ繝励Ξ繝ｼ繝亥・縺ｮ繝壹・繧ｸ逡ｪ蜿ｷ・・蟋九∪繧翫￣DF逕滓・譎ゅ↓菴ｿ逕ｨ・・
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "field_key",
+          "type",
+          "sort_order",
+          "is_required"
+        ]
+      },
+      "ConditionState": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "enum": [
+              "1"
+            ]
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "visible": {
+                  "type": "boolean"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "store": {
+                  "type": "string",
+                  "enum": [
+                    "store",
+                    "do_not_store"
+                  ]
+                },
+                "eval": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "fallback",
+                    "error"
+                  ]
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "rule",
+                          "type",
+                          "missing_field",
+                          "unknown_operator"
+                        ]
+                      },
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description": "莉ｻ諢擾ｼ医ョ繝舌ャ繧ｰ逕ｨ騾費ｼ・
+                }
+              },
+              "required": [
+                "visible",
+                "required",
+                "store",
+                "eval"
+              ]
+            }
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "STEP驕ｷ遘ｻ迥ｶ諷具ｼ・TEP繝｢繝ｼ繝峨〒蛻ｩ逕ｨ・・
+          }
+        },
+        "required": [
+          "version",
+          "evaluated_at",
+          "fields"
+        ],
+        "description": "譚｡莉ｶ蛻・ｲ占ｩ穂ｾ｡邨先棡・・PI竊旦I I/F・・
+      },
+      "Submission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.id"
+          },
+          "form_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submissions.form_id"
+          },
+          "status": {
+            "type": "string",
+            "description": "submissions.status",
+            "enum": [
+              "received",
+              "confirmed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "form_id",
+          "status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "SubmissionValue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.id"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "submission_values.submission_id"
+          },
+          "field_key": {
+            "type": "string",
+            "description": "submission_values.field_key"
+          },
+          "field_label_snapshot": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "繝ｩ繝吶Ν繧ｹ繝翫ャ繝励す繝ｧ繝・ヨ"
+          },
+          "value_json": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "蝗樒ｭ・value・・SON・・
+          },
+          "label_json": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "label 繧ｹ繝翫ャ繝励す繝ｧ繝・ヨ・・SON・・
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "field_key",
+          "value_json",
+          "created_at"
+        ]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "mail",
+              "slack"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "sent",
+              "failed"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "channel",
+          "status",
+          "created_at"
+        ]
+      },
+      "SubmissionPdf": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "submission_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pdf_type": {
+            "type": "string",
+            "enum": [
+              "submission",
+              "ack"
+            ]
+          },
+          "storage_path": {
+            "type": "string",
+            "description": "S3遲峨・菫晏ｭ伜・繝代せ"
+          },
+          "is_latest": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "pdf_type",
+          "storage_path",
+          "is_latest",
+          "created_at"
+        ]
+      },
+      "PaginatedForms": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Form"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "PaginatedResponses": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Submission"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "per_page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "created_at_desc",
+              "created_at_asc"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "per_page",
+          "sort"
+        ]
+      },
+      "SortEnum": {
+        "type": "string",
+        "description": "荳隕ｧ邉ｻ sort縲よ里螳・created_at_desc",
+        "enum": [
+          "created_at_desc",
+          "created_at_asc"
+        ]
+      },
+      "ProgressJob": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "繧ｸ繝ｧ繝蜂D"
+          },
+          "type": {
+            "type": "string",
+            "description": "繧ｸ繝ｧ繝也ｨｮ蛻･・・SV_EXPORT/PDF_GENERATE 遲会ｼ・
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "succeeded",
+              "failed",
+              "canceled"
+            ]
+          },
+          "percent": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 100,
+            "description": "騾ｲ謐礼紫・井ｸ肴・縺ｪ蝣ｴ蜷・null 蜿ｯ・・
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "騾ｲ謐励Γ繝・そ繝ｼ繧ｸ・井ｻｻ諢擾ｼ・
+          },
+          "result": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "download_url": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "螳御ｺ・凾縺ｮ謌先棡迚ｩDL URL・育ｽｲ蜷攻RL縺ｪ縺ｩ・・
+              }
+            }
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "騾ｲ謐怜盾辣ｧ譛滄剞・・TL・・
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "status",
+          "percent",
+          "message",
+          "result",
+          "updated_at",
+          "expires_at"
+        ]
+      },
+      "EnvelopeProgress": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "job": {
+                    "$ref": "#/components/schemas/ProgressJob"
+                  }
+                },
+                "required": [
+                  "job"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "AdminUserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "陦ｨ遉ｺ蜷搾ｼ井ｻｻ諢擾ｼ・
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended"
+            ],
+            "description": "繧ｹ繝・・繧ｿ繧ｹ・井ｻｻ諢擾ｼ・
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 1,
+            "description": "莉倅ｸ弱Ο繝ｼ繝ｫ・育樟迥ｶ縺ｯ蜊倅ｸ繝ｭ繝ｼ繝ｫ驕狗畑縺ｮ縺溘ａ隕∫ｴ謨ｰ1蝗ｺ螳夲ｼ・
+          },
+          "is_root": {
+            "type": "boolean",
+            "description": "root-only 繝輔Λ繧ｰ・亥､画峩縺ｫ縺ｯ root 讓ｩ髯舌′蠢・ｦ・ｼ・
+          },
+          "form_create_limit_enabled": {
+            "type": "boolean",
+            "description": "繝輔か繝ｼ繝菴懈・謨ｰ蛻ｶ髯舌ｒ驕ｩ逕ｨ縺吶ｋ縺・
+          },
+          "form_create_limit": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "description": "繝輔か繝ｼ繝菴懈・蜿ｯ閭ｽ謨ｰ・・nabled=true 縺ｮ蝣ｴ蜷医・縺ｿ譛牙柑縲Ｎin=1・・
+          }
+        },
+        "required": [
+          "roles"
+        ],
+        "additionalProperties": false
+      },
+      "SearchHit": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "讀懃ｴ｢蟇ｾ雎｡遞ｮ蛻･",
+            "enum": [
+              "form",
+              "response",
+              "audit_log",
+              "admin_user",
+              "log"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "description": "蟇ｾ雎｡ID"
+          },
+          "title": {
+            "type": "string",
+            "description": "陦ｨ遉ｺ繧ｿ繧､繝医Ν"
+          },
+          "snippet": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "謚懃ｲ・
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "驕ｷ遘ｻ蜈茨ｼ・I蛛ｴ縺ｧ邨・∩遶九※繧句ｴ蜷医・null・・
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "title",
+          "snippet",
+          "url"
+        ]
+      },
+      "EnvelopeSearch": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "hits": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SearchHit"
+                    }
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "hits",
+                  "total"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "AdminLogItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "info",
+              "warn",
+              "error"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "description": "蛻・｡橸ｼ・uth/audit/system/api 遲会ｼ・
+          },
+          "message": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "endpoint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "errors.reason 遲・
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "category",
+          "message",
+          "request_id",
+          "endpoint",
+          "reason",
+          "created_at"
+        ]
+      },
+      "EnvelopeLogsList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "logs": {
+                    "type": "object",
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/AdminLogItem"
+                        }
+                      },
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "page": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "per_page": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "items",
+                      "total",
+                      "page",
+                      "per_page"
+                    ]
+                  }
+                },
+                "required": [
+                  "logs"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "EnvelopeLogDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "log": {
+                    "$ref": "#/components/schemas/AdminLogItem"
+                  }
+                },
+                "required": [
+                  "log"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "PublicFormView": {
+        "type": "object",
+        "properties": {
+          "form_key": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "condition_state": {
+            "$ref": "#/components/schemas/ConditionState"
+          }
+        },
+        "required": [
+          "form_key",
+          "title",
+          "description",
+          "fields",
+          "condition_state"
+        ]
+      },
+      "EnvelopePublicFormView": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "form": {
+                    "$ref": "#/components/schemas/PublicFormView"
+                  }
+                },
+                "required": [
+                  "form"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "ResponsesCsvExportRequest": {
+        "type": "object",
+        "properties": {
+          "q": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "讀懃ｴ｢繧ｭ繝ｼ繝ｯ繝ｼ繝会ｼ井ｻｻ諢擾ｼ・
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "active",
+              "suspended"
+            ],
+            "description": "・井ｻｻ諢擾ｼ・
+          },
+          "date_from": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "髢句ｧ区律・井ｻｻ諢擾ｼ・
+          },
+          "date_to": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "邨ゆｺ・律・井ｻｻ諢擾ｼ・
+          }
+        },
+        "additionalProperties": false
+      },
+      "EnvelopeJobAccepted": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EnvelopeSuccess"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "job_id": {
+                    "type": "string"
+                  },
+                  "progress_url": {
+                    "type": "string",
+                    "description": "GET /v1/progress/{job_id}"
+                  },
+                  "download_url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "螳御ｺ・ｾ後↓蛻ｩ逕ｨ縺ｧ縺阪ｋDL URL・亥ｿ・ｦ√↑繧会ｼ・
+                  }
+                },
+                "required": [
+                  "job_id",
+                  "progress_url",
+                  "download_url"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "401 Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "403 Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "422 Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EnvelopeError"
+            }
+          }
+        }
+      }
+    },
+    "examples": {
+      "ForbiddenRootOnly": {
+        "summary": "root-only 縺ｫ繧医ｊ諡貞凄",
+        "value": {
+          "success": false,
+          "data": null,
+          "message": "Forbidden.",
+          "errors": {
+            "reason": "ROOT_ONLY"
+          },
+          "code": "FORBIDDEN",
+          "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+      },
+      "ForbiddenSystemAdminRequired": {
+        "summary": "system_admin 蠢・医↓繧医ｊ諡貞凄",
+        "value": {
+          "success": false,
+          "data": null,
+          "message": "Forbidden.",
+          "errors": {
+            "reason": "SYSTEM_ADMIN_REQUIRED"
+          },
+          "code": "FORBIDDEN",
+          "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "繝ｭ繧ｰ繧､繝ｳ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "token": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "token譁ｹ蠑上・蝣ｴ蜷医↓霑泌唆・・anctum SPA縺ｮ蝣ｴ蜷・ull・・
+                        },
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "remember": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "繝ｭ繧ｰ繧｢繧ｦ繝・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logged_out": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "logged_out"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "閾ｪ蛻・・霄ｫ縺ｮ諠・ｱ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/forms": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝荳隕ｧ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "forms": {
+                          "$ref": "#/components/schemas/PaginatedForms"
+                        }
+                      },
+                      "required": [
+                        "forms"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "closed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "讀懃ｴ｢・磯Κ蛻・ｸ閾ｴ・・
+            },
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝菴懈・",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "繝輔か繝ｼ繝隴伜挨蟄・,
+                    "example": "CONTACT_2026"
+                  },
+                  "is_public": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    },
+                    "description": "螟夊ｨ隱橸ｼ亥・譛滂ｼ・
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{id}": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝蜿門ｾ・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        },
+                        "translations": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormTranslation"
+                          }
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝譖ｴ譁ｰ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "form": {
+                          "$ref": "#/components/schemas/Form"
+                        }
+                      },
+                      "required": [
+                        "form"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "published",
+                      "closed"
+                    ]
+                  },
+                  "is_public": {
+                    "type": "boolean"
+                  },
+                  "public_period_start": {
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true,
+                    "description": "蜈ｬ髢区悄髢馴幕蟋区律譎・
+                  },
+                  "public_period_end": {
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true,
+                    "description": "蜈ｬ髢区悄髢鍋ｵゆｺ・律譎・
+                  },
+                  "answer_period_start": {
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true,
+                    "description": "蝗樒ｭ疲悄髢馴幕蟋区律譎・
+                  },
+                  "answer_period_end": {
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true,
+                    "description": "蝗樒ｭ疲悄髢鍋ｵゆｺ・律譎・
+                  },
+                  "attachment_enabled": {
+                    "type": "boolean",
+                    "description": "豺ｻ莉倥ヵ繧｡繧､繝ｫ讖溯・縺梧怏蜉ｹ縺・
+                  },
+                  "attachment_type": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "豺ｻ莉倥ヵ繧｡繧､繝ｫ繧ｿ繧､繝暦ｼ・df_template: PDF繝・Φ繝励Ξ繝ｼ繝医「ploaded_files: 繧｢繝・・繝ｭ繝ｼ繝峨ヵ繧｡繧､繝ｫ・・,
+                    "enum": [
+                      "pdf_template",
+                      "uploaded_files"
+                    ]
+                  },
+                  "notification_user_enabled": {
+                    "type": "boolean",
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍縺梧怏蜉ｹ縺・
+                  },
+                  "notification_user_email_template": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ繝・Φ繝励Ξ繝ｼ繝・
+                  },
+                  "notification_user_email_subject": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ莉ｶ蜷・
+                  },
+                  "notification_user_email_from": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "email",
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ騾∽ｿ｡蜈・い繝峨Ξ繧ｹ"
+                  },
+                  "notification_user_email_reply_to": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "email",
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫ霑比ｿ｡蜈医い繝峨Ξ繧ｹ"
+                  },
+                  "notification_user_email_cc": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫCC・磯・蛻暦ｼ・
+                  },
+                  "notification_user_email_bcc": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "description": "繝ｦ繝ｼ繧ｶ繝ｼ騾夂衍繝｡繝ｼ繝ｫBCC・磯・蛻暦ｼ・
+                  },
+                  "notification_admin_enabled": {
+                    "type": "boolean",
+                    "description": "邂｡逅・・夂衍縺梧怏蜉ｹ縺・
+                  },
+                  "notification_admin_user_ids": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "description": "邂｡逅・・夂衍騾∽ｿ｡蜈医Θ繝ｼ繧ｶ繝ｼID荳隕ｧ"
+                  },
+                  "notification_admin_email_template": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ繝・Φ繝励Ξ繝ｼ繝・
+                  },
+                  "notification_admin_email_subject": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ莉ｶ蜷・
+                  },
+                  "notification_admin_email_from": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "email",
+                    "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ騾∽ｿ｡蜈・い繝峨Ξ繧ｹ"
+                  },
+                  "notification_admin_email_reply_to": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "email",
+                    "description": "邂｡逅・・夂衍繝｡繝ｼ繝ｫ霑比ｿ｡蜈医い繝峨Ξ繧ｹ"
+                  },
+                  "translations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormTranslation"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝蜑企勁・郁ｫ也炊・・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "deleted": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "deleted"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{id}/fields": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝鬆・岼荳隕ｧ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "include_rules",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "description": "visibility/required rules 繧貞性繧√ｋ"
+            },
+            "required": false
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝鬆・岼荳諡ｬ譖ｴ譁ｰ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/FormField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "fields"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/FormField"
+                    }
+                  }
+                },
+                "required": [
+                  "fields"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{id}/attachment/pdf-template": {
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "PDF繝・Φ繝励Ξ繝ｼ繝医い繝・・繝ｭ繝ｼ繝・,
+        "description": "繝輔か繝ｼ繝縺ｮPDF繝・Φ繝励Ξ繝ｼ繝医ｒ繧｢繝・・繝ｭ繝ｼ繝峨☆繧・,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pdf_template": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "PDF繝・Φ繝励Ξ繝ｼ繝医ヵ繧｡繧､繝ｫ"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "pdf_template_path": {
+                          "type": "string",
+                          "description": "繧｢繝・・繝ｭ繝ｼ繝峨＆繧後◆PDF繝・Φ繝励Ξ繝ｼ繝医・繝代せ"
+                        }
+                      },
+                      "required": [
+                        "pdf_template_path"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{id}/attachment/files": {
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "豺ｻ莉倥ヵ繧｡繧､繝ｫ繧｢繝・・繝ｭ繝ｼ繝・,
+        "description": "繝輔か繝ｼ繝縺ｮ豺ｻ莉倥ヵ繧｡繧､繝ｫ繧偵い繝・・繝ｭ繝ｼ繝峨☆繧具ｼ郁､・焚繝輔ぃ繧､繝ｫ蟇ｾ蠢懶ｼ・,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "繧｢繝・・繝ｭ繝ｼ繝峨☆繧九ヵ繧｡繧､繝ｫ・郁､・焚蜿ｯ・・
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "attachment_files": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "path": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "integer",
+                                "format": "int64"
+                              },
+                              "mime": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "attachment_files"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{id}/attachment/files/{file_index}": {
+      "delete": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "豺ｻ莉倥ヵ繧｡繧､繝ｫ蜑企勁",
+        "description": "繝輔か繝ｼ繝縺ｮ豺ｻ莉倥ヵ繧｡繧､繝ｫ繧貞炎髯､縺吶ｋ",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "file_index",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "required": true,
+            "description": "蜑企勁縺吶ｋ繝輔ぃ繧､繝ｫ縺ｮ繧､繝ｳ繝・ャ繧ｯ繧ｹ・・蟋九∪繧奇ｼ・
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "deleted": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "deleted"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "404 Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/responses": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "騾∽ｿ｡荳隕ｧ・・esponses・・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "responses": {
+                          "$ref": "#/components/schemas/PaginatedResponses"
+                        }
+                      },
+                      "required": [
+                        "responses"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "form_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "received",
+                "confirmed"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "讀懃ｴ｢・医Γ繝ｼ繝ｫ/豌丞錐縺ｪ縺ｩ・哂-02讀懃ｴ｢繝槭ヨ繝ｪ繧ｯ繧ｹ縺ｫ蟋碑ｭｲ・・
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}": {
+      "get": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "騾∽ｿ｡隧ｳ邏ｰ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "response": {
+                          "$ref": "#/components/schemas/Submission"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionValue"
+                          }
+                        },
+                        "notifications": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Notification"
+                          }
+                        },
+                        "pdfs": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/SubmissionPdf"
+                          }
+                        }
+                      },
+                      "required": [
+                        "response",
+                        "values"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ]
+      }
+    },
+    "/v1/forms/{form_key}/submit": {
+      "post": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "蜈ｬ髢・submit",
+        "description": "蜈ｬ髢九ヵ繧ｩ繝ｼ繝縺ｸ縺ｮ蝗樒ｭ斐ｒ騾∽ｿ｡縺吶ｋ縲ょ・髢区悄髢薙・蝗樒ｭ疲悄髢薙・繝√ぉ繝・け縺瑚｡後ｏ繧後∵悄髢灘､悶・蝣ｴ蜷医・403繧ｨ繝ｩ繝ｼ繧定ｿ斐☆縲る∽ｿ｡蠕後・夂衍繧ｸ繝ｧ繝悶′繧ｭ繝･繝ｼ縺ｫ謚募・縺輔ｌ繧九・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "submission_id": {
+                          "type": "integer",
+                          "format": "int64"
+                        },
+                        "ack_url": {
+                          "type": "string",
+                          "description": "ACK URL・・I驕ｷ遘ｻ逕ｨ・・
+                        },
+                        "condition_state": {
+                          "$ref": "#/components/schemas/ConditionState"
+                        }
+                      },
+                      "required": [
+                        "submission_id",
+                        "ack_url"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden・亥・髢区悄髢灘､悶∪縺溘・蝗樒ｭ疲悄髢灘､厄ｼ・,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "oneOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "object"
+                        },
+                        {
+                          "type": "array"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "ja",
+                      "en"
+                    ]
+                  },
+                  "mode": {
+                    "type": "string",
+                    "description": "both/value/label (CSV遲峨・陦ｨ迴ｾ縺ｫ蟋碑ｭｲ)",
+                    "enum": [
+                      "both",
+                      "value",
+                      "label"
+                    ]
+                  }
+                },
+                "required": [
+                  "answers"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/forms/{form_key}/ack": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "ACK 陦ｨ遉ｺ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "ack": {
+                          "type": "object",
+                          "description": "ACK 陦ｨ遉ｺ繝・・繧ｿ・医ユ繝ｳ繝励Ξ/螟画焚縺ｯA-04縺ｫ蟋碑ｭｲ・・
+                        },
+                        "pdf_url": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "PDF繝繧ｦ繝ｳ繝ｭ繝ｼ繝蔚RL・郁ｨｱ蜿ｯ縺輔ｌ繧句ｴ蜷茨ｼ・
+                        }
+                      },
+                      "required": [
+                        "ack"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "confirm_url token"
+            },
+            "required": false
+          },
+          {
+            "name": "submission_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}/pdf": {
+      "get": {
+        "tags": [
+          "ACK/PDF"
+        ],
+        "summary": "PDF 蜿門ｾ暦ｼ育ｮ｡逅・・・・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          },
+          {
+            "name": "pdf_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "submission",
+                "ack"
+              ]
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "繝繝・す繝･繝懊・繝蛾寔險・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "summary": {
+                          "type": "object",
+                          "properties": {
+                            "forms_count": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_today": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "responses_total": {
+                              "type": "integer",
+                              "format": "int32"
+                            }
+                          },
+                          "required": [
+                            "forms_count",
+                            "responses_today",
+                            "responses_total"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "summary"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/dashboard/errors": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "繝繝・す繝･繝懊・繝会ｼ医お繝ｩ繝ｼ/螟ｱ謨嶺ｸ隕ｧ・・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "errors": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "mail_failed",
+                                      "slack_failed",
+                                      "pdf_failed",
+                                      "eval_error",
+                                      "other"
+                                    ]
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "kind",
+                                  "message",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "errors"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/admin-users": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "邂｡逅・・Θ繝ｼ繧ｶ荳隕ｧ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "users": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "$ref": "#/components/schemas/User"
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "users"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "SYSTEM_ADMIN",
+                "FORM_ADMIN",
+                "LOG_ADMIN"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended"
+              ]
+            },
+            "required": false
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "讀懃ｴ｢・・mail/name・・
+            },
+            "required": false
+          }
+        ],
+        "description": "- 霑泌唆縺ｮ豁｣譛ｬ繝ｭ繝ｼ繝ｫ縺ｯ `roles[]`縲・n- `role` 縺ｯ莠呈鋤縺ｮ縺溘ａ縺ｮ deprecated 繝輔ぅ繝ｼ繝ｫ繝会ｼ亥ｰ・擂蜑企勁莠亥ｮ夲ｼ峨・
+      },
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "邂｡逅・・Θ繝ｼ繧ｶ菴懈・・域魚蠕・ｼ・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "SYSTEM_ADMIN",
+                        "FORM_ADMIN",
+                        "LOG_ADMIN"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "email",
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-users/{id}": {
+      "put": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "邂｡逅・・Θ繝ｼ繧ｶ譖ｴ譁ｰ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      },
+                      "required": [
+                        "user"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                },
+                "examples": {
+                  "ROOT_ONLY": {
+                    "$ref": "#/components/examples/ForbiddenRootOnly"
+                  },
+                  "SYSTEM_ADMIN_REQUIRED": {
+                    "$ref": "#/components/examples/ForbiddenSystemAdminRequired"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserUpdateRequest"
+              }
+            }
+          }
+        },
+        "description": "### RBAC\n- 蠢・・ system_admin\n- **system_admin 莉倅ｸ趣ｼ域・譬ｼ・・*縺ｯ root-only・・s_root=true 蠢・茨ｼ噂n- system_admin 蜑･螂ｪ・磯剄譬ｼ・峨・ system_admin 縺ｧ蜿ｯ・医◆縺縺苓・蟾ｱ髯肴ｼ遖∵ｭ｢繝ｻ譛蠕後・ system_admin 遖∵ｭ｢・噂n\n- `roles` 縺ｯ迴ｾ迥ｶ蜊倅ｸ繝ｭ繝ｼ繝ｫ驕狗畑・郁ｦ∫ｴ謨ｰ1・噂n- `is_root` 螟画峩縺ｯ root 讓ｩ髯舌′蠢・ｦ・
+      },
+      "get": {
+        "tags": [
+          "system-admin-users"
+        ],
+        "summary": "邂｡逅・・い繧ｫ繧ｦ繝ｳ繝郁ｩｳ邏ｰ蜿門ｾ・,
+        "description": "S-03 繧｢繧ｫ繧ｦ繝ｳ繝郁ｩｳ邏ｰ/邱ｨ髮・畑縲りｿ泌唆繝ｭ繝ｼ繝ｫ縺ｯ roles[] 縺梧ｭ｣譛ｬ縲Ｓole 縺ｯ霑斐＆縺ｪ縺・・,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/EnvelopeSuccess"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "user": {
+                              "$ref": "#/components/schemas/User"
+                            }
+                          },
+                          "required": [
+                            "user"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/system/admin-users/invites/resend": {
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "諡帛ｾ・・騾・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "sent": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "sent"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                },
+                "required": [
+                  "user_id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/admin-audit-logs": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "逶｣譟ｻ繝ｭ繧ｰ荳隕ｧ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logs": {
+                          "type": "object",
+                          "properties": {
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "actor_user_id": {
+                                    "type": "integer",
+                                    "format": "int64"
+                                  },
+                                  "action": {
+                                    "type": "string"
+                                  },
+                                  "target_type": {
+                                    "type": "string"
+                                  },
+                                  "target_id": {
+                                    "type": "string"
+                                  },
+                                  "created_at": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "actor_user_id",
+                                  "action",
+                                  "created_at"
+                                ]
+                              }
+                            },
+                            "total": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "per_page": {
+                              "type": "integer",
+                              "format": "int32"
+                            },
+                            "sort": {
+                              "type": "string",
+                              "enum": [
+                                "created_at_desc",
+                                "created_at_asc"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "items",
+                            "total",
+                            "page",
+                            "per_page",
+                            "sort"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "logs"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1
+            },
+            "required": true
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 200
+            },
+            "required": true
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortEnum"
+            },
+            "required": false
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "required": false
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ]
+      }
+    },
+    "/v1/system/roles/permissions": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "繝ｭ繝ｼ繝ｫ讓ｩ髯仙ｮ夂ｾｩ蜿門ｾ・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "roles": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string"
+                              },
+                              "permissions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "role",
+                              "permissions"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "roles"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "繝ｭ繝ｼ繝ｫ讓ｩ髯仙ｮ夂ｾｩ譖ｴ譁ｰ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "updated": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "updated"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "role": {
+                          "type": "string"
+                        },
+                        "permissions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "role",
+                        "permissions"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "roles"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/settings": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "繧ｷ繧ｹ繝・Β險ｭ螳壼叙蠕・,
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "繧ｷ繧ｹ繝・Β險ｭ螳壽峩譁ｰ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settings": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "settings"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "message",
+                    "errors"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401 Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "422 Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "settings": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "settings"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/system/root-only/ping": {
+      "get": {
+        "tags": [
+          "SUP (root-only)"
+        ],
+        "summary": "root-only 蜍穂ｽ懃｢ｺ隱搾ｼ・ing・・,
+        "description": "root-only 繝溘ラ繝ｫ繧ｦ繧ｧ繧｢蜍穂ｽ懃｢ｺ隱咲畑縲Ｔystem_admin 繧呈ｺ縺溘＠縺滉ｸ翫〒 is_root=true 縺ｮ蝣ｴ蜷医・縺ｿ謌仙粥縲・,
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "pong": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "pong"
+                      ]
+                    },
+                    "message": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "errors": {
+                      "type": [
+                        "object",
+                        "null"
+                      ]
+                    },
+                    "code": {
+                      "type": "string",
+                      "example": "OK"
+                    },
+                    "request_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "data",
+                    "code",
+                    "request_id"
+                  ]
+                },
+                "examples": {
+                  "OK": {
+                    "summary": "謌仙粥",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "pong": true
+                      },
+                      "message": null,
+                      "errors": null,
+                      "code": "OK",
+                      "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "403 Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                },
+                "examples": {
+                  "ROOT_ONLY": {
+                    "$ref": "#/components/examples/ForbiddenRootOnly"
+                  },
+                  "SYSTEM_ADMIN_REQUIRED": {
+                    "$ref": "#/components/examples/ForbiddenSystemAdminRequired"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/progress/{job_id}": {
+      "get": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "騾ｲ謐怜叙蠕・,
+        "description": "CSV/PDF/繝輔ぃ繧､繝ｫ謫堺ｽ懃ｭ峨・騾ｲ謐励ｒ蜿門ｾ励☆繧九・,
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeProgress"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found / expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/search": {
+      "get": {
+        "tags": [
+          "search"
+        ],
+        "summary": "讓ｪ譁ｭ讀懃ｴ｢",
+        "description": "繝輔か繝ｼ繝/蝗樒ｭ・逶｣譟ｻ繝ｭ繧ｰ/繧｢繧ｫ繧ｦ繝ｳ繝育ｭ峨ｒ讓ｪ譁ｭ讀懃ｴ｢縺吶ｋ・・-06・峨・,
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "form",
+                  "response",
+                  "audit_log",
+                  "admin_user",
+                  "log"
+                ]
+              }
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSearch"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/logs": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "繝ｭ繧ｰ荳隕ｧ",
+        "description": "L-01 繝ｭ繧ｰ荳隕ｧ縲・,
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "info",
+                "warn",
+                "error"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeLogsList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/logs/{id}": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "繝ｭ繧ｰ隧ｳ邏ｰ",
+        "description": "L-02 繝ｭ繧ｰ隧ｳ邏ｰ縲・,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeLogDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/public/forms/{form_key}": {
+      "get": {
+        "tags": [
+          "public-forms"
+        ],
+        "summary": "蜈ｬ髢九ヵ繧ｩ繝ｼ繝陦ｨ遉ｺ蜿門ｾ・,
+        "description": "Respondent 逕ｨ繝輔か繝ｼ繝陦ｨ遉ｺ・・f/{form_key}・峨よ擅莉ｶ蛻・ｲ舌′縺ゅｋ蝣ｴ蜷医・ condition_state 繧定ｿ斐☆縲ょ・髢区悄髢薙・繝√ぉ繝・け縺瑚｡後ｏ繧後∵悄髢灘､悶・蝣ｴ蜷医・403繧ｨ繝ｩ繝ｼ繧定ｿ斐☆縲・,
+        "parameters": [
+          {
+            "name": "form_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopePublicFormView"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "403 Forbidden・亥・髢区悄髢灘､厄ｼ・,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/responses/export/csv": {
+      "post": {
+        "tags": [
+          "responses"
+        ],
+        "summary": "蝗樒ｭ任SV繧ｨ繧ｯ繧ｹ繝昴・繝茨ｼ医ず繝ｧ繝夜幕蟋具ｼ・,
+        "description": "蝗樒ｭ比ｸ隕ｧ縺ｮCSV繧ｨ繧ｯ繧ｹ繝昴・繝医ｒ髱槫酔譛溘ず繝ｧ繝悶→縺励※髢句ｧ九＠縲）ob_id 繧定ｿ斐☆縲・,
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResponsesCsvExportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeJobAccepted"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/exports/{job_id}/download": {
+      "get": {
+        "tags": [
+          "exports"
+        ],
+        "summary": "謌先棡迚ｩ繝繧ｦ繝ｳ繝ｭ繝ｼ繝・,
+        "description": "繧ｨ繧ｯ繧ｹ繝昴・繝域・譫懃黄縺ｮ繝繧ｦ繝ｳ繝ｭ繝ｼ繝峨６RL譛滄剞蛻・ｌ譎ゅ・蜀咲ｽｲ蜷搾ｼ・ettings 縺ｫ萓晏ｭ假ｼ峨・,
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to signed download URL"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found / expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/forms/{id}/copy": {
+      "post": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝隍・｣ｽ",
+        "description": "謖・ｮ壹ヵ繧ｩ繝ｼ繝繧定､・｣ｽ縺励※譁ｰ縺励＞繝輔か繝ｼ繝繧剃ｽ懈・縺吶ｋ縲・,
+        "x-status": "planned",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "隍・｣ｽ蠕後・繝輔か繝ｼ繝蜷搾ｼ育怐逡･譎ゅ・蜈・・蜷榊燕 + \" (繧ｳ繝斐・)\"・・
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/forms/{id}/versions": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝繝舌・繧ｸ繝ｧ繝ｳ螻･豁ｴ",
+        "description": "繝輔か繝ｼ繝縺ｮ螟画峩螻･豁ｴ・医ヰ繝ｼ繧ｸ繝ｧ繝ｳ荳隕ｧ・峨ｒ蜿門ｾ励☆繧九・,
+        "x-status": "planned",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/templates": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "繝輔か繝ｼ繝繝・Φ繝励Ξ繝ｼ繝井ｸ隕ｧ",
+        "description": "繝輔か繝ｼ繝菴懈・縺ｫ菴ｿ逕ｨ蜿ｯ閭ｽ縺ｪ繝・Φ繝励Ξ繝ｼ繝井ｸ隕ｧ繧貞叙蠕励☆繧九・,
+        "x-status": "planned",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/responses/{id}/status": {
+      "patch": {
+        "tags": [
+          "Responses"
+        ],
+        "summary": "蝗樒ｭ斐せ繝・・繧ｿ繧ｹ螟画峩",
+        "description": "蝗樒ｭ斐・謇ｿ隱・蜊ｴ荳狗ｭ峨・繧ｹ繝・・繧ｿ繧ｹ繧貞､画峩縺吶ｋ縲・,
+        "x-status": "planned",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "approved",
+                      "rejected",
+                      "pending_review"
+                    ]
+                  },
+                  "comment": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/system/notifications": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "騾夂衍險ｭ螳壼叙蠕・,
+        "description": "繝｡繝ｼ繝ｫ/Slack遲峨・騾夂衍險ｭ螳壹ｒ蜿門ｾ励☆繧九・,
+        "x-status": "planned",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "騾夂衍險ｭ螳壽峩譁ｰ",
+        "description": "繝｡繝ｼ繝ｫ/Slack遲峨・騾夂衍險ｭ螳壹ｒ譖ｴ譁ｰ縺吶ｋ縲・,
+        "x-status": "planned",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email_enabled": {
+                    "type": "boolean"
+                  },
+                  "slack_webhook_url": {
+                    "type": "string"
+                  },
+                  "notify_on_submit": {
+                    "type": "boolean"
+                  },
+                  "notify_on_error": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/webhooks": {
+      "get": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "Webhook荳隕ｧ",
+        "description": "逋ｻ骭ｲ貂医∩Webhook荳隕ｧ繧貞叙蠕励☆繧九・,
+        "x-status": "planned",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "Webhook逋ｻ骭ｲ",
+        "description": "螟夜Κ騾｣謳ｺ逕ｨWebhook繧堤匳骭ｲ縺吶ｋ縲・,
+        "x-status": "planned",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "events": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "form.submitted",
+                        "form.published",
+                        "response.created"
+                      ]
+                    }
+                  },
+                  "secret": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "url",
+                  "events"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/v1/webhooks/{id}": {
+      "delete": {
+        "tags": [
+          "System Admin"
+        ],
+        "summary": "Webhook蜑企勁",
+        "description": "逋ｻ骭ｲ貂医∩Webhook繧貞炎髯､縺吶ｋ縲・,
+        "x-status": "planned",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeSuccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvelopeError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "x-generated-at": "2026-01-16T12:00:00Z"
+}
