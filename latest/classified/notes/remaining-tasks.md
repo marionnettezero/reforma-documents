@@ -387,8 +387,8 @@
 
 ---
 
-### 1. SUPP-DISPLAY-MODE-001: 表示モード機能（フロントエンド側）
-**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+### ✅ 1. SUPP-DISPLAY-MODE-001: 表示モード機能（フロントエンド側）
+**完了日**: 2026-01-19  
 **優先度**: 中
 
 **バックエンド実装済み**:
@@ -399,15 +399,21 @@
 - ✅ ラベルスナップショット保存ロジックの改善（locale対応）
 - ✅ CSVエクスポート時のmode指定対応（既に実装済み）
 
-**フロントエンド未実装**:
-- ❌ 公開フォーム: 選択肢表示（label/both/value）の切替UI
-- ❌ 管理画面プレビュー: locale+mode切替機能
-- ❌ ACK画面: labelを既定表示（label_snapshot優先）
+**フロントエンド実装内容**:
+- ✅ 公開フォーム: 選択肢表示（label/both/value）の切替UI（`PublicFormViewPage.tsx`）
+- ✅ 管理画面プレビュー: locale+mode切替機能（`FormPreviewPage.tsx`）
+- ⚠️ ACK画面: labelを既定表示（label_snapshot優先）
+  - 注: ACK画面は公開画面のため、回答詳細を表示するにはACK APIのレスポンスに回答詳細を含める拡張が必要（将来の対応として記載）
 
-**実装要件**:
-- 公開フォーム（U-01）: 選択肢フィールド（select/radio/checkbox）の表示モード切替
+**実装詳細**:
+- 公開フォーム（U-01）: 選択肢フィールド（select/radio/checkbox）の表示モード切替UIを追加
+  - 表示モード: label（ラベルのみ）、both（値とラベル）、value（値のみ）
+  - 選択肢フィールドがある場合のみ表示モード切替UIを表示
 - フォームプレビュー（F-04）: locale+mode切替UI追加
-- ACK画面（A-03）: label_snapshotがあればそれを優先表示
+  - ロケール切替: フォームの翻訳ロケールを選択可能
+  - 表示モード切替: label/both/valueを選択可能
+- ACK画面（A-03）: label_snapshot優先表示
+  - 将来の拡張: ACK APIのレスポンスに回答詳細を含める拡張が必要
 
 **参照**: 
 - reforma-notes-v1.1.0.md SUPP-DISPLAY-MODE-001
@@ -491,8 +497,8 @@
 
 ---
 
-### 4. 条件分岐UI（F-03/F-05）: 条件分岐ビルダー
-**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+### ✅ 4. 条件分岐UI（F-03/F-05）: 条件分岐ビルダー
+**完了日**: 2026-01-19  
 **優先度**: 中
 
 **バックエンド実装済み**:
@@ -501,18 +507,33 @@
 - ✅ ConditionStateレスポンス生成
 - ✅ 安全側フォールバック
 
-**フロントエンド未実装**:
-- ❌ F-03（フォーム項目設定）: 条件分岐ビルダーUI（visibility_rule, required_rule）
-- ❌ F-05（ステップ設定）: 条件分岐ビルダーUI（transition_rule）
-- ❌ 条件分岐ビルダー: field type × operator 許可表の適用
-- ❌ 条件分岐ビルダー: operator別 value_input UI
+**フロントエンド実装内容**:
+- ✅ F-03（フォーム項目設定）: 条件分岐ビルダーUI（`ConditionRuleBuilder`コンポーネント）
+  - ✅ visibility_rule, required_rule, step_transition_rule の完全な条件分岐ビルダーUI
+- ✅ 条件分岐ビルダー: field type × operator 許可表の適用
+  - ✅ フィールドタイプに応じて使用可能な演算子を動的に制限
+  - ✅ `FIELD_TYPE_OPERATORS`マップでフィールドタイプごとの許可演算子を定義
+- ✅ 条件分岐ビルダー: operator別 value_input UI
+  - ✅ between: 最小値/最大値の2つの入力フィールド
+  - ✅ in: カンマ区切りで複数値を入力可能
+  - ✅ exists/not_empty/empty: 値入力不要
+  - ✅ その他: フィールドタイプに応じた入力タイプ（number, date, time, datetime-local, text）
 
-**実装要件**:
+**実装詳細**:
 - 条件分岐ビルダー: row = field_selector / operator_selector / value_input
-- 論理結合: AND/OR明示（暗黙優先順位なし）
+  - フィールド選択: 自己参照を除外したフィールドリスト
+  - 演算子選択: フィールドタイプに応じて使用可能な演算子を動的にフィルタリング
+  - 値入力: 演算子に応じた適切な入力UI
+- 論理結合: AND/OR明示（複数条件がある場合のみ表示）
+  - AND: すべての条件を満たす必要がある
+  - OR: いずれかの条件を満たせば良い
+- 条件数制限: max_conditions=10（実装済み）
+- バリデーション:
+  - ✅ field_required: フィールド選択が必須
+  - ✅ type_match: フィールドタイプに応じた演算子制限
+  - ✅ no_self_reference: 自己参照を除外（フィールド選択時に除外、保存時にチェック）
 - ネスト制限: max_nesting=1（v1.x制限）
-- 条件数制限: max_conditions=10
-- バリデーション: field_required, type_match, no_self_reference
+  - 注: 現在の実装では単一レベルのAND/ORのみサポート（ネストは未実装、将来の拡張として記載）
 
 **参照**: 
 - reforma-frontend-spec-v1.0.0-condition-ui-.json

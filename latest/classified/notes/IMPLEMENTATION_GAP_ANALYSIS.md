@@ -1,7 +1,7 @@
 # ReForma 実装状況と仕様書の乖離・未実装項目分析
 
 **作成日**: 2026-01-18  
-**最終更新日**: 2026-01-18（進捗表示コンポーネント・テーマ機能・フォーム一覧詳細・編集機能実装完了）  
+**最終更新日**: 2026-01-19（SUPP-DISPLAY-MODE-001: 表示モード機能・条件分岐ビルダーUI実装完了）  
 **対象**: `reforma-documents/latest/classified/notes/` の仕様書（`apache-basic-auth-config.md`以外）
 
 ---
@@ -274,6 +274,39 @@
 - `remaining-tasks.md`には多くの実装済み項目が記載されているが、一部の記載と実際の実装に乖離がある
 - 「CSVエクスポートのジョブキュー対応」は実装済み（2026-01-18に実装完了）
 
+### remaining-tasks.mdの未実装項目の実装状況確認
+
+#### 実装済み項目（remaining-tasks.mdでは未実装と記載されているが、実際には実装済み）
+- ✅ **DashboardPage**: API連携実装済み（`/v1/dashboard/summary`、`/v1/dashboard/errors`）
+- ✅ **ResponseListPage**: API連携実装済み（`/v1/responses`、CSVエクスポート機能も実装済み）
+- ✅ **LogListPage**: API連携実装済み（`/v1/logs`）
+- ✅ **PublicFormViewPage**: 条件分岐適用実装済み（`conditionState`を使用して表示制御）
+- ✅ **PublicFormViewPage**: 計算フィールド表示実装済み（`computed`タイプに対応）
+- ✅ **FormItemPage**: 条件分岐ルール編集機能実装済み（`ConditionRuleEditor`コンポーネントを使用）
+- ✅ **FormPreviewPage**: API連携実装済み（`/v1/forms/{id}`、`/v1/forms/{id}/fields`）
+- ✅ **AckViewPage**: API連携実装済み（`/v1/forms/{form_key}/ack`）
+
+#### 実装済み項目（remaining-tasks.mdでは未実装と記載されていたが、実装完了）
+- ✅ **SUPP-DISPLAY-MODE-001: 表示モード機能（フロントエンド側）** - 実装完了（2026-01-19）
+  - ✅ 公開フォーム: 選択肢表示（label/both/value）の切替UI
+  - ✅ 管理画面プレビュー: locale+mode切替機能
+  - ⚠️ ACK画面: labelを既定表示（label_snapshot優先）
+    - 注: ACK画面は公開画面のため、回答詳細を表示するにはACK APIのレスポンスに回答詳細を含める拡張が必要（将来の対応として記載）
+
+#### 実装済み項目（remaining-tasks.mdでは未実装と記載されていたが、実装完了）
+- ✅ **条件分岐UI（F-03/F-05）: 条件分岐ビルダー** - 実装完了（2026-01-19）
+  - ✅ 条件分岐ビルダーUI（`ConditionRuleBuilder`コンポーネント）
+  - ✅ visibility_rule, required_rule, step_transition_rule の完全な条件分岐ビルダーUI
+  - ✅ 複数条件の追加・削除（最大10個）
+  - ✅ AND/ORの論理結合を明示的に選択可能
+  - ✅ field type × operator 許可表の適用（フィールドタイプに応じて使用可能な演算子を制限）
+  - ✅ operator別 value_input UI（between: 最小値/最大値、in: カンマ区切り複数値、その他: 単一値）
+  - ✅ バリデーション: 自己参照チェック、フィールド存在チェック
+  - 注: 簡易的な条件分岐ルール編集機能（`ConditionRuleUI`）は後方互換性のため保持
+
+#### 未実装項目（remaining-tasks.mdの記載通り）
+- なし（全て実装完了）
+
 ---
 
 ## まとめ
@@ -301,6 +334,21 @@
    - ✅ 詳細表示に不足項目を追加（通知設定、PDF設定、テーマ設定等）
    - ✅ 編集機能は`FormEditPage`で実装済み（新規作成と編集を同じ画面で実装）
 
+5. ✅ **SUPP-DISPLAY-MODE-001: 表示モード機能（フロントエンド側）**（remaining-tasks.md）- 実装完了（2026-01-19）
+   - ✅ 公開フォーム: 選択肢表示（label/both/value）の切替UI
+   - ✅ 管理画面プレビュー: locale+mode切替機能
+   - ⚠️ ACK画面: labelを既定表示（label_snapshot優先）
+     - 注: ACK画面は公開画面のため、回答詳細を表示するにはACK APIのレスポンスに回答詳細を含める拡張が必要（将来の対応として記載）
+
+6. ✅ **条件分岐UI（F-03/F-05）: 条件分岐ビルダー**（remaining-tasks.md）- 実装完了（2026-01-19）
+   - ✅ 完全な条件分岐ビルダーUI（`ConditionRuleBuilder`コンポーネント）
+   - ✅ 複数条件の追加・削除（最大10個）
+   - ✅ AND/ORの論理結合を明示的に選択可能
+   - ✅ field type × operator 許可表の適用（フィールドタイプに応じて使用可能な演算子を制限）
+   - ✅ operator別 value_input UI（between: 最小値/最大値、in: カンマ区切り複数値、その他: 単一値）
+   - ✅ バリデーション: 自己参照チェック、フィールド存在チェック
+   - 注: 簡易的な条件分岐ルール編集機能（`ConditionRuleUI`）は後方互換性のため保持
+
 ### 実装済み項目（仕様書と一致）
 
 - ✅ CSVインポート機能（csv-import-spec.md）
@@ -311,6 +359,14 @@
 - ✅ 進捗表示コンポーネント（csv-export-progress-flow.md, remaining-tasks.md）
 - ✅ テーマ機能の完全実装（公開フォームでのテーマ適用、フォーム編集でのテーマ選択UI）
 - ✅ フォーム一覧の詳細・編集機能（detail-edit-fields-review.md）
+- ✅ DashboardPage: API連携実装済み（`/v1/dashboard/summary`、`/v1/dashboard/errors`）
+- ✅ ResponseListPage: API連携実装済み（`/v1/responses`、CSVエクスポート機能も実装済み）
+- ✅ LogListPage: API連携実装済み（`/v1/logs`）
+- ✅ PublicFormViewPage: 条件分岐適用実装済み（`conditionState`を使用して表示制御）
+- ✅ PublicFormViewPage: 計算フィールド表示実装済み（`computed`タイプに対応）
+- ✅ FormItemPage: 条件分岐ルール編集機能実装済み（`ConditionRuleBuilder`コンポーネントを使用、完全な条件分岐ビルダーUI）
+- ✅ FormPreviewPage: API連携実装済み（`/v1/forms/{id}`、`/v1/forms/{id}/fields`）
+- ✅ AckViewPage: API連携実装済み（`/v1/forms/{form_key}/ack`）
 
 ---
 
@@ -332,6 +388,21 @@
    - ✅ 使用状況確認とコピー機能の追加（実装済み）
    - ✅ 公開フォームでのテーマ適用（実装済み）
    - ✅ フォーム編集でのテーマ選択UI（実装済み）
+
+5. ✅ **SUPP-DISPLAY-MODE-001: 表示モード機能**（フロントエンド）- 実装完了（2026-01-19）
+   - ✅ 公開フォーム: 選択肢表示（label/both/value）の切替UI
+   - ✅ 管理画面プレビュー: locale+mode切替機能
+   - ⚠️ ACK画面: labelを既定表示（label_snapshot優先）
+     - 注: ACK画面は公開画面のため、回答詳細を表示するにはACK APIのレスポンスに回答詳細を含める拡張が必要（将来の対応として記載）
+
+6. ✅ **条件分岐UI（F-03/F-05）: 条件分岐ビルダー**（フロントエンド）- 実装完了（2026-01-19）
+   - ✅ 完全な条件分岐ビルダーUI（`ConditionRuleBuilder`コンポーネント）
+   - ✅ 複数条件の追加・削除（最大10個）
+   - ✅ AND/ORの論理結合を明示的に選択可能
+   - ✅ field type × operator 許可表の適用（フィールドタイプに応じて使用可能な演算子を制限）
+   - ✅ operator別 value_input UI（between: 最小値/最大値、in: カンマ区切り複数値、その他: 単一値）
+   - ✅ バリデーション: 自己参照チェック、フィールド存在チェック
+   - 注: 簡易的な条件分岐ルール編集機能（`ConditionRuleUI`）は後方互換性のため保持
 
 ---
 
