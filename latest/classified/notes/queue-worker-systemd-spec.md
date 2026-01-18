@@ -61,7 +61,7 @@ Environment="DB_QUEUE_RETRY_AFTER=90"
 
 # リソース制限
 LimitNOFILE=65535
-MemoryLimit=512M
+MemoryMax=512M
 
 [Install]
 WantedBy=multi-user.target
@@ -96,7 +96,7 @@ Environment="QUEUE_CONNECTION=database"
 
 # リソース制限
 LimitNOFILE=65535
-MemoryLimit=512M
+MemoryMax=512M
 
 [Install]
 WantedBy=multi-user.target
