@@ -1,18 +1,18 @@
-# ADR-0008: JSON Field Storage for Multi‑Value Attributes
+# ADR-0008: 複数値属性のためのJSONフィールドストレージ
 
 **Status:** Proposed  
 **Date:** 2026‑01‑14
 
 ## Context
 
-The notes specification suggests using `consider_json_storage_future` for fields that store multiple values, such as checkbox selections【219090252433354†L290-L293】. At present, such values are stored in normalized relational tables, which complicates queries like “all values present”.
+`notes`仕様書では、チェックボックス選択など、複数の値を格納するフィールドに対して`consider_json_storage_future`の使用が示唆されています【219090252433354†L290-L293】。現在、そのような値は正規化されたリレーショナルテーブルに格納されており、「すべての値が存在する」などのクエリが複雑になっています。
 
 ## Decision
 
-We propose to store multi‑value attributes in JSON or array columns (depending on the underlying database) to simplify storage and retrieval. Query operators (`any_in`, `all_in`) will operate directly on these JSON fields. The API layer will abstract the storage mechanism from clients.
+ストレージと取得を簡素化するため、複数値属性をJSONまたは配列カラム（基盤となるデータベースに応じて）に格納することを提案します。クエリ演算子（`any_in`、`all_in`）は、これらのJSONフィールドに対して直接動作します。APIレイヤーは、ストレージメカニズムをクライアントから抽象化します。
 
 ## Consequences
 
-- **Simpler schema:** Reduces join complexity and improves read performance for multi‑value fields.
-- **Query complexity:** Requires careful indexing and operator support to maintain performance, especially for `all_in` queries.
-- **Migration:** Existing data must be migrated to the new format without data loss.
+- **スキーマの簡素化:** 複数値フィールドの結合の複雑さを減らし、読み取り性能を向上させます。
+- **クエリの複雑さ:** 特に`all_in`クエリの性能を維持するため、慎重なインデックス化と演算子サポートが必要です。
+- **移行:** データ損失なしで、既存データを新しい形式に移行する必要があります。

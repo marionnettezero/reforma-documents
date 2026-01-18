@@ -6,11 +6,11 @@
 
 ## Context
 
-The API section notes that the current OpenAPI v1.1 draft lacks certain parameters and that these will be supplemented in the final specification【343970276494006†L6482-L6484】. Without a finalized specification, API consumers cannot fully rely on the contract.
+APIセクションでは、現在のOpenAPI v1.1ドラフトには特定のパラメータが不足しており、これらは最終仕様で補完されることが記載されています【343970276494006†L6482-L6484】。最終化された仕様がない場合、APIコンシューマーは契約に完全に依存することができません。
 
 ## Decision
 
-We propose to audit all existing endpoints against the implementation, identify missing request and response parameters, and update the OpenAPI v1.1 specification accordingly. The finalized document will be versioned and published alongside the canonical spec. Any breaking changes will be communicated via a deprecation policy.
+実装に対してすべての既存エンドポイントを監査し、不足しているリクエストおよびレスポンスパラメータを特定し、それに応じてOpenAPI v1.1仕様を更新することを提案します。最終化されたドキュメントはバージョン管理され、正本仕様とともに公開されます。破壊的変更は、非推奨ポリシーを通じて通知されます。
 
 ## Implementation
 
@@ -29,10 +29,10 @@ We propose to audit all existing endpoints against the implementation, identify 
 11. POST /v1/system/themes/{id}/copy - テーマコピー（system_admin権限必須）
 12. GET /v1/system/roles - ロール一覧（system_admin権限必須）
 
-これらのエンドポイントをOpenAPI定義（reforma-openapi-v0.10.0.yaml）およびAPI仕様書（reforma-api-spec-v0.10.0.md）に追加しました。
+これらのエンドポイントをOpenAPI定義（reforma-openapi-v0.9.1.yaml）およびAPI仕様書（reforma-api-spec-v0.9.1.md）に追加しました。
 
 ## Consequences
 
-- **Clarity:** API consumers will have a complete and accurate contract, reducing integration errors.
-- **Maintenance:** Requires ongoing synchronization between code and specification; a linting step should be added to CI.
-- **Backward compatibility:** Newly added parameters may require clients to update; a migration plan should be provided.
+- **明確性:** APIコンシューマーは完全で正確な契約を持つことができ、統合エラーを減らします。
+- **保守:** コードと仕様書の継続的な同期が必要です。CIにリンティングステップを追加する必要があります。
+- **後方互換性:** 新しく追加されたパラメータにより、クライアントの更新が必要になる場合があります。移行計画を提供する必要があります。

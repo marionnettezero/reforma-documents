@@ -1,18 +1,18 @@
-# ADR-0007: Full‑Text Search Index
+# ADR-0007: 全文検索インデックス
 
 **Status:** Proposed  
 **Date:** 2026‑01‑14
 
 ## Context
 
-The notes search specification hints at introducing a `FULLTEXT_future` index to enable comprehensive text search across notes【219090252433354†L245-L246】. Currently, search queries rely on simple filters and may not perform well for large text fields.
+`notes`検索仕様書には、`notes`全体で包括的なテキスト検索を可能にする`FULLTEXT_future`インデックスの導入が示唆されています【219090252433354†L245-L246】。現在、検索クエリは単純なフィルタに依存しており、大きなテキストフィールドでは性能が良くない可能性があります。
 
 ## Decision
 
-We propose evaluating and adopting a full‑text search engine (e.g., PostgreSQL `tsvector`, ElasticSearch, or MeiliSearch) to index note content and support advanced search features. The chosen engine should integrate with existing persistence layers and permit queries such as phrase search, fuzzy matching, and ranking.
+ノートコンテンツをインデックス化し、高度な検索機能をサポートするため、全文検索エンジン（例：PostgreSQL `tsvector`、ElasticSearch、またはMeiliSearch）の評価と採用を提案します。選択されたエンジンは、既存の永続化レイヤーと統合し、フレーズ検索、ファジーマッチング、ランキングなどのクエリを許可する必要があります。
 
 ## Consequences
 
-- **Improved UX:** Users will be able to search notes more intuitively and effectively.
-- **Operational overhead:** Requires deploying and managing an additional service or enabling database features; may increase infrastructure cost.
-- **Migration:** Existing data must be indexed; search API endpoints will need to support new query parameters and return ranked results.
+- **UXの向上:** ユーザーはノートをより直感的かつ効果的に検索できるようになります。
+- **運用オーバーヘッド:** 追加サービスのデプロイと管理、またはデータベース機能の有効化が必要です。インフラコストが増加する可能性があります。
+- **移行:** 既存データをインデックス化する必要があります。検索APIエンドポイントは、新しいクエリパラメータをサポートし、ランク付けされた結果を返す必要があります。

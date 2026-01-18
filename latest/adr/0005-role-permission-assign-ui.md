@@ -1,18 +1,18 @@
-# ADR-0005: Role Permission Assignment UI and API
+# ADR-0005: ロール権限割り当てUIとAPI
 
 **Status:** Proposed  
 **Date:** 2026‑01‑14
 
 ## Context
 
-The notes specification also describes a root‑only `ROLE_PERMISSION_ASSIGN` screen and corresponding API endpoints for assigning permissions to roles【219090252433354†L1286-L1316】. Currently, there is no UI or API implementation.
+`notes`仕様書には、root-onlyの`ROLE_PERMISSION_ASSIGN`画面と、ロールに権限を割り当てるための対応するAPIエンドポイントが記載されています【219090252433354†L1286-L1316】。現在、UIやAPIの実装はありません。
 
 ## Decision
 
-We propose to build a role‑permission assignment interface where root administrators can view existing roles, assign or revoke permissions, and create new roles. The backend will expose `GET /v1/system/roles/permissions` and `PUT /v1/system/roles/permissions` endpoints guarded by root authentication. Changes will update the underlying RBAC policy store.
+root管理者が既存のロールを閲覧し、権限を割り当てまたは取り消し、新しいロールを作成できるロール権限割り当てインターフェースを構築することを提案します。バックエンドは、root認証で保護された`GET /v1/system/roles/permissions`と`PUT /v1/system/roles/permissions`エンドポイントを公開します。変更は、基盤となるRBACポリシーストアを更新します。
 
 ## Consequences
 
-- **RBAC clarity:** Centralizing role management simplifies administration and reduces misconfiguration.
-- **Complexity:** Requires careful validation to avoid privilege escalation and consistency with existing authorization logic.
-- **Testing:** Comprehensive integration tests will be necessary to ensure roles map correctly to permissions.
+- **RBACの明確化:** ロール管理の一元化により、管理が簡素化され、設定ミスが減少します。
+- **複雑さ:** 権限昇格を回避し、既存の認証ロジックとの一貫性を保つため、慎重なバリデーションが必要です。
+- **テスト:** ロールが権限に正しくマッピングされることを保証するため、包括的な統合テストが必要です。

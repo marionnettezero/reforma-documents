@@ -1,18 +1,18 @@
-# ADR-0004: System Settings UI and API
+# ADR-0004: システム設定UIとAPI
 
 **Status:** Proposed  
 **Date:** 2026‑01‑14
 
 ## Context
 
-The `notes` specification describes a root‑only system settings interface (`SYSTEM_SETTINGS`) and corresponding GET/PUT API endpoints under `/v1/system/settings`【219090252433354†L1286-L1316】. At present, there is no user interface or API implementation; only placeholders exist in the backend spec (`settings.ui: future`)【775654022417029†L315-L318】. A decision is needed on whether and how to implement this feature.
+`notes`仕様書には、root-onlyのシステム設定インターフェース（`SYSTEM_SETTINGS`）と、対応するGET/PUT APIエンドポイント（`/v1/system/settings`）が記載されています【219090252433354†L1286-L1316】。現在、ユーザーインターフェースやAPIの実装はなく、バックエンド仕様にはプレースホルダー（`settings.ui: future`）のみが存在します【775654022417029†L315-L318】。この機能を実装するかどうか、どのように実装するかの決定が必要です。
 
 ## Decision
 
-We propose to implement a dedicated system‑settings page accessible only to root administrators. This page will allow viewing and editing of global configuration values (e.g., system email templates, feature flags). The corresponding API endpoints (`GET /v1/system/settings` and `PUT /v1/system/settings`) will enforce root authorization and perform validation. RBAC definitions will include a `root` role with exclusive access to these endpoints.
+root管理者のみがアクセス可能な専用のシステム設定ページを実装することを提案します。このページでは、グローバル設定値（例：システムメールテンプレート、機能フラグ）の閲覧と編集が可能です。対応するAPIエンドポイント（`GET /v1/system/settings`と`PUT /v1/system/settings`）は、root認証を強制し、バリデーションを実行します。RBAC定義には、これらのエンドポイントへの排他的アクセス権を持つ`root`ロールが含まれます。
 
 ## Consequences
 
-- **Security:** Restricting access to root users reduces the attack surface but requires careful audit logging for changes.
-- **UX:** A dedicated UI centralizes configuration management and improves discoverability.
-- **Implementation effort:** Requires backend controller, service logic, and a frontend screen; existing specs must be updated to mark this feature as implemented.
+- **セキュリティ:** rootユーザーへのアクセス制限により攻撃面を減らしますが、変更に対する慎重な監査ログ記録が必要です。
+- **UX:** 専用UIにより設定管理が一元化され、発見可能性が向上します。
+- **実装工数:** バックエンドコントローラー、サービスロジック、フロントエンド画面が必要です。既存の仕様書を更新し、この機能を実装済みとしてマークする必要があります。

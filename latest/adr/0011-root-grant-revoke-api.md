@@ -1,18 +1,18 @@
-# ADR-0011: Root Grant/Revoke API Endpoints
+# ADR-0011: Root付与/取り消しAPIエンドポイント
 
 **Status:** Proposed  
 **Date:** 2026‑01‑14
 
 ## Context
 
-The notes specification lists `root_grant_revoke` and `rbac_master_change` API endpoints as `not_provided_v1`【219090252433354†L1389-L1394】. As multiple root accounts are considered (see ADR‑0006), an API for granting and revoking root privileges will eventually be required.
+`notes`仕様書には、`root_grant_revoke`と`rbac_master_change` APIエンドポイントが`not_provided_v1`として記載されています【219090252433354†L1389-L1394】。複数のrootアカウントが検討されているため（ADR‑0006を参照）、root権限の付与と取り消しのためのAPIが最終的に必要になります。
 
 ## Decision
 
-We propose to design and implement RESTful endpoints (`POST /v1/system/root/grant` and `POST /v1/system/root/revoke`) that allow an existing root administrator to grant or revoke root status to another user. Access to these endpoints will be protected by an out‑of‑band authentication mechanism and audited. The API will validate that the requesting user is root and that the target account exists.
+既存のroot管理者が別のユーザーにrootステータスを付与または取り消しできるRESTfulエンドポイント（`POST /v1/system/root/grant`と`POST /v1/system/root/revoke`）を設計・実装することを提案します。これらのエンドポイントへのアクセスは、帯域外認証メカニズムで保護され、監査されます。APIは、リクエストユーザーがrootであり、ターゲットアカウントが存在することを検証します。
 
 ## Consequences
 
-- **Auditability:** All root privilege changes will be logged for compliance.
-- **Risk management:** Improper use could lead to privilege escalation; therefore, strict policies and periodic reviews are essential.
-- **Dependency:** Requires the multiple root policy (ADR‑0006) to be adopted first.
+- **監査可能性:** すべてのroot権限変更がコンプライアンスのために記録されます。
+- **リスク管理:** 不適切な使用は権限昇格につながる可能性があるため、厳格なポリシーと定期的なレビューが不可欠です。
+- **依存関係:** まず複数rootポリシー（ADR‑0006）の採用が必要です。

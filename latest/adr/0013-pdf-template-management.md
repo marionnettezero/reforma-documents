@@ -1,18 +1,18 @@
-# ADR-0013: PDF Template Management and Block Mapping
+# ADR-0013: PDFテンプレート管理とブロックマッピング
 
 **Status:** Proposed  
 **Date:** 2026‑01‑14
 
 ## Context
 
-The notes specification includes `A-03_pdf_block_mapping` and mentions a series of PDF patch files (e.g., `ReForma_追補パッチ_表示モード_テーマ_計算フィールド_v1.0.1.json`) for managing PDF templates and calculation fields【343970276494006†L875-L941】. Current handling of PDF generation and template updates is manual and error‑prone.
+`notes`仕様書には`A-03_pdf_block_mapping`が含まれており、PDFテンプレートと計算フィールドを管理するための一連のPDFパッチファイル（例：`ReForma_追補パッチ_表示モード_テーマ_計算フィールド_v1.0.1.json`）について言及されています【343970276494006†L875-L941】。現在、PDF生成とテンプレート更新の処理は手動で、エラーが発生しやすい状態です。
 
 ## Decision
 
-We propose to introduce a formal PDF template management system. Templates and block mappings will be stored in a version‑controlled repository with metadata (version, effective date, change summary). A management API will allow administrators to upload new templates, map fields, and apply patches. The PDF generation service will reference the latest approved template matching the document type.
+正式なPDFテンプレート管理システムの導入を提案します。テンプレートとブロックマッピングは、メタデータ（バージョン、有効日、変更サマリー）とともにバージョン管理されたリポジトリに格納されます。管理APIにより、管理者は新しいテンプレートをアップロードし、フィールドをマッピングし、パッチを適用できます。PDF生成サービスは、ドキュメントタイプに一致する最新の承認済みテンプレートを参照します。
 
 ## Consequences
 
-- **Consistency:** Centralizes management of PDF templates, reducing inconsistencies across documents.
-- **Governance:** Enables clear version history and audit trails for template changes.
-- **Implementation effort:** Requires building an upload mechanism, storage for templates, and integration with the existing PDF generation pipeline.
+- **一貫性:** PDFテンプレートの管理を一元化し、ドキュメント間の不整合を減らします。
+- **ガバナンス:** テンプレート変更の明確なバージョン履歴と監査証跡を可能にします。
+- **実装工数:** アップロードメカニズム、テンプレート用ストレージ、既存のPDF生成パイプラインとの統合の構築が必要です。

@@ -1,18 +1,18 @@
-# ADR-0010: Customizable Notification Summary (fields.summary)
+# ADR-0010: カスタマイズ可能な通知サマリー（fields.summary）
 
 **Status:** Proposed  
 **Date:** 2026‑01‑14
 
 ## Context
 
-In the notification template specification, the `fields.summary` field notes that customizing summary content via form settings is a future extension【219090252433354†L421-L425】. The current implementation auto‑selects major fields.
+通知テンプレート仕様では、`fields.summary`フィールドについて、フォーム設定経由でサマリーコンテンツをカスタマイズすることは将来の拡張であると記載されています【219090252433354†L421-L425】。現在の実装では、主要フィールドが自動選択されます。
 
 ## Decision
 
-We propose to make the summary section of notifications configurable. Form designers will be able to specify which fields or computed expressions should appear in the notification summary. The rendering engine will fallback to the default behavior if no configuration is provided.
+通知のサマリーセクションを設定可能にすることを提案します。フォーム設計者は、通知サマリーに表示するフィールドまたは計算式を指定できるようになります。レンダリングエンジンは、設定が提供されない場合、デフォルトの動作にフォールバックします。
 
 ## Consequences
 
-- **Flexibility:** Administrators can tailor notifications to highlight the most relevant information.
-- **Complexity:** Requires a schema to store summary configuration and logic to resolve expressions securely.
-- **Backward compatibility:** Existing forms without custom configuration should continue to function as before.
+- **柔軟性:** 管理者は、最も関連性の高い情報を強調するように通知を調整できます。
+- **複雑さ:** サマリー設定を格納するスキーマと、式を安全に解決するロジックが必要です。
+- **後方互換性:** カスタム設定のない既存のフォームは、以前と同様に機能し続ける必要があります。
