@@ -2,7 +2,7 @@
 
 **作成日**: 2026-01-20  
 **最終更新日**: 2026-01-21  
-**バージョン**: v1.3.0
+**バージョン**: v1.4.0
 
 ---
 
@@ -373,11 +373,14 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 - `notification_admin_email_template`: text (nullable) - 管理者向けメールテンプレート（多言語）※実装済み
 - `notification_admin_email_subject`: string (nullable) - 管理者向けメール件名（多言語）※実装済み
 - `attachment_description`: text (nullable) - 添付ファイルの説明文（多言語）※実装済み
+- `attachment_type`: string (nullable) - 添付ファイルタイプ（多言語）※実装予定
+- `attachment_files_json`: text (nullable) - 添付ファイル情報（多言語、JSON配列）※実装予定
 - `timestamps`
 
 **実装状況**: 
 - メールテンプレート関連カラムは2026-01-20に実装済み。マイグレーション: `2026_01_19_074919_add_email_template_fields_to_form_translations_table.php`
 - 添付ファイル説明文カラムは2026-01-21に実装済み。マイグレーション: `2026_01_19_110141_add_attachment_description_to_form_translations_table.php`
+- 添付ファイルタイプ・ファイル情報カラムは2026-01-21に実装予定。マイグレーション: 未作成
 
 ### form_fieldsテーブルのoptions_json構造
 
@@ -481,16 +484,31 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 - ✅ FormEditPageのフォームコード入力欄にリアルタイムバリデーションを追加
 - ✅ FormEditPageのフォームコード入力欄のエラーメッセージ表示を追加
 
-#### 添付ファイルの多言語対応
+#### 添付ファイルの多言語対応（説明文）
 - ✅ form_translationsテーブルにattachment_descriptionカラムを追加（マイグレーション作成）
 - ✅ FormTranslationモデルのfillableにattachment_descriptionを追加
 - ✅ FormsControllerのstore()とupdate()メソッドでattachment_descriptionのバリデーションを追加
 - ✅ FormsControllerのstore()とupdate()メソッドでform_translationsテーブルにattachment_descriptionを保存
 - ✅ FormsControllerのshow()メソッドでレスポンスにattachment_descriptionを含める
 - ✅ FormEditPageのtranslations型定義にattachment_descriptionを追加
-- ✅ FormEditPageの添付ファイル設定パネル内に言語タブを追加
-- ✅ FormEditPageのフォームデータ取得時に添付ファイル関連の翻訳情報を読み込み
-- ✅ FormEditPageの保存処理で添付ファイル関連の翻訳情報を送信
+- ✅ FormEditPageの添付ファイル設定パネル内に言語タブを追加（説明文用）
+- ✅ FormEditPageのフォームデータ取得時に添付ファイル説明文の翻訳情報を読み込み
+- ✅ FormEditPageの保存処理で添付ファイル説明文の翻訳情報を送信
+
+#### 添付ファイルの多言語対応（タイプ・ファイル情報）
+- ⏳ form_translationsテーブルにattachment_typeとattachment_files_jsonカラムを追加（マイグレーション作成）
+- ⏳ FormTranslationモデルのfillableにattachment_typeとattachment_files_jsonを追加
+- ⏳ FormTranslationモデルのcastsにattachment_files_json => 'array'を追加
+- ⏳ FormsControllerのstore()とupdate()メソッドでattachment_typeとattachment_files_jsonのバリデーションを追加
+- ⏳ FormsControllerのstore()とupdate()メソッドでform_translationsテーブルにattachment_typeとattachment_files_jsonを保存
+- ⏳ FormsControllerのshow()メソッドでレスポンスにattachment_typeとattachment_files_jsonを含める
+- ⏳ FormsControllerのuploadPdfTemplate()とuploadAttachments()を言語別に対応（localeパラメータ追加）
+- ⏳ FormEditPageのtranslations型定義にattachment_typeとattachment_files_jsonを追加
+- ⏳ FormEditPageの添付ファイル設定パネル内の言語タブでattachment_typeを選択可能にする
+- ⏳ FormEditPageの添付ファイル設定パネル内の言語タブでattachment_files_jsonを管理（アップロード・削除）
+- ⏳ FormEditPageのフォームデータ取得時に添付ファイルタイプ・ファイル情報の翻訳情報を読み込み
+- ⏳ FormEditPageの保存処理で添付ファイルタイプ・ファイル情報の翻訳情報を送信
+- ⏳ FormEditPageのファイルアップロード時にlocaleパラメータを送信
 
 ---
 
@@ -504,12 +522,17 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 - `notification_admin_email_template`: text (nullable) - 管理者向けメールテンプレート（多言語）
 - `notification_admin_email_subject`: string (nullable) - 管理者向けメール件名（多言語）
 - `attachment_description`: text (nullable) - 添付ファイルの説明文（多言語）※2026-01-21実装
+- `attachment_type`: string (nullable) - 添付ファイルタイプ（多言語）※2026-01-21実装予定
+- `attachment_files_json`: text (nullable) - 添付ファイル情報（多言語、JSON配列）※2026-01-21実装予定
 
 **実装内容**:
 - フォームの基本情報に関連する多言語データを`form_translations`テーブルに格納
 - フォーム項目の多言語データは`form_fields.options_json`内の`labels[locale]`構造で管理（既存実装）
 - メール送信時は`form_translations`テーブルからロケールに応じたテンプレートを取得（デフォルトは'ja'）
 - 添付ファイル説明文は`form_translations`テーブルに言語別に保存され、フロントエンドの添付ファイル設定パネル内で言語タブで編集可能
+- 添付ファイルタイプとファイル情報も`form_translations`テーブルに言語別に保存され、各言語で異なる添付ファイルを設定可能
+  - PDFテンプレートの場合: `attachment_files_json`の配列の最初の要素にファイルパスを保存
+  - アップロードファイルの場合: `attachment_files_json`の配列に複数のファイルパスを保存
 
 ---
 
@@ -542,7 +565,27 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 
 **実装日**: 2026-01-21
 
-**注意**: 添付ファイルの基本設定（`attachment_enabled`, `attachment_type`, `attachment_files_json`など）は引き続き`forms`テーブルに保存され、言語別の設定は`attachment_description`のみが`form_translations`テーブルに保存される。
+**注意**: 添付ファイルの基本設定（`attachment_enabled`）は引き続き`forms`テーブルに保存される。`attachment_type`と`attachment_files_json`は`form_translations`テーブルに言語別に保存される（2026-01-21実装予定）。`forms`テーブルの`attachment_type`と`pdf_template_path`は後方互換性のため残す。
+
+---
+
+## ファイルバリデーション仕様
+
+### 添付ファイルアップロード時のバリデーション
+
+#### PDFテンプレートアップロード（`uploadPdfTemplate`）
+- **バリデーションルール:**
+  - `'file' => ['required', 'file', 'mimes:pdf', 'max:10240']`
+  - PDF形式のみ許可
+  - 最大サイズ: 10MB（10240KB）
+
+#### アップロードファイル（`uploadAttachments`）
+- **バリデーションルール:**
+  - `'files' => ['required', 'array', 'min:1', 'max:10']` - 配列、1〜10ファイル
+  - `'files.*' => ['required', 'file', 'max:10240']` - 各ファイル10MB制限
+  - MIMEタイプの制限なし（任意のファイル形式）
+
+**注意**: 言語別対応後も、これらのバリデーションルールは維持される。リクエストに`locale`パラメータが追加される。
 
 ---
 
@@ -550,7 +593,7 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 
 - `app/Models/Setting.php` - 言語マスタ取得メソッド
 - `app/Http/Controllers/Api/V1/System/SettingsController.php` - 言語マスタ取得API
-- `app/Http/Controllers/Api/V1/FormsController.php` - フォーム管理API（バリデーション修正）
+- `app/Http/Controllers/Api/V1/FormsController.php` - フォーム管理API（バリデーション修正、ファイルアップロード処理）
 - `app/Http/Controllers/Api/V1/PublicFormsController.php` - 公開フォームAPI（バリデーション修正）
 - `app/Support/ApiResponse.php` - ロケール取得ロジック
 - `src/pages/forms/FormEditPage.tsx` - フォーム基本情報の多言語対応UI
