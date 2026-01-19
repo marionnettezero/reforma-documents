@@ -1,7 +1,8 @@
 # SUPP-I18N-001: 多言語対応機能 実装仕様
 
 **作成日**: 2026-01-20  
-**バージョン**: v1.0.0
+**最終更新日**: 2026-01-20  
+**バージョン**: v1.1.0
 
 ---
 
@@ -354,15 +355,13 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 - `locale`: string (ja/en)
 - `title`: string
 - `description`: text (nullable)
+- `notification_user_email_template`: text (nullable) - ユーザー向けメールテンプレート（多言語）※実装済み
+- `notification_user_email_subject`: string (nullable) - ユーザー向けメール件名（多言語）※実装済み
+- `notification_admin_email_template`: text (nullable) - 管理者向けメールテンプレート（多言語）※実装済み
+- `notification_admin_email_subject`: string (nullable) - 管理者向けメール件名（多言語）※実装済み
 - `timestamps`
 
-**将来の拡張**（メールテンプレート等の多言語対応用）:
-- `notification_user_email_template`: text (nullable)
-- `notification_user_email_subject`: string (nullable)
-- `notification_admin_email_template`: text (nullable)
-- `notification_admin_email_subject`: string (nullable)
-
-**注意**: 現時点では未実装。将来的に`form_translations`テーブルを拡張して、メールテンプレート等の多言語データを格納する予定。
+**実装状況**: メールテンプレート関連カラムは2026-01-20に実装済み。マイグレーション: `2026_01_19_074919_add_email_template_fields_to_form_translations_table.php`
 
 ### form_fieldsテーブルのoptions_json構造
 
@@ -446,41 +445,55 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 - ✅ FormItemPage: フォーム翻訳情報取得を実装
 - ✅ FormItemPage: フィールド編集開始時の多言語データ初期化を実装
 - ✅ FormItemPage: 保存処理の多言語データ統合を実装
-- ⏳ FormItemPage: フィールド編集UIの多言語タブ化（実装中）
+- ✅ FormItemPage: フィールド編集UIの多言語タブ化を実装
+
+#### メールテンプレート多言語対応
+- ✅ form_translationsテーブルにメールテンプレート関連カラムを追加（マイグレーション作成）
+- ✅ FormTranslationモデルのfillableにメールテンプレート関連フィールドを追加
+- ✅ FormsControllerのstore()とupdate()メソッドでメールテンプレート関連フィールドのバリデーションを追加
+- ✅ FormsControllerのshow()メソッドでレスポンスにメールテンプレート関連フィールドを含める
+- ✅ FormsControllerのstore()とupdate()メソッドでform_translationsテーブルにメールテンプレート関連データを保存
+- ✅ SendFormSubmissionNotificationJobでform_translationsテーブルからメールテンプレートを取得するロジックに変更
+- ✅ FormEditPageの翻訳情報タブにメールテンプレート関連の入力欄を追加
+- ✅ FormEditPageの保存処理とデータ取得時にメールテンプレート関連データを処理
+- ✅ formsテーブルからメールテンプレート関連カラムを削除（マイグレーション作成）
+- ✅ Formモデルのfillableからメールテンプレート関連フィールドを削除
+
+#### フォームコードのバリデーション
+- ✅ FormsControllerのstore()メソッドでフォームコードのバリデーションルールに英数字とアンダースコアのみを許可する正規表現を追加
+- ✅ FormsControllerのupdate()メソッドでフォームコードのバリデーションルールに英数字とアンダースコアのみを許可する正規表現を追加
+- ✅ FormEditPageのフォームコード入力欄にリアルタイムバリデーションを追加
+- ✅ FormEditPageのフォームコード入力欄のエラーメッセージ表示を追加
 
 ---
 
-## 将来の拡張予定
+## 実装済み機能
 
-### form_translationsテーブルの拡張
+### form_translationsテーブルの拡張（実装済み）
 
-**追加予定カラム**:
+**追加済みカラム**:
 - `notification_user_email_template`: text (nullable) - ユーザー向けメールテンプレート（多言語）
 - `notification_user_email_subject`: string (nullable) - ユーザー向けメール件名（多言語）
 - `notification_admin_email_template`: text (nullable) - 管理者向けメールテンプレート（多言語）
 - `notification_admin_email_subject`: string (nullable) - 管理者向けメール件名（多言語）
 
-**実装方針**:
-- フォームの基本情報に関連する多言語データのみを`form_translations`テーブルに格納
+**実装内容**:
+- フォームの基本情報に関連する多言語データを`form_translations`テーブルに格納
 - フォーム項目の多言語データは`form_fields.options_json`内の`labels[locale]`構造で管理（既存実装）
+- メール送信時は`form_translations`テーブルからロケールに応じたテンプレートを取得（デフォルトは'ja'）
 
 ---
 
-## 注意事項
+## 注意事項（対応済み）
 
-### フォームコードのバリデーション
+### フォームコードのバリデーション（実装済み）
 
-**現状**: 
-- ヘルプテキストには「英数字とアンダースコアのみ使用可能です」と記載
-- しかし、実際のバリデーションロジックが未実装（日本語も入力可能）
+**実装内容**: 
+- ✅ バックエンド: FormsControllerの`store()`と`update()`メソッドで正規表現バリデーション（`regex:/^[a-zA-Z0-9_]+$/`）を追加
+- ✅ フロントエンド: FormEditPageのフォームコード入力欄にリアルタイムバリデーションを追加（英数字とアンダースコア以外の文字を入力不可）
+- ✅ フロントエンド: 不正な文字が入力された場合にエラーメッセージを表示
 
-**問題点**:
-- フォームコードはURLパラメータ（例: `/v1/public/forms/{form->code}/ack`）で使用される
-- 日本語を含むとURLエンコードが必要になり、問題が発生する可能性がある
-
-**推奨対応**:
-- フロントエンド: 入力時に英数字とアンダースコアのみを許可するバリデーションを追加
-- バックエンド: 同様のバリデーションルールを追加（例: `'regex:/^[a-zA-Z0-9_]+$/'`）
+**実装日**: 2026-01-20
 
 ---
 
