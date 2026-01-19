@@ -1,14 +1,27 @@
 # SUPP-I18N-001: 多言語対応機能 実装仕様
 
 **作成日**: 2026-01-20  
-**最終更新日**: 2026-01-20  
-**バージョン**: v1.1.0
+**最終更新日**: 2026-01-21  
+**バージョン**: v1.3.0
 
 ---
 
 ## 概要
 
-フォームの基本情報（タイトル、説明、メールテンプレート等）およびフォーム項目（フィールドラベル、選択肢ラベル）の多言語対応を実装。言語マスタをSettingsで管理し、動的に言語タブを生成して編集可能にする。
+フォームの基本情報（タイトル、説明、メールテンプレート等）、フォーム項目（フィールドラベル、選択肢ラベル）、および添付ファイル説明文の多言語対応を実装。言語マスタをSettingsで管理し、動的に言語タブを生成して編集可能にする。
+
+---
+
+## バックエンド実装状況
+
+### 現在の実装状況
+
+**実装済み**:
+- ✅ 言語マスタ管理（Settings）
+- ✅ フォーム基本情報の多言語対応（タイトル、説明）
+- ✅ メールテンプレートの多言語対応（ユーザー向け・管理者向け）
+- ✅ フォーム項目の多言語対応（フィールドラベル、選択肢ラベル）
+- ✅ 添付ファイル関連の多言語対応（説明文）
 
 ---
 
@@ -359,9 +372,12 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 - `notification_user_email_subject`: string (nullable) - ユーザー向けメール件名（多言語）※実装済み
 - `notification_admin_email_template`: text (nullable) - 管理者向けメールテンプレート（多言語）※実装済み
 - `notification_admin_email_subject`: string (nullable) - 管理者向けメール件名（多言語）※実装済み
+- `attachment_description`: text (nullable) - 添付ファイルの説明文（多言語）※実装済み
 - `timestamps`
 
-**実装状況**: メールテンプレート関連カラムは2026-01-20に実装済み。マイグレーション: `2026_01_19_074919_add_email_template_fields_to_form_translations_table.php`
+**実装状況**: 
+- メールテンプレート関連カラムは2026-01-20に実装済み。マイグレーション: `2026_01_19_074919_add_email_template_fields_to_form_translations_table.php`
+- 添付ファイル説明文カラムは2026-01-21に実装済み。マイグレーション: `2026_01_19_110141_add_attachment_description_to_form_translations_table.php`
 
 ### form_fieldsテーブルのoptions_json構造
 
@@ -465,6 +481,17 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 - ✅ FormEditPageのフォームコード入力欄にリアルタイムバリデーションを追加
 - ✅ FormEditPageのフォームコード入力欄のエラーメッセージ表示を追加
 
+#### 添付ファイルの多言語対応
+- ✅ form_translationsテーブルにattachment_descriptionカラムを追加（マイグレーション作成）
+- ✅ FormTranslationモデルのfillableにattachment_descriptionを追加
+- ✅ FormsControllerのstore()とupdate()メソッドでattachment_descriptionのバリデーションを追加
+- ✅ FormsControllerのstore()とupdate()メソッドでform_translationsテーブルにattachment_descriptionを保存
+- ✅ FormsControllerのshow()メソッドでレスポンスにattachment_descriptionを含める
+- ✅ FormEditPageのtranslations型定義にattachment_descriptionを追加
+- ✅ FormEditPageの添付ファイル設定パネル内に言語タブを追加
+- ✅ FormEditPageのフォームデータ取得時に添付ファイル関連の翻訳情報を読み込み
+- ✅ FormEditPageの保存処理で添付ファイル関連の翻訳情報を送信
+
 ---
 
 ## 実装済み機能
@@ -476,11 +503,13 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 - `notification_user_email_subject`: string (nullable) - ユーザー向けメール件名（多言語）
 - `notification_admin_email_template`: text (nullable) - 管理者向けメールテンプレート（多言語）
 - `notification_admin_email_subject`: string (nullable) - 管理者向けメール件名（多言語）
+- `attachment_description`: text (nullable) - 添付ファイルの説明文（多言語）※2026-01-21実装
 
 **実装内容**:
 - フォームの基本情報に関連する多言語データを`form_translations`テーブルに格納
 - フォーム項目の多言語データは`form_fields.options_json`内の`labels[locale]`構造で管理（既存実装）
 - メール送信時は`form_translations`テーブルからロケールに応じたテンプレートを取得（デフォルトは'ja'）
+- 添付ファイル説明文は`form_translations`テーブルに言語別に保存され、フロントエンドの添付ファイル設定パネル内で言語タブで編集可能
 
 ---
 
@@ -494,6 +523,26 @@ const [editOptionsLabels, setEditOptionsLabels] = useState<Record<string, Record
 - ✅ フロントエンド: 不正な文字が入力された場合にエラーメッセージを表示
 
 **実装日**: 2026-01-20
+
+---
+
+## 実装済み機能（追加）
+
+### 添付ファイルの多言語対応（実装済み）
+
+**実装内容**:
+- ✅ バックエンド: `form_translations`テーブルに`attachment_description`カラムを追加（マイグレーション: `2026_01_19_110141_add_attachment_description_to_form_translations_table.php`）
+- ✅ バックエンド: `FormTranslation`モデルの`$fillable`に`attachment_description`を追加
+- ✅ バックエンド: `FormsController`の`store()`と`update()`メソッドで`attachment_description`のバリデーションと保存処理を追加
+- ✅ バックエンド: `FormsController`の`show()`メソッドでレスポンスに`attachment_description`を含める
+- ✅ フロントエンド: `FormEditPage`の`translations`型定義に`attachment_description`を追加
+- ✅ フロントエンド: `FormEditPage`の添付ファイル設定パネル内に言語タブを追加
+- ✅ フロントエンド: フォームデータ取得時に添付ファイル関連の翻訳情報を読み込み
+- ✅ フロントエンド: 保存時に添付ファイル関連の翻訳情報を送信
+
+**実装日**: 2026-01-21
+
+**注意**: 添付ファイルの基本設定（`attachment_enabled`, `attachment_type`, `attachment_files_json`など）は引き続き`forms`テーブルに保存され、言語別の設定は`attachment_description`のみが`form_translations`テーブルに保存される。
 
 ---
 
