@@ -62,3 +62,23 @@
 
 ### フロントエンド
 - 変更なし（`ProgressDisplay`は既に100%保持機能あり）
+
+## 追加修正
+
+### 4. ダウンロードURLアクセス時の認証エラー ✅ 修正済み
+
+**問題**:
+- ダウンロードURLにアクセスした際に、`Route [login] not defined`エラーが発生
+- `auth:sanctum`ミドルウェアが、HTMLリクエスト（Accept: application/jsonヘッダーがない場合）に対してリダイレクトを試みていた
+
+**原因**:
+- `auth:sanctum`ミドルウェアが、認証に失敗した場合、リクエストが`expectsJson()`を返さない場合（HTMLリクエスト）にリダイレクトを試みる
+- ダウンロードURLはブラウザから直接アクセスされる可能性があるため、`Accept: application/json`ヘッダーがない場合がある
+
+**実装した修正**:
+- ✅ `app/Http/Middleware/Authenticate.php`を作成
+- ✅ APIエンドポイント（/v1/*）にアクセスした際に認証に失敗した場合、リダイレクトではなく`AuthenticationException`をスロー
+- ✅ `bootstrap/app.php`の例外ハンドラーで`AuthenticationException`をキャッチして401エラーを返す
+
+**実装ファイル**:
+- `app/Http/Middleware/Authenticate.php` - APIエンドポイントで認証失敗時に例外をスローするカスタムミドルウェア
