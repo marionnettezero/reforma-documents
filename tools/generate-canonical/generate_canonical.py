@@ -6,11 +6,11 @@ Usage:
     python generate_canonical.py
 
 The script must be executed from within the `tools/generate-canonical` directory or with the
-project root (the directory containing `classified/` and `canonical/`) as the current working
-directory. It will scan the `classified/` directory for category subdirectories (common,
+project root (the directory containing `latest/`) as the current working
+directory. It will scan the `latest/classified/` directory for category subdirectories (common,
 backend, frontend, api, db, notes) and identify the latest versioned JSON file for each
 category. It then produces a canonical JSON file and a human‑readable Markdown file in
-`canonical/`.
+`latest/canonical/`.
 
 正本のバージョンは、既存の正本の最大バージョンを基に patch を +1 して決定します。
 分類別仕様書の内容を実際に統合し、1冊の正本として出力します。
@@ -46,7 +46,11 @@ def find_latest_spec_files(cat_dir, category):
     """
     candidates = []
     for fname in os.listdir(cat_dir):
-        if fname.startswith(f"reforma-{category}-spec-v") and fname.endswith(".json"):
+        # Support both "reforma-{category}-spec-v" and "reforma-{category}-v" patterns
+        # (notes category uses the latter pattern)
+        pattern1 = f"reforma-{category}-spec-v"
+        pattern2 = f"reforma-{category}-v"
+        if (fname.startswith(pattern1) or fname.startswith(pattern2)) and fname.endswith(".json"):
             try:
                 version = parse_version(fname)
                 candidates.append((fname, version))
@@ -102,8 +106,8 @@ def load_md_file(path):
 
 
 def generate_canonical(project_root):
-    classified_dir = os.path.join(project_root, "classified")
-    canonical_dir = os.path.join(project_root, "canonical")
+    classified_dir = os.path.join(project_root, "latest", "classified")
+    canonical_dir = os.path.join(project_root, "latest", "canonical")
 
     # Discover categories (subdirectories of classified)
     categories = [d for d in os.listdir(classified_dir)

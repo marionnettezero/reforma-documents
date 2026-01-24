@@ -3,7 +3,7 @@ name: Generate canonical spec
 on:
   push:
     paths:
-      - 'classified/**'
+      - 'latest/classified/**'
       - 'tools/generate-canonical/**'
 
 # 既定の GITHUB_TOKEN に書き込み権限を付与
@@ -30,7 +30,7 @@ jobs:
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'canonical/*'
+          add: 'latest/canonical/*'
           message: 'chore: regenerate canonical spec'
           default_author: github_actions
           push: true

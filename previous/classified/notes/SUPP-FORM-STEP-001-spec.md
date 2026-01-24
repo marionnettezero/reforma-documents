@@ -1,8 +1,9 @@
 # SUPP-FORM-STEP-001: STEP式フォーム / 単一式フォーム管理 実装仕様
 
 **作成日**: 2026-01-22  
-**最終更新日**: 2026-01-22  
-**バージョン**: v1.0.0
+**最終更新日**: 2026-01-20  
+**バージョン**: v1.0.0  
+**実装状況**: ✅ **全て実装済み**（2026-01-20完了）
 
 ---
 
@@ -12,19 +13,65 @@
 
 ---
 
+## 実装状況
+
+### ✅ 実装完了（2026-01-20）
+
+**バックエンド**:
+- ✅ STEP/GROUP構造のデータベース保存
+  - `forms.step_group_structure` JSONカラム追加
+  - `form_fields.step_key`, `form_fields.group_key`カラム追加
+  - インデックス追加（`idx_form_step_group`）
+- ✅ STEP/GROUP名の多言語対応
+  - `step_group_structure`に多言語名を保存
+  - APIレスポンスに`step_group_structure`を含める
+- ✅ 単一式フォームのサポート
+  - `is_step_form`フラグでSTEP式/単一式を区別
+  - 単一式フォームは`groups`配列にGROUP情報を格納
+- ✅ バリデーション強化
+  - STEP/GROUP名の必須チェック（少なくとも1言語の名前が必要）
+  - データ整合性チェック（STEP/GROUP構造とフィールドの整合性）
+- ✅ 既存データのマイグレーション処理
+  - 既存`form_fields`データに`group_key = 'default'`を設定
+  - 既存`forms`データにデフォルト`step_group_structure`を設定
+- ✅ 公開フォームAPI拡張
+  - `GET /v1/public/forms/{form_key}`に`step_group_structure`を追加
+  - フィールド情報に`step_key`, `group_key`を追加
+
+**フロントエンド**:
+- ✅ 型定義拡張（`Step`, `Group`, `FormField`, `FieldsResponse`）
+- ✅ データ取得・構築（`step_group_structure`からSTEP/GROUP構造を構築）
+- ✅ 後方互換性の処理（既存データの対応）
+- ✅ UI実装
+  - フォームタイプ選択UI（STEP式/単一式）
+  - STEP名の多言語編集UI
+  - GROUP名の多言語編集UI
+  - 単一式フォームの初期化処理
+- ✅ データ保存（`flattenStepGroupStructure()`, `handleSave()`）
+- ✅ バリデーション強化（STEP/GROUP名の必須チェック）
+- ✅ 翻訳対応（翻訳キー追加）
+- ✅ 公開フォーム表示でのSTEP/GROUP名表示
+  - STEP/GROUP構造に基づいてフィールドをグループ化
+  - ロケールに応じた多言語名の表示
+
+**詳細な実装状況**: `SUPP-FORM-STEP-001-IMPLEMENTATION-STATUS.md`を参照
+
+---
+
 ## バックエンド実装状況
 
 ### 現在の実装状況
 
-**未実装**:
-- ⏳ STEP/GROUP構造のデータベース保存
-- ⏳ STEP/GROUP名の多言語対応
-- ⏳ 単一式フォームのサポート
-
-**既存実装**:
+**実装済み**:
+- ✅ STEP/GROUP構造のデータベース保存
+- ✅ STEP/GROUP名の多言語対応
+- ✅ 単一式フォームのサポート
 - ✅ フォーム項目のCRUD操作（FormsFieldsController）
 - ✅ 条件分岐ルール（step_transition_rule）の評価
 - ✅ フロントエンド側でのSTEP/GROUP構造管理（FormItemPage.tsx）
+- ✅ バリデーション強化（STEP/GROUP名の必須チェック、データ整合性チェック）
+- ✅ 既存データのマイグレーション処理
+- ✅ 公開フォームAPI拡張
 
 ---
 
@@ -754,46 +801,56 @@ const handleSave = async () => {
 
 ## 実装タスク
 
+**実装完了日**: 2026-01-20  
+**実装状況**: ✅ 全て実装済み
+
 ### バックエンド
 
 #### データベーススキーマ拡張
-- ⏳ `forms`テーブルに`step_group_structure` JSONカラムを追加（マイグレーション作成）
-- ⏳ `form_fields`テーブルに`step_key`, `group_key`カラムを追加（マイグレーション作成）
-- ⏳ `form_fields`テーブルにインデックス追加（`form_id`, `step_key`, `group_key`）
+- ✅ `forms`テーブルに`step_group_structure` JSONカラムを追加（マイグレーション作成）
+- ✅ `form_fields`テーブルに`step_key`, `group_key`カラムを追加（マイグレーション作成）
+- ✅ `form_fields`テーブルにインデックス追加（`form_id`, `step_key`, `group_key`）
 
 #### モデル拡張
-- ⏳ `Form`モデルの`$fillable`に`step_group_structure`を追加
-- ⏳ `Form`モデルの`$casts`に`step_group_structure => 'array'`を追加
-- ⏳ `FormField`モデルの`$fillable`に`step_key`, `group_key`を追加
+- ✅ `Form`モデルの`$fillable`に`step_group_structure`を追加
+- ✅ `Form`モデルの`$casts`に`step_group_structure => 'array'`を追加
+- ✅ `FormField`モデルの`$fillable`に`step_key`, `group_key`を追加
 
 #### API拡張
-- ⏳ `FormsFieldsController::update()`のバリデーション拡張
-- ⏳ `FormsFieldsController::update()`にSTEP/GROUP構造抽出ロジックを追加
-- ⏳ `FormsFieldsController::update()`で`forms.step_group_structure`を保存
-- ⏳ `FormsFieldsController::index()`のレスポンスに`step_group_structure`を追加
+- ✅ `FormsFieldsController::update()`のバリデーション拡張
+- ✅ `FormsFieldsController::update()`にSTEP/GROUP構造抽出ロジックを追加
+- ✅ `FormsFieldsController::update()`で`forms.step_group_structure`を保存
+- ✅ `FormsFieldsController::index()`のレスポンスに`step_group_structure`を追加
+- ✅ `PublicFormsController::show()`のレスポンスに`step_group_structure`を追加
+- ✅ バリデーション強化（`validateStepGroupNames()`メソッド追加）
+- ✅ データ整合性チェック（`validateStepGroupConsistency()`メソッド追加）
+- ✅ 既存データのマイグレーション処理
 
 ### フロントエンド
 
 #### 型定義拡張
-- ⏳ `Step`, `Group`, `FormField`型定義を拡張
-- ⏳ `FieldsResponse`型定義に`step_group_structure`を追加
+- ✅ `Step`, `Group`, `FormField`型定義を拡張
+- ✅ `FieldsResponse`型定義に`step_group_structure`を追加
+- ✅ `FormViewResponse`型定義に`step_group_structure`を追加（公開フォーム用）
 
 #### データ取得・構築
-- ⏳ `loadFields()`関数で`step_group_structure`からSTEP/GROUP構造を構築
-- ⏳ 後方互換性の処理（既存データの対応）
+- ✅ `loadFields()`関数で`step_group_structure`からSTEP/GROUP構造を構築
+- ✅ 後方互換性の処理（既存データの対応）
 
 #### UI実装
-- ⏳ 初期表示時のフォームタイプ選択UI実装
-- ⏳ STEP名の多言語編集UI実装
-- ⏳ GROUP名の多言語編集UI実装
-- ⏳ 単一式フォームの初期化処理
+- ✅ 初期表示時のフォームタイプ選択UI実装
+- ✅ STEP名の多言語編集UI実装
+- ✅ GROUP名の多言語編集UI実装
+- ✅ 単一式フォームの初期化処理
+- ✅ 公開フォーム表示でのSTEP/GROUP名表示
 
 #### データ保存
-- ⏳ `flattenStepGroupStructure()`関数の実装
-- ⏳ `handleSave()`関数の修正（STEP/GROUP構造を含むフィールド配列を送信）
+- ✅ `flattenStepGroupStructure()`関数の実装
+- ✅ `handleSave()`関数の修正（STEP/GROUP構造を含むフィールド配列を送信）
+- ✅ バリデーション強化（STEP/GROUP名の必須チェック）
 
 #### 翻訳対応
-- ⏳ `PreferencesContext.tsx`に翻訳キーを追加:
+- ✅ `PreferencesContext.tsx`に翻訳キーを追加:
   - `form_item_select_type`: "フォームタイプを選択してください" / "Please select form type"
   - `form_item_step_form`: "STEP式フォーム" / "STEP Form"
   - `form_item_single_form`: "単一式フォーム" / "Single Form"
@@ -801,6 +858,9 @@ const handleSave = async () => {
   - `form_item_group_name`: "GROUP名" / "Group Name"
   - `form_item_enter_step_name`: "STEP名を入力" / "Enter step name"
   - `form_item_enter_group_name`: "GROUP名を入力" / "Enter group name"
+  - `form_item_step_name_required`: "STEP名を入力してください（少なくとも1言語）" / "Please enter step name (at least one language)"
+  - `form_item_group_name_required`: "GROUP名を入力してください（少なくとも1言語）" / "Please enter group name (at least one language)"
+  - `form_item_validation_failed`: "バリデーションエラーがあります。入力内容を確認してください。" / "Validation errors found. Please check your input."
 
 ---
 

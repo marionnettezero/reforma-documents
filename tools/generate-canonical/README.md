@@ -5,13 +5,13 @@ This directory contains a simple Python script to generate the ReForma canonical
 ## Usage
 
 1. Ensure that Python 3 is installed on your system.
-2. From the root of the repository (the directory containing `classified/` and `canonical/`), run:
+2. From the root of the repository (the directory containing `latest/`), run:
 
 ```bash
 python tools/generate-canonical/generate_canonical.py
 ```
 
-The script scans the `classified/` directory for JSON specification files (e.g., `reforma-common-spec-v1.5.0.json`) and identifies the highest semantic version for each category. It then creates a canonical JSON file and a Markdown summary in the `canonical/` directory. The canonical version number is derived from the highest version among the classifications.
+The script scans the `latest/classified/` directory for JSON specification files (e.g., `reforma-common-spec-v1.5.0.json`) and identifies the highest semantic version for each category. It then creates a canonical JSON file and a Markdown summary in the `latest/canonical/` directory. The canonical version number is derived from the highest version among the classifications.
 
 The generator does not currently merge the actual content of the specs; instead, it builds a manifest pointing to the latest versions. You can extend the script to perform deeper content merging if needed.
 
@@ -24,7 +24,7 @@ name: Generate canonical spec
 on:
   push:
     paths:
-      - 'classified/**'
+      - 'latest/classified/**'
       - 'tools/generate-canonical/**'
 
 jobs:
@@ -46,13 +46,13 @@ jobs:
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'canonical/*'
+          add: 'latest/canonical/*'
           message: 'chore: regenerate canonical spec'
           default_author: github_actions
           push: true
 ```
 
-This workflow triggers on any change under `classified/` or `tools/generate-canonical/`. It checks out the repository, runs the generator script, and commits any updates to the `canonical/` folder back to the repository using the [Add & Commit GitHub Action]【417625223897387†L192-L214】.
+This workflow triggers on any change under `latest/classified/` or `tools/generate-canonical/`. It checks out the repository, runs the generator script, and commits any updates to the `latest/canonical/` folder back to the repository using the [Add & Commit GitHub Action]【417625223897387†L192-L214】.
 
 ## Notes
 

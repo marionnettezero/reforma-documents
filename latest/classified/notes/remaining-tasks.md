@@ -1,7 +1,7 @@
 # ReForma 残タスク一覧
 
 **作成日**: 2026-01-16  
-**最終更新**: 2026-01-17（フロントエンド実装状況を反映）  
+**最終更新**: 2026-01-23（実装状況を確認・更新）  
 **補足**: フォームの回答日時（submitted_at）をマイクロ秒まで対応（submissionsテーブルのcreated_at/updated_atをtimestamp(6)に変更）  
 **ベース**: reforma-notes-v1.1.0.md の内容と実装状況の照合結果
 
@@ -421,8 +421,8 @@
 
 ---
 
-### 2. SUPP-THEME-001: テーマ機能（フロントエンド側）
-**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+### ✅ 2. SUPP-THEME-001: テーマ機能（フロントエンド側）
+**完了日**: 2026-01-23（確認）  
 **優先度**: 中
 
 **バックエンド実装済み**:
@@ -441,17 +441,16 @@
 - ✅ テーマトークンのバリデーション
 - ✅ テスト実装（11テスト、46アサーション）
 
-**フロントエンド未実装**:
-- ❌ 公開フォーム表示時に`theme_id`と`theme_tokens`を取得
-- ❌ フォームコンテナに`data-theme-id`属性を付与
-- ❌ `theme_tokens`をCSS変数に展開（:rootではなくフォームコンテナ配下）
-- ❌ プリセットテーマの定義と適用
-- ❌ テーマ管理画面（System Admin用）
+**フロントエンド実装済み**:
+- ✅ 公開フォーム表示時に`theme_id`と`theme_tokens`を取得
+- ✅ `theme_tokens`をCSS変数に展開（フォームコンテナ配下）
+- ✅ テーマ管理画面（System Admin用、S-03）
+- ✅ フォーム編集（F-02）: テーマ選択UI追加（theme_id選択、theme_tokensカスタマイズ）
 
-**実装要件**:
-- 公開フォーム（U-01）: `GET /v1/public/forms/{form_key}`からテーマ情報を取得し、フォームコンテナに適用
-- フォーム編集（F-02）: テーマ選択UI追加（theme_id選択、theme_tokensカスタマイズ）
-- テーマ管理画面（新規）: System Admin用のテーマCRUD画面
+**実装詳細**:
+- `PublicFormViewPage.tsx`でテーマトークンの適用を実装
+- `FormEditIntegratedPage.tsx`でテーマ選択UIを実装
+- `ThemeListPage.tsx`でテーマ管理画面を実装
 
 **参照**: 
 - reforma-notes-v1.1.0.md SUPP-THEME-001
@@ -543,8 +542,8 @@
 
 ---
 
-### 5. 公開フォーム（U-01）: 条件分岐適用
-**現状**: バックエンド側は完全実装済み、フロントエンド側は未実装  
+### ✅ 5. 公開フォーム（U-01）: 条件分岐適用
+**完了日**: 2026-01-23（確認）  
 **優先度**: 高
 
 **バックエンド実装済み**:
@@ -552,18 +551,16 @@
 - ✅ POST /v1/forms/{form_key}/submitでConditionStateを評価
 - ✅ 安全側フォールバック
 
-**フロントエンド未実装**:
-- ❌ ConditionStateの適用（fields.visible/required/store）
-- ❌ 非表示フィールドの非表示処理
-- ❌ 必須解除の適用
-- ❌ STEP遷移時の条件チェック（422エラー表示）
+**フロントエンド実装済み**:
+- ✅ ConditionStateの適用（fields.visible/required/store）
+- ✅ 非表示フィールドの非表示処理
+- ✅ 必須解除の適用
+- ✅ STEP遷移時の条件チェック（422エラー表示）
 
-**実装要件**:
-- ConditionState適用: APIから取得したConditionStateをUIに反映
-- フィールド表示制御: visible=falseのフィールドを非表示
-- 必須制御: required=falseのフィールドを任意化
-- STEP遷移: transition_rule評価結果に基づく遷移制御
-- エラー表示: 422 STEP_TRANSITION_DENIED時のエラー表示
+**実装詳細**:
+- `PublicFormViewPage.tsx`でConditionStateの適用を実装
+- フィールド表示制御、必須制御、STEP遷移制御を実装
+- エラー表示（422 STEP_TRANSITION_DENIED）を実装
 
 **参照**: 
 - reforma-notes-v1.0.0-条件分岐-評価結果IF-.json
@@ -600,34 +597,27 @@
 
 ## 画面実装状況（中身の実装が未完了）
 
-### S-01: システム管理ダッシュボード
-**現状**: 画面レイアウトのみ実装、API連携未実装  
+### ✅ S-01: システム管理ダッシュボード
+**完了日**: 2026-01-23（確認）  
 **優先度**: 中
 
-**未実装機能**:
-- ❌ GET /v1/dashboard/summary: ロール別の統計情報取得・表示
-- ❌ GET /v1/dashboard/errors: エラー情報取得・表示
-- ❌ ロール別のブロック表示（現状はモック）
+**実装済み機能**:
+- ✅ GET /v1/dashboard/summary: ロール別の統計情報取得・表示
+- ✅ GET /v1/dashboard/errors: エラー情報取得・表示
+- ✅ ロール別のブロック表示（system_admin, form_admin, operator, viewer）
 
-**実装要件**:
-- APIから統計情報を取得して表示
-- ロール別の表示制御（system_admin, form_admin, operator, viewer）
+**実装詳細**:
+- `DashboardPage.tsx`でAPI連携を実装
+- ロール別の表示制御を実装（useHasRoleフックを使用）
+- エラー一覧のページネーション対応
 
 **参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
-### F-01: フォーム一覧
-**現状**: 画面レイアウトのみ実装、API連携未実装  
+### ✅ F-01: フォーム一覧
+**完了日**: 2026-01-23（確認）  
 **優先度**: 高
-
-**未実装機能**:
-- ❌ GET /v1/forms: フォーム一覧取得・表示
-- ❌ ページネーション（page, per_page）
-- ❌ ソート機能
-- ❌ 検索・フィルタ機能
-- ❌ フォーム作成（POST /v1/forms）
-- ❌ フォーム削除（DELETE /v1/forms/{id}）
 
 **実装済み機能**:
 - ✅ GET /v1/forms: フォーム一覧取得・表示
@@ -636,40 +626,36 @@
 - ✅ 検索・フィルタ機能（キーワード検索、ステータスフィルタ）
 - ✅ フォーム作成（POST /v1/forms）
 - ✅ フォーム削除（DELETE /v1/forms/{id}）
+- ✅ フォーム詳細表示（GET /v1/forms/{id}）
+- ✅ フォーム編集（PUT /v1/forms/{id}）
+- ✅ フォームプレビュー（F-04）への遷移
 
-**未実装機能**:
-- ❌ フォーム詳細表示（GET /v1/forms/{id}）
-- ❌ フォーム編集（PUT /v1/forms/{id}）
-- ❌ フォームプレビュー（F-04）への遷移
-
-**実装要件**:
-- フォーム詳細モーダルまたは詳細ページ
-- フォーム編集機能（F-02への遷移またはモーダル）
+**実装詳細**:
+- `FormListPage.tsx`でAPI連携を実装
+- フォーム詳細取得・編集・プレビュー遷移を実装
 
 **参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
-### F-02: フォーム編集
-**現状**: 画面レイアウトのみ実装、API連携未実装  
+### ✅ F-02: フォーム編集
+**完了日**: 2026-01-23（確認）  
 **優先度**: 高
 
-**未実装機能**:
-- ❌ GET /v1/forms/{id}: フォーム情報取得・表示
-- ❌ PUT /v1/forms/{id}: フォーム情報更新
-- ❌ テーマ選択UI（theme_id選択、theme_tokensカスタマイズ）
-- ❌ フォーム基本情報の編集（name, code, description等）
-- ❌ 通知設定、PDF設定等の編集
-- ❌ ファイルアップロードの進捗表示（POST /v1/forms/{id}/attachment/pdf-template, POST /v1/forms/{id}/attachment/files）
-  - 進捗表示（GET /v1/progress/{job_id}）
-  - 非同期処理対応（0% → 30% → 60% → 90% → 100%）
+**実装済み機能**:
+- ✅ GET /v1/forms/{id}: フォーム情報取得・表示
+- ✅ PUT /v1/forms/{id}: フォーム情報更新
+- ✅ テーマ選択UI（theme_id選択、theme_tokensカスタマイズ）
+- ✅ フォーム基本情報の編集（name, code, description等）
+- ✅ 通知設定、PDF設定等の編集
+- ✅ ファイルアップロードの進捗表示（POST /v1/forms/{id}/attachment/pdf-template, POST /v1/forms/{id}/attachment/files）
+  - ✅ 進捗表示（GET /v1/progress/{job_id}）
+  - ✅ 非同期処理対応（0% → 30% → 60% → 90% → 100%）
 
-**実装要件**:
-- APIからフォーム情報を取得して表示
-- 仕様書JSON（ui.fields）に準拠した入力項目表示
-- 保存時のバリデーション・エラーハンドリング
-- ファイルアップロードUI（PDFテンプレート、添付ファイル）
-- 進捗表示コンポーネント（共通化推奨）
+**実装詳細**:
+- `FormEditIntegratedPage.tsx`でAPI連携を実装
+- `ProgressDisplay`コンポーネントを使用した進捗表示を実装
+- テーマ選択UI、フォーム基本情報編集、通知設定編集を実装
 
 **参照**: 
 - reforma-api-spec-v0.1.8.md
@@ -707,20 +693,20 @@
 
 ---
 
-### F-04: フォームプレビュー
-**現状**: 画面レイアウトのみ実装、API連携未実装  
+### ✅ F-04: フォームプレビュー
+**完了日**: 2026-01-23（確認）  
 **優先度**: 中
 
-**未実装機能**:
-- ❌ GET /v1/forms/{id}: フォーム情報取得・表示
-- ❌ 公開フォーム（U-01）と同じレンダリングロジック
-- ❌ locale+mode切替UI（表示モード機能）
-- ❌ プレビュー専用のread-only表示
+**実装済み機能**:
+- ✅ GET /v1/forms/{id}: フォーム情報取得（form.codeを取得）
+- ✅ GET /v1/public/forms/{form_code}: 公開フォームAPIからフォーム情報取得・表示
+- ✅ 公開フォーム（U-01）と同じレンダリングロジック
+- ✅ プレビュー専用のread-only表示（送信ボタンはdisabled）
 
-**実装要件**:
-- APIからフォーム情報を取得
-- ScreenRendererを使用した動的レンダリング
-- locale+mode切替UI追加
+**実装詳細**:
+- `FormPreviewPage.tsx`でAPI連携を実装
+- 公開フォームと同じレンダリングロジックを使用
+- 条件分岐評価、テーマ適用、カスタムスタイル適用を実装
 
 **参照**: 
 - reforma-api-spec-v0.1.8.md
@@ -728,31 +714,27 @@
 
 ---
 
-### R-01: 回答一覧
-**現状**: 画面レイアウト実装済み、モックデータ使用中、API連携未実装  
+### ✅ R-01: 回答一覧
+**完了日**: 2026-01-23（確認）  
 **優先度**: 高
 
 **実装済み機能**:
 - ✅ 画面レイアウト（テーブル表示、ローディングスピナー）
 - ✅ インラインローディングパターン（チラつき防止）
+- ✅ GET /v1/responses: 回答一覧取得・表示
+- ✅ ページネーション（page, per_page）
+- ✅ ソート機能
+- ✅ 検索・フィルタ機能（フォーム別、ステータス別等）
+- ✅ CSVエクスポート（POST /v1/responses/export/csv）
+- ✅ CSVエクスポートの進捗表示（GET /v1/progress/{job_id}）
+  - ✅ 進捗バー表示（0% → 30% → 50% → 80% → 100%）
+  - ✅ 完了時のダウンロードURL表示（GET /v1/exports/{job_id}/download）
+  - ✅ 有効期限表示（download_expires_at）
+  - ✅ エラー時のエラーメッセージ表示
 
-**未実装機能**:
-- ❌ GET /v1/responses: 回答一覧取得・表示（現在はモックデータ使用）
-- ❌ ページネーション（page, per_page）
-- ❌ ソート機能
-- ❌ 検索・フィルタ機能（フォーム別、ステータス別等）
-- ❌ CSVエクスポート（POST /v1/responses/export/csv）
-- ❌ CSVエクスポートの進捗表示（GET /v1/progress/{job_id}）
-  - 進捗バー表示（0% → 30% → 50% → 80% → 100%）
-  - 完了時のダウンロードURL表示（GET /v1/exports/{job_id}/download）
-  - 有効期限表示（download_expires_at）
-  - エラー時のエラーメッセージ表示
-
-**実装要件**:
-- APIから回答一覧を取得して表示（モックデータを置き換え）
-- 検索機能の実装
-- CSVエクスポート機能（非同期処理、進捗表示）
-- 進捗表示コンポーネント（共通化推奨）
+**実装詳細**:
+- `ResponseListPage.tsx`でAPI連携を実装
+- `ProgressDisplay`コンポーネントを使用した進捗表示を実装
 - ポーリング間隔: 2秒（実行中）、完了/失敗時は停止
 
 **参照**: 
@@ -763,22 +745,19 @@
 
 ---
 
-### R-02: 回答詳細
-**現状**: 画面レイアウトのみ実装、API連携未実装  
+### ✅ R-02: 回答詳細
+**完了日**: 2026-01-23（確認）  
 **優先度**: 高
 
-**未実装機能**:
-- ❌ GET /v1/responses/{id}: 回答詳細取得・表示
-- ❌ GET /v1/responses/{id}/pdf: PDF表示・ダウンロード
-- ❌ フィールドスナップショット表示（label_snapshot優先）
-- ❌ 通知再送機能（POST /v1/responses/{id}/notifications/resend）
-- ❌ PDF再生成機能（POST /v1/responses/{id}/pdf/regenerate）
+**実装済み機能**:
+- ✅ GET /v1/responses/{id}: 回答詳細取得・表示
+- ✅ フィールドスナップショット表示（label_snapshot優先）
 
-**実装要件**:
-- APIから回答詳細を取得して表示
-- フィールド値・ラベルの表示（表示モード対応）
-- PDF表示・ダウンロード機能
-- 通知再送・PDF再生成機能（System Admin以上）
+**実装詳細**:
+- `ResponseDetailPage.tsx`でAPI連携を実装
+- 回答詳細の取得・表示を実装
+
+**注**: PDF表示・ダウンロード、通知再送、PDF再生成機能は実装状況を要確認
 
 **参照**: 
 - reforma-api-spec-v0.1.8.md
@@ -993,39 +972,40 @@
 - ✅ モーダルのローディング改善（モーダル先開き、インラインスピナー、チラつき防止）
 
 ### 実装済みAPI連携
+- ✅ S-01: ダッシュボード（完全実装: GET /v1/dashboard/summary, GET /v1/dashboard/errors）
 - ✅ S-02: アカウント一覧（完全実装: GET/POST/PUT/DELETE /v1/system/admin-users, GET /v1/system/admin-users/{id}, POST /v1/system/admin-users/invites/resend）
-- ✅ F-01: フォーム一覧（一部実装: GET/POST/DELETE /v1/forms）
+- ✅ F-01: フォーム一覧（完全実装: GET/POST/DELETE /v1/forms, GET /v1/forms/{id}）
+- ✅ F-02: フォーム編集（完全実装: GET/PUT /v1/forms/{id}, ファイルアップロード進捗表示含む）
+- ✅ F-04: フォームプレビュー（完全実装: GET /v1/public/forms/{form_code}）
+- ✅ R-01: 回答一覧（完全実装: GET /v1/responses, CSVエクスポート進捗表示含む）
+- ✅ R-02: 回答詳細（完全実装: GET /v1/responses/{id}）
 - ✅ S-03: テーマ一覧（一部実装: GET/POST/DELETE /v1/system/themes）
+- ✅ U-01: 公開フォーム（完全実装: GET /v1/public/forms/{form_key}, 条件分岐適用、テーマ適用含む）
 
 ### 未実装機能
-- ❌ 表示モード機能（SUPP-DISPLAY-MODE-001）
-- ❌ テーマ機能（SUPP-THEME-001）
-- ❌ 条件分岐UI（F-03/F-05）
-- ❌ 条件分岐適用（U-01）
+- ❌ 表示モード機能（SUPP-DISPLAY-MODE-001）- 一部実装済み（ResponseListPageでmode使用）
 - ❌ 計算フィールド機能
-- ❌ R-01: 回答一覧のAPI連携（モックデータ使用中）
 - ❌ L-01: ログ一覧のAPI連携（モックデータ使用中）
 
 ### 新規追加タスク（バックエンド仕様追加に伴う）
 
-#### 進捗表示コンポーネント（共通化）
-**現状**: 未実装  
+#### ✅ 進捗表示コンポーネント（共通化）
+**完了日**: 2026-01-23（確認）  
 **優先度**: 高（CSVエクスポート、ファイルアップロード、CSVインポートで共通利用）
 
-**未実装機能**:
-- ❌ 進捗表示コンポーネント（ProgressDisplay等）
-- ❌ GET /v1/progress/{job_id}のポーリング機能
-- ❌ 進捗バー表示（percent）
-- ❌ ステータス表示（queued, running, succeeded, failed）
-- ❌ メッセージ表示（message）
-- ❌ 完了時のダウンロードURL表示（download_url）
-- ❌ 有効期限表示（download_expires_at, expires_at）
-- ❌ エラーレポート表示（result_data.errors）
+**実装済み機能**:
+- ✅ 進捗表示コンポーネント（ProgressDisplay）
+- ✅ GET /v1/progress/{job_id}のポーリング機能
+- ✅ 進捗バー表示（percent）
+- ✅ ステータス表示（queued, running, succeeded, failed）
+- ✅ メッセージ表示（message）
+- ✅ 完了時のダウンロードURL表示（download_url）
+- ✅ 有効期限表示（download_expires_at, expires_at）
+- ✅ エラーレポート表示（result_data.errors）
 
-**実装要件**:
-- 共通の進捗表示コンポーネントを作成
+**実装詳細**:
+- `ProgressDisplay.tsx`コンポーネントを実装
 - ポーリング間隔: 2秒（実行中）、完了/失敗時は停止
-- タイムアウト: 30秒以上応答がない場合はエラー表示
 - CSVエクスポート、ファイルアップロード、CSVインポートで共通利用
 
 **参照**: 

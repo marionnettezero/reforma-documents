@@ -484,10 +484,10 @@ v1.xでは外部CSS URLを許可しないため、以下のCSPポリシーを適
 
 ### フロントエンド
 
-1. 公開フォーム表示時に`theme_id`と`theme_tokens`を取得
-2. フォームコンテナに`data-theme-id`属性を付与
-3. `theme_tokens`をCSS変数に展開
-4. プリセットテーマの定義と適用
+1. ✅ 公開フォーム表示時に`theme_id`と`theme_tokens`を取得
+2. ✅ フォームコンテナに`data-theme-id`属性を付与
+3. ✅ `theme_tokens`をCSS変数に展開
+4. ✅ プリセットテーマの定義と適用（バックエンドで管理、API経由で取得・適用）
 
 ## 参照
 

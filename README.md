@@ -55,8 +55,8 @@ ReForma の仕様ドキュメント管理リポジトリ。
 
 ### 正本
 
-- `latest/canonical/reforma-spec-v0.1.6.md`
-- `latest/canonical/reforma-spec-v0.1.6.json`
+- `latest/canonical/reforma-spec-v1.5.2.md`
+- `latest/canonical/reforma-spec-v1.5.2.json`
 
 ### OpenAPI 定義
 
