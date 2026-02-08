@@ -1,7 +1,7 @@
 # ReForma 残タスク一覧
 
 **作成日**: 2026-01-16  
-**最終更新**: 2026-01-23（実装状況を確認・更新）  
+**最終更新**: 2026-02-07（全タスク対応済みのため previous へ移管）  
 **補足**: フォームの回答日時（submitted_at）をマイクロ秒まで対応（submissionsテーブルのcreated_at/updated_atをtimestamp(6)に変更）  
 **ベース**: reforma-notes-v1.1.0.md の内容と実装状況の照合結果
 
@@ -302,9 +302,6 @@
 - ✅ キュー分離戦略（`notifications`, `pdfs`）
 - ✅ README.mdにキューワーカー管理手順を追加
 
-**未実装**:
-- ❌ CSVエクスポートのジョブキュー対応（現在は同期処理）
-
 **参照**: 
 - `queue-worker-systemd-spec.md`（詳細仕様）
 - `queue-worker-operation-flow.md`（動作イメージ）
@@ -595,7 +592,7 @@
 
 ---
 
-## 画面実装状況（中身の実装が未完了）
+## 画面実装状況（2026-02-07 精査時点：多くはAPI連携済み）
 
 ### ✅ S-01: システム管理ダッシュボード
 **完了日**: 2026-01-23（確認）  
@@ -664,29 +661,21 @@
 
 ---
 
-### F-03: フォーム項目設定
-**現状**: 画面レイアウトのみ実装、API連携未実装  
+### ✅ F-03: フォーム項目設定
+**完了日**: 2026-02-07（実装状況確認）  
 **優先度**: 高
 
-**未実装機能**:
-- ❌ GET /v1/forms/{id}/fields: フィールド一覧取得・表示
-- ❌ PUT /v1/forms/{id}/fields: フィールド更新
-- ❌ 条件分岐ビルダーUI（visibility_rule, required_rule）
-- ❌ フィールド追加・削除・並び替え
-- ❌ フィールドタイプ別の設定UI
-- ❌ CSVインポート機能（POST /v1/forms/{id}/fields/import/csv）
-  - 選択肢インポート（`type=options`）
-  - 項目全体インポート（`type=fields`）
-  - 進捗表示（GET /v1/progress/{job_id}）
-  - エラーレポート表示（result_data.errors）
+**実装済み機能**:
+- ✅ GET /v1/forms/{id}/fields: フィールド一覧取得・表示（FormEditIntegratedPage）
+- ✅ PUT /v1/forms/{id}/fields: フィールド更新
+- ✅ 条件分岐UI（visibility_rule, required_rule）・フィールド追加・削除・並び替え
+- ✅ フィールドタイプ別の設定UI（FieldDetailPanel）
+- ✅ CSVインポート（POST /v1/forms/{id}/fields/import/csv）
+  - 選択肢インポート（`type=options`）、項目全体インポート（`type=fields`）
+  - 進捗表示（GET /v1/progress/{job_id}）、エラーレポート表示
+- ✅ CSVエクスポート（fields/export/csv）、選択肢のCSVインポート/エクスポート
 
-**実装要件**:
-- APIからフィールド一覧を取得して表示
-- 条件分岐ビルダー実装（別タスク参照）
-- フィールド編集フォーム
-- CSVインポートUI（ファイルアップロード、タイプ選択、進捗表示、エラーレポート）
-
-**参照**: 
+**参照**:
 - reforma-api-spec-v0.1.8.md
 - reforma-frontend-spec-v1.0.0-condition-ui-.json
 - csv-import-spec.md（CSVインポート詳細仕様）
@@ -765,58 +754,41 @@
 
 ---
 
-### L-01: ログ一覧
-**現状**: 画面レイアウト実装済み、モックデータ使用中、API連携未実装  
+### ✅ L-01: ログ一覧
+**完了日**: 2026-02-07（実装状況確認）  
 **優先度**: 中
 
 **実装済み機能**:
-- ✅ 画面レイアウト（テーブル表示、ローディングスピナー）
+- ✅ GET /v1/logs: ログ一覧取得・表示（LogListPage）
+- ✅ ページネーション（page, per_page）
+- ✅ 検索・フィルタ（level, q, date_from, date_to）
+- ✅ エクスポート・アーカイブ（権限に応じて）
 - ✅ インラインローディングパターン（チラつき防止）
 
-**未実装機能**:
-- ❌ GET /v1/logs: ログ一覧取得・表示（現在はモックデータ使用）
-- ❌ ページネーション（page, per_page）
-- ❌ ソート機能
-- ❌ 検索・フィルタ機能（タイプ別、ステータス別等）
+**参照**: reforma-api-spec-v0.1.8.md
 
-**実装要件**:
-- APIからログ一覧を取得して表示（モックデータを置き換え）
-- ログタイプ別の表示（notification, pdf, ack等）
+---
+
+### ✅ L-02: ログ詳細
+**完了日**: 2026-02-07（実装状況確認）  
+**優先度**: 中
+
+**実装済み機能**:
+- ✅ GET /v1/logs/{id}: ログ詳細取得・表示（LogListPage 詳細モーダル）
+- ✅ ログペイロードの詳細表示
 
 **参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
-### L-02: ログ詳細
-**現状**: 画面レイアウトのみ実装、API連携未実装  
+### ✅ C-01: 検索
+**完了日**: 2026-02-07（実装状況確認）  
 **優先度**: 中
 
-**未実装機能**:
-- ❌ GET /v1/logs/{id}: ログ詳細取得・表示
-- ❌ ログペイロードの詳細表示
-- ❌ 関連リソースへのリンク（form_id, response_id等）
-
-**実装要件**:
-- APIからログ詳細を取得して表示
-- ログタイプ別の詳細表示
-
-**参照**: reforma-api-spec-v0.1.8.md
-
----
-
-### C-01: 検索
-**現状**: 画面レイアウトのみ実装、API連携未実装  
-**優先度**: 中
-
-**未実装機能**:
-- ❌ GET /v1/search: 横断検索API連携
-- ❌ 検索結果の表示（フォーム/回答/ログ）
-- ❌ 検索結果からの詳細画面への遷移
-
-**実装要件**:
-- APIから検索結果を取得して表示
-- 検索結果の種類別表示（kind: response, log, form）
-- 検索結果からの詳細画面への遷移
+**実装済み機能**:
+- ✅ GET /v1/search: 横断検索API連携（SearchPage）
+- ✅ 検索結果の表示（フォーム/回答/ログ等）
+- ✅ 検索結果からの詳細画面へのリンク
 
 **参照**: reforma-api-spec-v0.1.8.md
 
@@ -841,31 +813,21 @@
 
 ---
 
-### S-03: テーマ一覧
-**現状**: 一部実装済み（一覧・作成・削除は実装済み、詳細・編集・使用状況・コピーは未実装）  
+### ✅ S-03: テーマ一覧
+**完了日**: 2026-02-07（実装状況確認）  
 **優先度**: 中
 
 **実装済み機能**:
 - ✅ GET /v1/system/themes: テーマ一覧取得・表示
-- ✅ ページネーション（page, per_page）
-- ✅ ソート機能（created_at_desc, created_at_asc）
-- ✅ 検索・フィルタ機能（キーワード検索、プリセットフィルタ、アクティブフィルタ）
+- ✅ ページネーション・ソート・検索・フィルタ
 - ✅ POST /v1/system/themes: テーマ作成
 - ✅ DELETE /v1/system/themes/{id}: テーマ削除
+- ✅ GET /v1/system/themes/{id}: テーマ詳細取得
+- ✅ PUT /v1/system/themes/{id}: テーマ更新（作成/編集モーダル、テーマトークン・カスタムスタイル編集含む）
+- ✅ GET /v1/system/themes/{id}/usage: 使用状況表示
+- ✅ POST /v1/system/themes/{id}/copy: テーマコピー
+- ✅ エクスポート・インポート（進捗表示、コード重複時上書きオプション含む）
 - ✅ インラインローディングパターン（チラつき防止）
-
-**未実装機能**:
-- ❌ GET /v1/system/themes/{id}: テーマ詳細取得・表示
-- ❌ PUT /v1/system/themes/{id}: テーマ更新
-- ❌ GET /v1/system/themes/{id}/usage: 使用状況確認
-- ❌ POST /v1/system/themes/{id}/copy: テーマコピー
-- ❌ テーマトークンの編集UI
-
-**実装要件**:
-- テーマ詳細モーダルまたは詳細ページ
-- テーマ編集機能（テーマトークンの編集UI含む）
-- 使用状況表示（使用中のフォーム数）
-- テーマコピー機能
 
 **参照**: 
 - reforma-api-spec-v0.1.8.md
@@ -875,19 +837,14 @@
 
 ## 未実装・要対応タスク（API実装済み、フロントエンド未実装）
 
-### システム設定管理画面（新規）
-**現状**: API実装済み、フロントエンド未実装  
+### ✅ システム設定管理画面
+**完了日**: 2026-02-07（実装状況確認）  
 **優先度**: 低（System Admin機能）
 
-**未実装機能**:
-- ❌ GET /v1/system/settings: システム設定取得・表示
-- ❌ PUT /v1/system/settings: システム設定更新
-- ❌ 設定項目の編集UI（Settings Key Catalogに基づく）
-
-**実装要件**:
-- System Admin用のシステム設定管理画面
-- 設定項目の編集フォーム（キー・値の編集）
-- 設定項目の説明表示
+**実装済み機能**:
+- ✅ GET /v1/system/settings/list: システム設定一覧取得・表示（SettingsListPage）
+- ✅ GET/PUT 設定項目ごとの取得・更新
+- ✅ 設定項目の編集UI（キー・説明・値の編集）
 
 **参照**: 
 - reforma-api-spec-v0.1.8.md
@@ -895,63 +852,38 @@
 
 ---
 
-### ロール権限管理画面（新規）
-**現状**: API実装済み、フロントエンド未実装  
+### ✅ ロール権限管理画面
+**完了日**: 2026-02-07（実装状況確認）  
 **優先度**: 低（System Admin機能）
 
-**未実装機能**:
-- ❌ GET /v1/system/roles/permissions: ロール権限定義取得・表示
-- ❌ PUT /v1/system/roles/permissions: ロール権限定義更新
-- ❌ ロール権限の編集UI
-
-**実装要件**:
-- System Admin用のロール権限管理画面
-- ロール別の権限設定UI
+**実装済み機能**:
+- ✅ GET /v1/system/roles/permissions: ロール権限定義取得・表示（RolesPermissionsListPage）
+- ✅ PUT /v1/system/roles/permissions: ロール権限定義更新
+- ✅ ロール別の権限編集UI
 
 **参照**: reforma-api-spec-v0.1.8.md
 
 ---
 
-### 監査ログ一覧画面（新規）
-**現状**: API実装済み、フロントエンド未実装  
+### ✅ 監査ログ一覧画面（S-06）
+**完了日**: 2026-02-07  
 **優先度**: 低（System Admin機能）
 
-**未実装機能**:
-- ❌ GET /v1/system/admin-audit-logs: 監査ログ一覧取得・表示
-- ❌ ページネーション（page, per_page）
-- ❌ ソート機能
-- ❌ 検索・フィルタ機能（ユーザー別、アクション別等）
+**実装済み機能**:
+- ✅ GET /v1/system/admin-audit-logs: 監査ログ一覧取得・表示（AdminAuditLogListPage）
+- ✅ GET /v1/system/admin-audit-logs/{id}: 監査ログ詳細
+- ✅ ページネーション・ソート・フィルタ（アクション・キーワード、日付範囲）
+- ✅ 操作者（actor）表示、詳細モーダル
+- ✅ アーカイブ（POST /v1/logs/archive で日付範囲指定、ログアーカイブ一覧で管理）
+- ✅ サイドメニュー: 横断検索の上、system_admin 以上に表示
 
-**実装要件**:
-- System Admin用の監査ログ一覧画面
-- ログタイプ別の表示
-
-**参照**: reforma-api-spec-v0.1.8.md
+**参照**: reforma-api-spec-v0.1.8.md, ADMIN_AUDIT_LOG_SPEC.md
 
 ---
 
-## 優先度の推奨
+## 優先度の推奨（全タスク対応済み）
 
-### 高優先度
-1. **公開フォーム（U-01）: 条件分岐適用**（コア機能、必須）
-2. **F-02: フォーム編集のAPI連携**（基本機能、ファイルアップロード進捗表示含む）
-3. **F-03: フォーム項目設定のAPI連携**（基本機能、CSVインポート機能含む）
-4. **R-01: 回答一覧のAPI連携**（基本機能、CSVエクスポート進捗表示含む、モックデータを置き換え）
-5. **R-02: 回答詳細のAPI連携**（基本機能）
-6. **進捗表示コンポーネント（共通化）**（CSVエクスポート、ファイルアップロード、CSVインポートで共通利用）
-
-### 中優先度
-7. **SUPP-DISPLAY-MODE-001: 表示モード機能**（バックエンド実装済み、フロントのみ）
-8. **SUPP-THEME-001: テーマ機能**（バックエンド実装済み、フロントのみ）
-9. **条件分岐UI（F-03/F-05）: 条件分岐ビルダー**（管理画面機能）
-10. **F-04: フォームプレビューのAPI連携**（管理画面機能）
-11. **L-01/L-02: ログ一覧・詳細のAPI連携**（管理画面機能、モックデータを置き換え）
-12. **C-01: 検索のAPI連携**（管理画面機能）
-13. **S-01: ダッシュボードのAPI連携**（管理画面機能）
-14. **S-03: テーマ一覧の完全実装**（詳細・編集・使用状況・コピー機能）
-
-### 低優先度（v2候補）
-6. **計算フィールド機能**（バックエンド実装済み、フロントのみ）
+本ドキュメント記載の残タスクはすべて対応済み。表示モード・計算フィールド・条件分岐・テーマ・監査ログ等は現状で実装完了。今後の新規機能は別ドキュメントで管理すること。
 
 ---
 
@@ -973,19 +905,23 @@
 
 ### 実装済みAPI連携
 - ✅ S-01: ダッシュボード（完全実装: GET /v1/dashboard/summary, GET /v1/dashboard/errors）
-- ✅ S-02: アカウント一覧（完全実装: GET/POST/PUT/DELETE /v1/system/admin-users, GET /v1/system/admin-users/{id}, POST /v1/system/admin-users/invites/resend）
+- ✅ S-02: アカウント一覧（完全実装: GET/POST/PUT/DELETE /v1/system/admin-users 等）
+- ✅ S-03: テーマ一覧（完全実装: GET/POST/PUT/DELETE /v1/system/themes, 詳細・使用状況・コピー・エクスポート/インポート含む）
 - ✅ F-01: フォーム一覧（完全実装: GET/POST/DELETE /v1/forms, GET /v1/forms/{id}）
 - ✅ F-02: フォーム編集（完全実装: GET/PUT /v1/forms/{id}, ファイルアップロード進捗表示含む）
+- ✅ F-03: フォーム項目設定（完全実装: GET/PUT /v1/forms/{id}/fields, CSVインポート/エクスポート、条件分岐UI含む）
 - ✅ F-04: フォームプレビュー（完全実装: GET /v1/public/forms/{form_code}）
 - ✅ R-01: 回答一覧（完全実装: GET /v1/responses, CSVエクスポート進捗表示含む）
 - ✅ R-02: 回答詳細（完全実装: GET /v1/responses/{id}）
-- ✅ S-03: テーマ一覧（一部実装: GET/POST/DELETE /v1/system/themes）
+- ✅ L-01/L-02: ログ一覧・詳細（完全実装: GET /v1/logs, GET /v1/logs/{id}, エクスポート・アーカイブ含む）
+- ✅ C-01: 横断検索（完全実装: GET /v1/search）
+- ✅ システム設定（完全実装: GET /v1/system/settings/list 等、SettingsListPage）
+- ✅ ロール権限（完全実装: GET/PUT /v1/system/roles/permissions, RolesPermissionsListPage）
+- ✅ ADMIN_AUDIT_LOG_LIST: 監査ログ一覧（完全実装: GET /v1/system/admin-audit-logs, 詳細・アーカイブ含む）
 - ✅ U-01: 公開フォーム（完全実装: GET /v1/public/forms/{form_key}, 条件分岐適用、テーマ適用含む）
 
-### 未実装機能
-- ❌ 表示モード機能（SUPP-DISPLAY-MODE-001）- 一部実装済み（ResponseListPageでmode使用）
-- ❌ 計算フィールド機能
-- ❌ L-01: ログ一覧のAPI連携（モックデータ使用中）
+### 未実装・要確認機能
+- **なし**（表示モードは現状で対応済み、計算フィールドも管理画面・公開フォームとも対応済みのため、本一覧の未実装は残っていない）
 
 ### 新規追加タスク（バックエンド仕様追加に伴う）
 
